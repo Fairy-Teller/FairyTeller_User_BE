@@ -63,7 +63,6 @@ public class UserController {
         );
 
         if(user != null) {
-
             final String token = tokenProvider.create(user);
 
             final UserDTO responseUserDTO = UserDTO.builder()
