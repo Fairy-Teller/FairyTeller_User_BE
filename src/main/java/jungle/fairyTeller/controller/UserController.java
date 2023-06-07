@@ -36,7 +36,7 @@ public class UserController {
             }
             // 1. 저장할 user 만들기
             UserEntity user = UserEntity.builder()
-                    .userid(userDTO.getUserid())
+                    .userId(userDTO.getUserid())
                     .nickname(userDTO.getNickname())
                     .password(passwordEncoder.encode(userDTO.getPassword()))
                     .build();
@@ -45,7 +45,7 @@ public class UserController {
 
             UserDTO responseUserDTO = UserDTO.builder()
                     .id(registeredUser.getId())
-                    .userid(registeredUser.getUserid())
+                    .userid(registeredUser.getUserId())
                     .nickname(registeredUser.getNickname())
                     .build();
             return ResponseEntity.ok().body(responseUserDTO);
@@ -67,7 +67,7 @@ public class UserController {
             final String token = tokenProvider.create(user);
 
             final UserDTO responseUserDTO = UserDTO.builder()
-                    .userid(user.getUserid())
+                    .userid(user.getUserId())
                     .id(user.getId())
                     .nickname(user.getNickname())
                     .token(token)

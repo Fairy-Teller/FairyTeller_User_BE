@@ -58,11 +58,11 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 
         UserEntity userEntity = null;
 
-        if (!userRepository.existsByUserid(loginId)) {
-            userEntity = UserEntity.builder().userid(loginId).nickname(username).authorize(providerId).build();
+        if (!userRepository.existsByUserId(loginId)) {
+            userEntity = UserEntity.builder().userId(loginId).nickname(username).authorize(providerId).build();
             userEntity = userRepository.save(userEntity);
         } else {
-            userEntity = userRepository.findByUserid(loginId);
+            userEntity = userRepository.findByUserId(loginId);
         }
 
         log.info("Successfully pulled user info username {} nickname {} authProvider {}", loginId , username, providerId);
