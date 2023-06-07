@@ -1,0 +1,42 @@
+package jungle.fairyTeller.service;
+
+import jungle.fairyTeller.entity.UserEntity;
+import jungle.fairyTeller.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public UserEntity create(final UserEntity userEntity) {
+        if (userEntity == null || userEntity.getUserid() == null) {
+            throw new RuntimeException("Invalid arguments");
+        }
+        final String userid = userEntity.getUserid();
+        if (userRepository.existsByUserid(userid)) {
+            log.warn("Userid already exists {}", userid);
+            throw new RuntimeException("Userid already exists");
+        }
+        final String nickname = userEntity.getNickname();
+        if (userRepository.existsByNickname(nickname)) {
+            log.warn("Nickname already exists {}", nickname);
+            throw new RuntimeException("Nickname already exists");
+        }
+        return userRepository.save(userEntity);
+    }
+
+    public UserEntity getByCredentials(final String userid, final String password, final PasswordEncoder encoder) {
+
+        final UserEntity originalUser = userRepository.findByUserid(userid);
+        if (originalUser != null && encoder.matches(password, originalUser.getPassword())) {
+            return originalUser;
+        }
+        return null;
+    }
+}
