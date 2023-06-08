@@ -54,8 +54,13 @@ public class UserController {
     }
 
     @GetMapping("/signup/check-userid")
-    public boolean checkUserIdAvailability(@RequestParam(value = "uid") String userid) {
+    public boolean checkUserIdAvailability(@RequestParam(value = "userid") String userid) {
         return userService.isUserIdAvailable(userid);
+    }
+
+    @GetMapping("/signup/check-nickname")
+    public boolean checkNicknameAvailability(@RequestParam(value = "nickname") String nickname) {
+        return userService.isNicknameAvailable(nickname);
     }
 
     @PostMapping("/signin")

@@ -43,4 +43,8 @@ public class UserService {
     public boolean isUserIdAvailable(String userId) {
         return userRepository.findByUserId(userId) == null;
     }
+
+    public boolean isNicknameAvailable(String nickname) {
+        return userRepository.findByNickname(nickname) == null;
+    }
 }
