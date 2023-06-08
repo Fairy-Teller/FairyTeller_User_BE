@@ -1,7 +1,10 @@
 package jungle.fairyTeller.security;
 
+import lombok.AllArgsConstructor;
+
 import java.util.Map;
 
+@AllArgsConstructor
 public class GoogleUserInfo implements OAuth2UserInfo {
 
     private Map<String, Object> attributes;

@@ -4,10 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jungle.fairyTeller.entity.UserEntity;
 import jungle.fairyTeller.repository.UserRepository;
-import jungle.fairyTeller.security.ApplicationOAuth2User;
-import jungle.fairyTeller.security.KakaoUserInfo;
-import jungle.fairyTeller.security.NaverUserInfo;
-import jungle.fairyTeller.security.OAuth2UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -50,6 +46,9 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
         } else if(provider.equals("naver")) {
             log.info("네이버 로그인 요청");
             oAuth2UserInfo = new NaverUserInfo( (Map)oAuth2User.getAttributes().get("response") );
+        } else if(provider.equals("google")) {
+            log.info("구글 로그인 요청");
+            oAuth2UserInfo = new GoogleUserInfo((Map)oAuth2User.getAttributes());
         }
 
         final String providerId = oAuth2UserInfo.getProviderId();
