@@ -2,8 +2,8 @@ package jungle.fairyTeller.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jungle.fairyTeller.entity.UserEntity;
-import jungle.fairyTeller.repository.UserRepository;
+import jungle.fairyTeller.user.entity.UserEntity;
+import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;

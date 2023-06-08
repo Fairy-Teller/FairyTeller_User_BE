@@ -1,7 +1,7 @@
-package jungle.fairyTeller.service;
+package jungle.fairyTeller.user.service;
 
-import jungle.fairyTeller.entity.UserEntity;
-import jungle.fairyTeller.repository.UserRepository;
+import jungle.fairyTeller.user.entity.UserEntity;
+import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

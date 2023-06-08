@@ -1,6 +1,6 @@
-package jungle.fairyTeller.repository;
+package jungle.fairyTeller.user.repository;
 
-import jungle.fairyTeller.entity.UserEntity;
+import jungle.fairyTeller.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

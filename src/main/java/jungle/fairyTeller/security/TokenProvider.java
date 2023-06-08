@@ -3,7 +3,7 @@ package jungle.fairyTeller.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import jungle.fairyTeller.entity.UserEntity;
+import jungle.fairyTeller.user.entity.UserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;

@@ -1,10 +1,10 @@
-package jungle.fairyTeller.controller;
+package jungle.fairyTeller.user.controller;
 
-import jungle.fairyTeller.dto.ResponseDTO;
-import jungle.fairyTeller.dto.UserDTO;
-import jungle.fairyTeller.entity.UserEntity;
+import jungle.fairyTeller.user.dto.ResponseDTO;
+import jungle.fairyTeller.user.dto.UserDTO;
+import jungle.fairyTeller.user.entity.UserEntity;
 import jungle.fairyTeller.security.TokenProvider;
-import jungle.fairyTeller.service.UserService;
+import jungle.fairyTeller.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
