@@ -39,4 +39,8 @@ public class UserService {
         }
         return null;
     }
+
+    public boolean isUserIdAvailable(String userId) {
+        return userRepository.findByUserId(userId) == null;
+    }
 }
