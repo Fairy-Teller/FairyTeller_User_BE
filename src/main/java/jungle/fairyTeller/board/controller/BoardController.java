@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,4 +55,17 @@ public class BoardController {
         return ResponseDto.<BoardDto>builder().data(dtos).build();
     }
 
+    @GetMapping("/{boardId}")
+    public ResponseEntity<ResponseDto<BoardDto>> getBoardById(@PathVariable Integer boardId) {
+        Optional<BoardEntity> boardOptional = Optional.ofNullable(boardService.getBoardById(boardId));
+        if (boardOptional.isPresent()) {
+            BoardEntity board = boardOptional.get();
+            BoardDto boardDto = new BoardDto(board);
+            ResponseDto<BoardDto> response = new ResponseDto<>();
+            response.setData(Collections.singletonList(boardDto));
+            return ResponseEntity.ok().body(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

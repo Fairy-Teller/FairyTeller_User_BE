@@ -29,4 +29,10 @@ public class BoardService {
             throw new ServiceException("Failed to save the board");
         }
     }
+
+    @Transactional(readOnly = true)
+    public BoardEntity getBoardById(Integer boardId) {
+        return boardRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
+    }
 }
