@@ -38,7 +38,6 @@ public class BookController {
         try {
             BookEntity entity = BookDTO.toEntity(dto);
             entity.setAuthor(Integer.parseInt(userId));
-            log.info("{}", userId);
             List<BookEntity> entities = service.create(entity);
             List<BookDTO> dtos = entities.stream().map(BookDTO::new).collect(Collectors.toList());
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().data(dtos).build();
