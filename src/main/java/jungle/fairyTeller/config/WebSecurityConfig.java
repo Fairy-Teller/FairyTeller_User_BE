@@ -34,7 +34,7 @@ public class WebSecurityConfig{
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests().antMatchers("/", "/auth/**", "/oauth2/**","/chat-gpt/**").permitAll()
+                .authorizeRequests().antMatchers("/", "/auth/**", "/oauth2/**").permitAll()
                 .anyRequest().authenticated() // /와 /auth/** 이외의 모든 경로는 인증해야함
                 .and()
                 .oauth2Login()

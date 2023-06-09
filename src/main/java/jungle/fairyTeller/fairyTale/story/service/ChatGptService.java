@@ -1,8 +1,8 @@
-package jungle.fairyTeller.fairyTale.service;
+package jungle.fairyTeller.fairyTale.story.service;
 
-import jungle.fairyTeller.fairyTale.dto.ChatGptRequestDto;
-import jungle.fairyTeller.fairyTale.dto.ChatGptResponseDto;
-import jungle.fairyTeller.fairyTale.dto.QuestionRequestDto;
+import jungle.fairyTeller.fairyTale.story.dto.ChatGptRequestDto;
+import jungle.fairyTeller.fairyTale.story.dto.ChatGptResponseDto;
+import jungle.fairyTeller.fairyTale.story.dto.QuestionRequestDto;
 import jungle.fairyTeller.config.ChatGptConfig;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

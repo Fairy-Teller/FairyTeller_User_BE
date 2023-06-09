@@ -1,4 +1,4 @@
-package jungle.fairyTeller.fairyTale.dto;
+package jungle.fairyTeller.fairyTale.story.dto;
 
 import lombok.Getter;
 

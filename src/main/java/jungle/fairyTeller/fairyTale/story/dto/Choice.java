@@ -1,4 +1,4 @@
-package jungle.fairyTeller.fairyTale.dto;
+package jungle.fairyTeller.fairyTale.story.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
