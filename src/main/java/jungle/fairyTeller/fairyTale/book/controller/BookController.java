@@ -32,6 +32,20 @@ public class BookController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("/my-newest")
+    public ResponseEntity<?> getNewestBookByUserId(@AuthenticationPrincipal String userId) {
+        BookEntity book = service.retrieveLatestByUserId(Integer.parseInt(userId));
+
+        BookDTO dto = BookDTO.builder()
+                .bookId(book.getBookId())
+                .author(book.getAuthor())
+                .title(book.getTitle())
+                .thumbnailUrl(book.getThumbnailUrl())
+                .build();
+
+        return ResponseEntity.ok().body(dto);
+    }
+
     @PostMapping
     // 책을 만들면 해당 userId로 만든 모든 책을 반환한다
     public ResponseEntity<?> createBook(@AuthenticationPrincipal String userId, @RequestBody BookDTO dto) {
