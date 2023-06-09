@@ -16,11 +16,13 @@ public class BoardDto {
     private Integer author;
     private String title;
     private String content;
+    private String thumbnailUrl;
     public BoardDto(final BoardEntity entity) {
         this.boardId = entity.getBoardId();
         this.bookId = entity.getBookId();
         this.author = entity.getAuthor();
         this.title = entity.getTitle();
+        this.thumbnailUrl = entity.getThumbnailUrl();
         this.content = entity.getContent();
     }
     public static BoardEntity toEntity(final BoardDto dto) {
@@ -30,6 +32,7 @@ public class BoardDto {
                 .author(dto.getAuthor())
                 .title(dto.getTitle())
                 .content(dto.getContent())
+                .thumbnailUrl(dto.getThumbnailUrl())
                 .build();
     }
 }

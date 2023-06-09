@@ -26,6 +26,7 @@ public class BoardEntity {
     @Column(nullable = false)
     private String title;
     private String content;
+    private String thumbnailUrl;
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
 }
