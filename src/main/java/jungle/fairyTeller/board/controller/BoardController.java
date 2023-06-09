@@ -20,6 +20,18 @@ import java.util.stream.Collectors;
 public class BoardController {
     @Autowired
     private BoardService boardService;
+    // 게시글을 저장한다
+    @PostMapping("/save")
+    public ResponseEntity<?> saveBoard(@RequestBody BoardDto boardDto) {
+        try {
+            BoardEntity boardEntity = BoardDto.toEntity(boardDto);
+            BoardEntity savedBoard = boardService.saveBoard(boardEntity);
+            return ResponseEntity.ok(savedBoard.getBoardId());
+        } catch (Exception e) {
+            log.error("Failed to save the board", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     // 모든 Board를 반환한다
     @GetMapping
@@ -34,4 +46,5 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 }
