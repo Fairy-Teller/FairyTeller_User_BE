@@ -29,6 +29,10 @@ public class BookService {
         return bookRepository.findAllByAuthor(userId);
     }
 
+    public BookEntity retrieveLatestByUserId(final Integer userId) {
+        return bookRepository.findLatestByAuthor(userId);
+    }
+
     private void validate(final BookEntity entity) {
         if(entity == null) {
             log.warn("Entity cannot be null");
