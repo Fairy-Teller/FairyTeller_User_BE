@@ -7,11 +7,14 @@ import jungle.fairyTeller.board.entity.BoardEntity;
 import jungle.fairyTeller.board.entity.CommentEntity;
 import jungle.fairyTeller.board.service.BoardService;
 import jungle.fairyTeller.board.service.CommentService;
+import jungle.fairyTeller.user.entity.UserEntity;
+import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -27,6 +30,8 @@ public class BoardController {
     private BoardService boardService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private UserRepository userRepository;
     // 게시글을 저장한다
     @PostMapping("/save")
     public ResponseEntity<ResponseDto<BoardDto>> saveBoard(@RequestBody BoardDto boardDto) {
@@ -75,10 +80,14 @@ public class BoardController {
     }
 
     @PostMapping("/{boardId}/comment")
-    public ResponseEntity<ResponseDto<CommentDto>> saveComment(@PathVariable Long boardId, @RequestBody CommentDto commentDto) {
+    public ResponseEntity<ResponseDto<CommentDto>> saveComment(@PathVariable Long boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
         try {
+            UserEntity user = userRepository.findById(Integer.parseInt(userId))
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
             CommentEntity commentEntity = CommentDto.toEntity(commentDto);
             commentEntity.setBoardId(boardId);
+            commentEntity.setAuthor(user.getNickname()); // Set the author as the user's nickname
             CommentEntity savedComment = commentService.saveComment(commentEntity);
             CommentDto savedCommentDto = new CommentDto(savedComment);
             ResponseDto<CommentDto> response = new ResponseDto<>();
@@ -89,4 +98,7 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+
 }
