@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class UserService {
@@ -29,6 +31,25 @@ public class UserService {
             throw new RuntimeException("Nickname already exists");
         }
         return userRepository.save(userEntity);
+    }
+
+    public UserEntity update(final UserEntity userEntity) {
+        if (userEntity == null || userEntity.getUserId() == null) {
+            throw new RuntimeException("Invalid arguments");
+        }
+        final UserEntity originalUser = userRepository.findByUserId(userEntity.getUserId());
+        if (!originalUser.getNickname().equals(userEntity.getNickname()) && userRepository.existsByNickname(userEntity.getNickname())) {
+            throw new RuntimeException("Nickname already exists");
+        }
+        originalUser.setNickname(userEntity.getNickname());
+        originalUser.setPassword(userEntity.getPassword());
+        return userRepository.save(originalUser);
+    }
+
+
+    public Optional<UserEntity> getUserById(final Integer id) {
+        final Optional<UserEntity> originalUser = userRepository.findById(id);
+        return originalUser;
     }
 
     public UserEntity getByCredentials(final String userId, final String password, final PasswordEncoder encoder) {
