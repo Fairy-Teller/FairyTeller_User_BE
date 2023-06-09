@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class UserService {
@@ -31,6 +33,25 @@ public class UserService {
         return userRepository.save(userEntity);
     }
 
+    public UserEntity update(final UserEntity userEntity) {
+        if (userEntity == null || userEntity.getUserId() == null) {
+            throw new RuntimeException("Invalid arguments");
+        }
+        final UserEntity originalUser = userRepository.findByUserId(userEntity.getUserId());
+        if (!originalUser.getNickname().equals(userEntity.getNickname()) && userRepository.existsByNickname(userEntity.getNickname())) {
+            throw new RuntimeException("Nickname already exists");
+        }
+        originalUser.setNickname(userEntity.getNickname());
+        originalUser.setPassword(userEntity.getPassword());
+        return userRepository.save(originalUser);
+    }
+
+
+    public Optional<UserEntity> getUserById(final Integer id) {
+        final Optional<UserEntity> originalUser = userRepository.findById(id);
+        return originalUser;
+    }
+
     public UserEntity getByCredentials(final String userId, final String password, final PasswordEncoder encoder) {
 
         final UserEntity originalUser = userRepository.findByUserId(userId);
@@ -38,5 +59,13 @@ public class UserService {
             return originalUser;
         }
         return null;
+    }
+
+    public boolean isUserIdAvailable(String userId) {
+        return userRepository.findByUserId(userId) == null;
+    }
+
+    public boolean isNicknameAvailable(String nickname) {
+        return userRepository.findByNickname(nickname) == null;
     }
 }
