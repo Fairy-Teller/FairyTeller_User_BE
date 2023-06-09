@@ -1,9 +1,12 @@
 package jungle.fairyTeller.board.controller;
 
 import jungle.fairyTeller.board.dto.BoardDto;
+import jungle.fairyTeller.board.dto.CommentDto;
 import jungle.fairyTeller.board.dto.ResponseDto;
 import jungle.fairyTeller.board.entity.BoardEntity;
+import jungle.fairyTeller.board.entity.CommentEntity;
 import jungle.fairyTeller.board.service.BoardService;
+import jungle.fairyTeller.board.service.CommentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,8 @@ import java.util.stream.Collectors;
 public class BoardController {
     @Autowired
     private BoardService boardService;
+    @Autowired
+    private CommentService commentService;
     // 게시글을 저장한다
     @PostMapping("/save")
     public ResponseEntity<ResponseDto<BoardDto>> saveBoard(@RequestBody BoardDto boardDto) {
@@ -66,6 +71,22 @@ public class BoardController {
             return ResponseEntity.ok().body(response);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{boardId}/comment")
+    public ResponseEntity<ResponseDto<CommentDto>> saveComment(@PathVariable Long boardId, @RequestBody CommentDto commentDto) {
+        try {
+            CommentEntity commentEntity = CommentDto.toEntity(commentDto);
+            commentEntity.setBoardId(boardId);
+            CommentEntity savedComment = commentService.saveComment(commentEntity);
+            CommentDto savedCommentDto = new CommentDto(savedComment);
+            ResponseDto<CommentDto> response = new ResponseDto<>();
+            response.setData(Collections.singletonList(savedCommentDto));
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            log.error("Failed to save the comment", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
