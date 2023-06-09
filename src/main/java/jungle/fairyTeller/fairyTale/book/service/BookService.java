@@ -1,7 +1,7 @@
-package jungle.fairyTeller.book.service;
+package jungle.fairyTeller.fairyTale.book.service;
 
-import jungle.fairyTeller.book.entity.BookEntity;
-import jungle.fairyTeller.book.repository.BookRepository;
+import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
+import jungle.fairyTeller.fairyTale.book.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
-package jungle.fairyTeller.book.dto;
+package jungle.fairyTeller.fairyTale.book.dto;
 
-import jungle.fairyTeller.book.entity.BookEntity;
+import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

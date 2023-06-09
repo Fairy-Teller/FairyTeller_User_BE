@@ -1,4 +1,4 @@
-package jungle.fairyTeller.book.dto;
+package jungle.fairyTeller.fairyTale.book.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

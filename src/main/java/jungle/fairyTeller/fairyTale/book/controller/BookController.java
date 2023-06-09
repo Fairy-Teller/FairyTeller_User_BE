@@ -1,9 +1,9 @@
-package jungle.fairyTeller.book.controller;
+package jungle.fairyTeller.fairyTale.book.controller;
 
-import jungle.fairyTeller.book.dto.BookDTO;
-import jungle.fairyTeller.book.dto.ResponseDTO;
-import jungle.fairyTeller.book.entity.BookEntity;
-import jungle.fairyTeller.book.service.BookService;
+import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
+import jungle.fairyTeller.fairyTale.book.dto.ResponseDTO;
+import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
+import jungle.fairyTeller.fairyTale.book.service.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

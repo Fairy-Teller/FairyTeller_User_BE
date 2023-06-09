@@ -1,6 +1,6 @@
-package jungle.fairyTeller.book.repository;
+package jungle.fairyTeller.fairyTale.book.repository;
 
-import jungle.fairyTeller.book.entity.BookEntity;
+import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

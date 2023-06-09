@@ -1,4 +1,4 @@
-package jungle.fairyTeller.book.entity;
+package jungle.fairyTeller.fairyTale.book.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
