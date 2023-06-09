@@ -32,7 +32,7 @@ public class ChatGptService {
     }
 
     public ChatGptResponseDto askQuestion(QuestionRequestDto requestDto) {
-        String question = requestPasing(requestDto);
+        String question = requestParsing(requestDto);
         System.out.println(question);
         return this.getResponse(
                 this.buildHttpEntity(
@@ -47,7 +47,7 @@ public class ChatGptService {
         );
     }
 
-    public String requestPasing(QuestionRequestDto requestDto){
+    public String requestParsing(QuestionRequestDto requestDto){
         return "'"+requestDto.getParameter1()+"',"
                 +"'"+requestDto.getParameter2()+"',"
                 +"'"+requestDto.getParameter3()+"'"
