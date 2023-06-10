@@ -21,7 +21,7 @@ public class CommentEntity {
     private Long commentId;
 
     @Column(nullable = false)
-    private Long boardId;
+    private Integer boardId;
 
     @Column(nullable = false)
     private String content;

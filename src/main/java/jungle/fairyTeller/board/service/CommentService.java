@@ -16,11 +16,11 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public List<CommentEntity> getCommentsByBoardId(Long boardId) {
+    public List<CommentEntity> getCommentsByBoardId(Integer boardId) {
         return commentRepository.findAllByBoardId(boardId);
     }
 
-    public Optional<CommentEntity> getCommentById(Long commentId) {
+    public Optional<CommentEntity> getCommentById(Integer commentId) {
         return commentRepository.findById(commentId);
     }
 
@@ -28,7 +28,7 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public void deleteComment(Long commentId) {
+    public void deleteComment(Integer commentId) {
         commentRepository.deleteById(commentId);
     }
 }

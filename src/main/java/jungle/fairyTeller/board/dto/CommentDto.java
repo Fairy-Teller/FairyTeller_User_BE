@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class CommentDto {
     private Long commentId;
-    private Long boardId;
+    private Integer boardId;
     private String content;
     private String author;
     private Date createdDatetime;

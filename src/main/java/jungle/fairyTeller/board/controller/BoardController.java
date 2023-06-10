@@ -71,6 +71,13 @@ public class BoardController {
         if (boardOptional.isPresent()) {
             BoardEntity board = boardOptional.get();
             BoardDto boardDto = new BoardDto(board);
+
+            List<CommentEntity> comments = commentService.getCommentsByBoardId(boardId);
+            List<CommentDto> commentDtos = comments.stream()
+                    .map(CommentDto::new)
+                    .collect(Collectors.toList());
+            boardDto.setComments(commentDtos);
+
             ResponseDto<BoardDto> response = new ResponseDto<>();
             response.setData(Collections.singletonList(boardDto));
             return ResponseEntity.ok().body(response);
@@ -78,9 +85,8 @@ public class BoardController {
             return ResponseEntity.notFound().build();
         }
     }
-
     @PostMapping("/{boardId}/comment")
-    public ResponseEntity<ResponseDto<CommentDto>> saveComment(@PathVariable Long boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
+    public ResponseEntity<ResponseDto<CommentDto>> saveComment(@PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
         try {
             UserEntity user = userRepository.findById(Integer.parseInt(userId))
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));

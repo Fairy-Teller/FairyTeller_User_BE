@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,6 +20,7 @@ public class BoardDto {
     private String title;
     private String content;
     private String thumbnailUrl;
+    private List<CommentDto> comments;
     public BoardDto(final BoardEntity entity) {
         this.boardId = entity.getBoardId();
         this.bookId = entity.getBookId();
@@ -24,6 +28,7 @@ public class BoardDto {
         this.title = entity.getTitle();
         this.thumbnailUrl = entity.getThumbnailUrl();
         this.content = entity.getContent();
+        this.comments = new ArrayList<>();
     }
     public static BoardEntity toEntity(final BoardDto dto) {
         return BoardEntity.builder()
