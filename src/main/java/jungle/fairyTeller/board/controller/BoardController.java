@@ -34,9 +34,13 @@ public class BoardController {
     private UserRepository userRepository;
     // 게시글을 저장한다
     @PostMapping("/save")
-    public ResponseEntity<ResponseDto<BoardDto>> saveBoard(@RequestBody BoardDto boardDto) {
+    public ResponseEntity<ResponseDto<BoardDto>> saveBoard(@RequestBody BoardDto boardDto, @AuthenticationPrincipal String userId) {
         try {
+            UserEntity user = userRepository.findById(Integer.parseInt(userId))
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
             BoardEntity boardEntity = BoardDto.toEntity(boardDto);
+            boardEntity.setNickname(user.getNickname());
             BoardEntity savedBoard = boardService.saveBoard(boardEntity);
             ResponseDto<BoardDto> response = getAllBoardsResponse();
             return ResponseEntity.ok().body(response);
