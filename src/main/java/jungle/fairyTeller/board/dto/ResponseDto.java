@@ -14,4 +14,6 @@ import java.util.List;
 public class ResponseDto<T> {
     private String error;
     private List<T> data;
+    private int currentPage; // 현재 페이지 번호
+    private int totalPages; // 총 페이지 수
 }

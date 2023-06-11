@@ -81,13 +81,17 @@ public class BoardController {
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<ResponseDto<BoardDto>> getBoardById(@PathVariable Integer boardId) {
+    public ResponseEntity<ResponseDto<BoardDto>> getBoardById(
+            @PathVariable Integer boardId,
+            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
         Optional<BoardEntity> boardOptional = Optional.ofNullable(boardService.getBoardById(boardId));
         if (boardOptional.isPresent()) {
             BoardEntity board = boardOptional.get();
             BoardDto boardDto = new BoardDto(board);
-
-            List<CommentEntity> comments = commentService.getCommentsByBoardId(boardId);
+            Pageable commentPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC, "commentId");
+            Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, commentPageable);
+            List<CommentEntity> comments = commentPage.getContent();
             List<CommentDto> commentDtos = comments.stream()
                     .map(CommentDto::new)
                     .collect(Collectors.toList());
@@ -95,11 +99,14 @@ public class BoardController {
 
             ResponseDto<BoardDto> response = new ResponseDto<>();
             response.setData(Collections.singletonList(boardDto));
+            response.setCurrentPage(commentPage.getNumber());
+            response.setTotalPages(commentPage.getTotalPages());
             return ResponseEntity.ok().body(response);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
     @PostMapping("/{boardId}/comment")
     public ResponseEntity<ResponseDto<CommentDto>> saveComment(@PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
         try {
@@ -119,5 +126,30 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/{boardId}/comments")
+    public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardIdPaged(
+            @PathVariable Integer boardId,
+            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        try {
+            Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
+            List<CommentEntity> comments = commentPage.getContent();
+            List<CommentDto> commentDtos = comments.stream()
+                    .map(CommentDto::new)
+                    .collect(Collectors.toList());
+
+            ResponseDto<CommentDto> response = new ResponseDto<>();
+            response.setData(commentDtos);
+            response.setCurrentPage(commentPage.getNumber());
+            response.setTotalPages(commentPage.getTotalPages());
+
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            log.error("Failed to get comments", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
 }
