@@ -1,4 +1,4 @@
-package jungle.fairyTeller.fairyTale.audio;
+package jungle.fairyTeller.fairyTale.audio.service;
 
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
@@ -6,20 +6,13 @@ import org.springframework.beans.factory.annotation.Value;
 import com.google.cloud.texttospeech.v1.*;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
 @Slf4j
 @Service
 public class TtsService {
     @Value("${google.credentials.path}")
     private String googleCredentialsPath;
 
-    public String synthesizeText(String text, String fileName) throws Exception {
-        String fullPath = null;
-        String directoryPath = "/Users/hjilee/Desktop/hj/SWJungle/namanmoo/fairyTeller/BE/test_audio";
+    public byte[] synthesizeText(String text, String fileName) throws Exception {
 
         try (TextToSpeechClient textToSpeechClient = TextToSpeechClient.create()) {
             // 입력 텍스트 설정
@@ -41,17 +34,9 @@ public class TtsService {
 
             // 응답 데이터를 Byte Stream으로 변환
             ByteString audioContents = response.getAudioContent();
-
-            // 음성 데이터를 s3 특정 경로에 저장
-            fullPath = directoryPath + File.separator + fileName +".mp3";
-
-            try (OutputStream out = new FileOutputStream(fullPath)) {
-                out.write(audioContents.toByteArray());
-                log.info("Audio content written to file " + fullPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return audioContents.toByteArray();
         }
-        return fullPath;
     }
+
+
 }

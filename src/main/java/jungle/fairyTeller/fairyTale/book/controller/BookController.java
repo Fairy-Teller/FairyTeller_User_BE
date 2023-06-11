@@ -1,15 +1,17 @@
 package jungle.fairyTeller.fairyTale.book.controller;
 
-import jungle.fairyTeller.fairyTale.audio.TtsService;
+import jungle.fairyTeller.fairyTale.audio.service.TtsService;
 import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
 import jungle.fairyTeller.fairyTale.book.dto.ResponseDTO;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import jungle.fairyTeller.fairyTale.book.service.BookService;
+import jungle.fairyTeller.fairyTale.file.service.FileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +26,9 @@ public class BookController {
 
     @Autowired
     private TtsService ttsService;
+
+    @Autowired
+    private FileService fileService;
 
     @GetMapping("/mine")
     public ResponseEntity<?> getBooksByUserId(@AuthenticationPrincipal String userId) {
@@ -85,17 +90,19 @@ public class BookController {
             originalBook.setTitle(dto.getTitle());
 
             // 1. 이미지
-            // 1-1. 이미지를 s3에 저장하고, imgUrl 변수에 경로를 담는다
+            // 1-1. 이미지를 저장경로에 저장한다.
             String imgUrl = "temp/img/url";
+            // 1-2. imgUrl 변수에 경로를 담는다
             originalBook.setThumbnailUrl(imgUrl);
 
             // 2. tts
             try {
                 String fileName = String.valueOf(originalBook.getBookId());
                 // 2-1. tts를 호출한다
-                // 2-2. 생성된 오디오파일을 s3에 저장하고, audioUrl 변수에 경로를 담는다.
-                String audioUrl = ttsService.synthesizeText(originalBook.getFullStory(), fileName);
-
+                byte[] audioContent = ttsService.synthesizeText(originalBook.getFullStory(), fileName);
+                // 2-2. 생성된 오디오파일을 저장경로에 저장한다.
+                String audioUrl = fileService.uploadFile(audioContent, fileName + ".mp3");
+                // 2-3. audioUrl 변수에 경로를 담는다.
                 originalBook.setAudioUrl(audioUrl);
 
             } catch (Exception e) {
