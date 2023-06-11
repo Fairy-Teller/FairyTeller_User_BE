@@ -35,6 +35,9 @@ dependencies {
 	//윤설추가
 	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.0'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	//tts
+	implementation 'com.google.cloud:google-cloud-texttospeech:1.5.2'
 }
 
 tasks.named('test') {
