@@ -28,6 +28,8 @@ public class CommentEntity {
 
     @Column(nullable = false)
     private String author;
+    @Column(nullable = false)
+    private Integer userId;
 
     @CreationTimestamp
     private Date createdDatetime;

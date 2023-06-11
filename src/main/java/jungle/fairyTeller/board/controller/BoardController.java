@@ -115,6 +115,7 @@ public class BoardController {
 
             CommentEntity commentEntity = CommentDto.toEntity(commentDto);
             commentEntity.setBoardId(boardId);
+            commentEntity.setUserId(user.getId());
             commentEntity.setAuthor(user.getNickname()); // Set the author as the user's nickname
             CommentEntity savedComment = commentService.saveComment(commentEntity);
             CommentDto savedCommentDto = new CommentDto(savedComment);
