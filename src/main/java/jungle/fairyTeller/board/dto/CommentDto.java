@@ -12,10 +12,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {
-    private Long commentId;
+    private Integer commentId;
     private Integer boardId;
     private String content;
     private String author;
+    private Integer userId;
     private Date createdDatetime;
 
     public CommentDto(CommentEntity entity) {
@@ -23,6 +24,7 @@ public class CommentDto {
         this.boardId = entity.getBoardId();
         this.content = entity.getContent();
         this.author = entity.getAuthor();
+        this.userId = entity.getUserId();
         this.createdDatetime = entity.getCreatedDatetime();
     }
 
@@ -32,6 +34,7 @@ public class CommentDto {
                 .boardId(dto.getBoardId())
                 .content(dto.getContent())
                 .author(dto.getAuthor())
+                .userId(dto.getUserId())
                 .createdDatetime(dto.getCreatedDatetime())
                 .build();
     }

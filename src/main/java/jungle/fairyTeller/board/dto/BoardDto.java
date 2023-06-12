@@ -17,6 +17,7 @@ public class BoardDto {
     private Integer boardId;
     private Integer bookId;
     private Integer author;
+    private String nickname;
     private String title;
     private String content;
     private String thumbnailUrl;
@@ -25,6 +26,7 @@ public class BoardDto {
         this.boardId = entity.getBoardId();
         this.bookId = entity.getBookId();
         this.author = entity.getAuthor();
+        this.nickname = entity.getNickname();
         this.title = entity.getTitle();
         this.thumbnailUrl = entity.getThumbnailUrl();
         this.content = entity.getContent();
@@ -35,6 +37,7 @@ public class BoardDto {
                 .boardId(dto.getBoardId())
                 .bookId(dto.getBookId())
                 .author(dto.getAuthor())
+                .nickname(dto.getNickname())
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .thumbnailUrl(dto.getThumbnailUrl())

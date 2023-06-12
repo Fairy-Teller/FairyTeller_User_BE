@@ -3,6 +3,8 @@ package jungle.fairyTeller.board.service;
 import jungle.fairyTeller.board.entity.CommentEntity;
 import jungle.fairyTeller.board.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,10 +18,6 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public List<CommentEntity> getCommentsByBoardId(Integer boardId) {
-        return commentRepository.findAllByBoardId(boardId);
-    }
-
     public Optional<CommentEntity> getCommentById(Integer commentId) {
         return commentRepository.findById(commentId);
     }
@@ -30,5 +28,8 @@ public class CommentService {
 
     public void deleteComment(Integer commentId) {
         commentRepository.deleteById(commentId);
+    }
+    public Page<CommentEntity> getCommentsByBoardIdPaged(Integer boardId, Pageable pageable) {
+        return commentRepository.findAllByBoardId(boardId, pageable);
     }
 }
