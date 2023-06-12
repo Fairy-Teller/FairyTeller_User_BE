@@ -7,8 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class CreateImgRequestDTO {
+    public CreateImgRequestDTO(){}
+
     private String prompt;
     private int height;
     private int width;

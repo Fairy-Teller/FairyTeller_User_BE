@@ -3,19 +3,22 @@ package jungle.fairyTeller.fairyTale.Image.service;
 import jungle.fairyTeller.fairyTale.Image.dto.ImgAIRequestDTO;
 import jungle.fairyTeller.fairyTale.Image.dto.CreateImgResponseDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 
 @Slf4j
 @Service
+@PropertySource("classpath:application-image.properties")
 public class CreateImgService {
 
-    @Value("AI.SERVER.URL")
-    String MlServerUrl;
+    @Value("${AI.SERVER.URL}")
+    String aiServerUrl;
 
     public String createImg(String prompt){
         RestTemplate restTemplate = new RestTemplate();
@@ -32,7 +35,7 @@ public class CreateImgService {
         HttpEntity<ImgAIRequestDTO> requestEntity = new HttpEntity<>(requestObject, headers);
 
         // POST 요청 보내기
-        ResponseEntity<CreateImgResponseDTO> response = restTemplate.postForEntity(MlServerUrl, requestEntity, CreateImgResponseDTO.class);
+        ResponseEntity<CreateImgResponseDTO> response = restTemplate.postForEntity(aiServerUrl + "/sdapi/v1/txt2img", requestEntity, CreateImgResponseDTO.class);
 
         // 응답 받기
         CreateImgResponseDTO responseBody = response.getBody();
@@ -54,7 +57,7 @@ public class CreateImgService {
         HttpEntity<ImgAIRequestDTO> requestEntity = new HttpEntity<>(requestObject, headers);
 
         // POST 요청 보내기
-        ResponseEntity<CreateImgResponseDTO> response = restTemplate.postForEntity(MlServerUrl, requestEntity, CreateImgResponseDTO.class);
+        ResponseEntity<CreateImgResponseDTO> response = restTemplate.postForEntity(aiServerUrl, requestEntity, CreateImgResponseDTO.class);
 
         // 응답 받기
         CreateImgResponseDTO responseBody = response.getBody();

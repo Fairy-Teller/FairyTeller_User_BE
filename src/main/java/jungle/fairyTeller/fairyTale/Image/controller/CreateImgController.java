@@ -10,20 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Base64;
 
-@RestController("/images")
+@RestController
 public class CreateImgController {
 
     @Autowired
     private CreateImgService createImgService;
 
-    @PostMapping("/craete")
+    @PostMapping("/images/craete")
     public ResponseEntity<Object> createImg(@RequestBody CreateImgRequestDTO createImgRequestDTO){
         // 이미지 생성
         String base64Image = createImgService.createImg(createImgRequestDTO.getPrompt());
         HttpHeaders headers = new HttpHeaders();
 
         //이미지 jpg로 설정해두기
-        createImgRequestDTO.setFormat("base64");
+//        createImgRequestDTO.setFormat("");
         // 이미지 생성 및 형식에 따른 처리
         if (createImgRequestDTO.getFormat().equalsIgnoreCase("base64")) {
             // JPG 형식으로 이미지 생성
