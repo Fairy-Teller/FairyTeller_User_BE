@@ -10,6 +10,8 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     @Override
     List<BookEntity> findAll();
+
+    BookEntity findByBookId(Integer bookId);
     List<BookEntity> findAllByAuthor(Integer authorId);
     List<BookEntity> findAllByAuthorOrderByCreatedDatetimeDesc(Integer authorId);
     default BookEntity findLatestByAuthor(Integer authorId) {

@@ -14,13 +14,18 @@ public class BookDTO {
     private Integer bookId;
     private Integer author;
     private String title;
+    private String fullStory;
     private String thumbnailUrl;
+
+    private String audioUrl;
 
     public BookDTO(final BookEntity entity) {
         this.bookId = entity.getBookId();
         this.author = entity.getAuthor();
         this.title = entity.getTitle();
+        this.fullStory = entity.getFullStory();
         this.thumbnailUrl = entity.getThumbnailUrl();
+        this.audioUrl = entity.getAudioUrl();
     }
 
     public static BookEntity toEntity(final BookDTO dto) {
@@ -28,7 +33,9 @@ public class BookDTO {
                 .bookId(dto.getBookId())
                 .author(dto.getAuthor())
                 .title(dto.getTitle())
+                .fullStory(dto.getFullStory())
                 .thumbnailUrl(dto.getThumbnailUrl())
+                .audioUrl(dto.getAudioUrl())
                 .build();
     }
 }
