@@ -1,5 +1,6 @@
 package jungle.fairyTeller.fairyTale.book.service;
 
+import com.sun.source.tree.LambdaExpressionTree;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import jungle.fairyTeller.fairyTale.book.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -59,5 +60,8 @@ public class BookService {
             log.warn("Unknown Author");
             throw new RuntimeException("Unknown Author");
         }
+    }
+    public BookEntity getBookByBookId(Integer bookId){
+        return bookRepository.findByBookId(bookId);
     }
 }
