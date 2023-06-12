@@ -23,6 +23,7 @@ public class BoardEntity {
     private Integer bookId;
     @Column(nullable = false)
     private Integer author;
+    private String nickname;
     @Column(nullable = false)
     private String title;
     private String content;

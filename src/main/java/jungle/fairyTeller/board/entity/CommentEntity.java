@@ -18,7 +18,7 @@ import java.util.Date;
 public class CommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long commentId;
+    private Integer commentId;
 
     @Column(nullable = false)
     private Integer boardId;
@@ -28,6 +28,8 @@ public class CommentEntity {
 
     @Column(nullable = false)
     private String author;
+    @Column(nullable = false)
+    private Integer userId;
 
     @CreationTimestamp
     private Date createdDatetime;
