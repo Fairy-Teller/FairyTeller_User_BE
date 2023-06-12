@@ -5,6 +5,7 @@ import jungle.fairyTeller.fairyTale.story.dto.ChatGptResponseDto;
 import jungle.fairyTeller.fairyTale.story.dto.QuestionRequestDto;
 import jungle.fairyTeller.config.ChatGptConfig;
 import jungle.fairyTeller.fairyTale.story.dto.SummarizingRequestDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,19 +17,31 @@ import org.springframework.web.client.RestTemplate;
 public class ChatGptService {
 
     private static RestTemplate restTemplate = new RestTemplate();
+    private final ChatGptConfig chatGptConfig;
+
+    @Autowired
+    public ChatGptService(ChatGptConfig chatGptConfig) {
+        this.chatGptConfig = chatGptConfig;
+    }
 
     public HttpEntity<ChatGptRequestDto> buildHttpEntity(ChatGptRequestDto requestDto) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(ChatGptConfig.MEDIA_TYPE));
-        headers.add(ChatGptConfig.AUTHORIZATION, ChatGptConfig.BEARER + ChatGptConfig.API_KEY);
+        headers.setContentType(MediaType.parseMediaType(chatGptConfig.getMediaType()));
+        headers.add(chatGptConfig.getAuthorization(), chatGptConfig.getBearer() + chatGptConfig.getApiKey());
         return new HttpEntity<>(requestDto, headers);
     }
 
     public ChatGptResponseDto getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + chatGptConfig.getApiKey());
+
+        HttpEntity<ChatGptRequestDto> requestEntity = new HttpEntity<>(chatGptRequestDtoHttpEntity.getBody(), headers);
+
         ResponseEntity<ChatGptResponseDto> responseEntity = restTemplate.postForEntity(
-                ChatGptConfig.URL,
-                chatGptRequestDtoHttpEntity,
+                chatGptConfig.getUrl(),
+                requestEntity,
                 ChatGptResponseDto.class);
+
         return responseEntity.getBody();
     }
 
@@ -38,11 +51,11 @@ public class ChatGptService {
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
-                                ChatGptConfig.MODEL,
+                                chatGptConfig.getModel(),
                                 question,
-                                ChatGptConfig.MAX_TOKEN,
-                                ChatGptConfig.TEMPERATURE,
-                                ChatGptConfig.TOP_P
+                                chatGptConfig.getMaxToken(),
+                                chatGptConfig.getTemperature(),
+                                chatGptConfig.getTopP()
                         )
                 )
         );
@@ -54,11 +67,11 @@ public class ChatGptService {
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
-                                ChatGptConfig.MODEL,
+                                chatGptConfig.getModel(),
                                 question,
-                                ChatGptConfig.MAX_TOKEN,
-                                ChatGptConfig.TEMPERATURE,
-                                ChatGptConfig.TOP_P
+                                chatGptConfig.getMaxToken(),
+                                chatGptConfig.getTemperature(),
+                                chatGptConfig.getTopP()
                         )
                 )
         );

@@ -29,5 +29,6 @@ public class ChatGptController {
         summaryText = summaryText.replace("\n\n","");
         System.out.println("확인용:"+summaryText);
         //이미지 생성 AI 메소드 호출해야함:!!!
+
     }
 }
