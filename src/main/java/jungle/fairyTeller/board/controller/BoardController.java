@@ -93,13 +93,17 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardDto>> getBoardById(
             @PathVariable Integer boardId,
-            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable,
+            @AuthenticationPrincipal String userId
     ) {
         Optional<BoardEntity> boardOptional = Optional.ofNullable(boardService.getBoardById(boardId));
-        if (boardOptional.isPresent()) {
-            BoardEntity board = boardOptional.get();
+        return boardOptional.map(board -> {
             BoardDto boardDto = new BoardDto(board);
-            Pageable commentPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC, "commentId");
+
+            // 게시글 작성자와 로그인한 사용자의 ID를 비교하여 수정 가능 여부 판단
+            boolean isEditable = board.getAuthor().equals(Integer.parseInt(userId));
+            boardDto.setEditable(isEditable);
+            Pageable commentPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, commentPageable);
             List<CommentEntity> comments = commentPage.getContent();
             List<CommentDto> commentDtos = comments.stream()
@@ -111,10 +115,9 @@ public class BoardController {
             response.setData(Collections.singletonList(boardDto));
             response.setCurrentPage(commentPage.getNumber());
             response.setTotalPages(commentPage.getTotalPages());
-            return ResponseEntity.ok().body(response);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+            return ResponseEntity.ok(response);
+        }).orElse(ResponseEntity.notFound().build());
     }
+
 
 }

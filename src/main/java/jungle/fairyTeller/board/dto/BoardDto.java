@@ -22,6 +22,8 @@ public class BoardDto {
     private String content;
     private String thumbnailUrl;
     private List<CommentDto> comments;
+    private boolean editable; // New property for indicating editability
+
     public BoardDto(final BoardEntity entity) {
         this.boardId = entity.getBoardId();
         this.bookId = entity.getBookId();
@@ -32,6 +34,7 @@ public class BoardDto {
         this.content = entity.getContent();
         this.comments = new ArrayList<>();
     }
+
     public static BoardEntity toEntity(final BoardDto dto) {
         return BoardEntity.builder()
                 .boardId(dto.getBoardId())
