@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Base64;
 
-@RestController
+@RestController("/images")
 public class CreateImgController {
 
     @Autowired
     private CreateImgService createImgService;
 
-    @PostMapping("/images/craete")
+    @PostMapping("/craete")
     public ResponseEntity<Object> createImg(@RequestBody String prompt, @RequestBody String format){
         // 이미지 생성
         String base64Image = createImgService.createImg(prompt);
