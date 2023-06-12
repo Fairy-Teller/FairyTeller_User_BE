@@ -10,6 +10,6 @@ import java.util.ArrayList;
 public class CreateImgResponseDTO {
     public CreateImgResponseDTO(){}
     private ArrayList<String> images;
-    private CreateImgRequestDTO parameters;
+    private ImgAIRequestDTO parameters;
     private String info;
 }
