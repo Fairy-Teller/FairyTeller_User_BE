@@ -30,19 +30,20 @@ public class ChatGptService {
         headers.add(chatGptConfig.getAuthorization(), chatGptConfig.getBearer() + chatGptConfig.getApiKey());
         return new HttpEntity<>(requestDto, headers);
     }
-public ChatGptResponseDto getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.set("Authorization", "Bearer " + chatGptConfig.getApiKey());
 
-    HttpEntity<ChatGptRequestDto> requestEntity = new HttpEntity<>(chatGptRequestDtoHttpEntity.getBody(), headers);
+    public ChatGptResponseDto getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + chatGptConfig.getApiKey());
 
-    ResponseEntity<ChatGptResponseDto> responseEntity = restTemplate.postForEntity(
-            chatGptConfig.getUrl(),
-            requestEntity,
-            ChatGptResponseDto.class);
+        HttpEntity<ChatGptRequestDto> requestEntity = new HttpEntity<>(chatGptRequestDtoHttpEntity.getBody(), headers);
 
-    return responseEntity.getBody();
-}
+        ResponseEntity<ChatGptResponseDto> responseEntity = restTemplate.postForEntity(
+                chatGptConfig.getUrl(),
+                requestEntity,
+                ChatGptResponseDto.class);
+
+        return responseEntity.getBody();
+    }
 
     public ChatGptResponseDto askQuestion(QuestionRequestDto requestDto) {
         String question = requestParsing(requestDto);

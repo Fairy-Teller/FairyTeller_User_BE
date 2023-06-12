@@ -34,6 +34,7 @@ public class ChatGptConfig {
 
     @Value("${chatgpt.url}")
     private String url;
+
 }
 
 
