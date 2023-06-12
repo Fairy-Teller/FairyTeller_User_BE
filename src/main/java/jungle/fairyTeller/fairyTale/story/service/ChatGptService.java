@@ -98,6 +98,9 @@ public class ChatGptService {
             if (endIndex != -1) {
                 parsedParagraph += tmpText.substring(startIndex, endIndex);
             }
+            else{
+                parsedParagraph += tmpText;
+            }
         }
         //return "Summarize a line from"+"'"+parsedParagraph+"'";
         return "'"+parsedParagraph+"'"+"Please summarize a line in English";
