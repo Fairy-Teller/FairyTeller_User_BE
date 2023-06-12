@@ -95,7 +95,7 @@ public class CommentController {
             commentService.deleteComment(commentId);
 
             // 댓글 삭제가 성공적으로 이루어졌을 경우, 204 No Content 상태 코드를 반환
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(comment);
         } catch (NoSuchElementException e) {
             // 댓글이 존재하지 않는 경우 404 Not Found 상태 코드 반환
             return ResponseEntity.notFound().build();
