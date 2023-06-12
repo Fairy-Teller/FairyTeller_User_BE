@@ -8,7 +8,6 @@ public class FairyTellerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(FairyTellerApplication.class, args);
-		System.out.println("run by github action");
 	}
 
 }

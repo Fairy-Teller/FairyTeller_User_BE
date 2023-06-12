@@ -4,6 +4,7 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/be
+    overwrite: yes
 permissions:
   - object: /home/ubuntu/be/
     owner: ubuntu
@@ -11,5 +12,9 @@ permissions:
 hooks:
   AfterInstall:
     - location: scripts/deploy.sh
+      timeout: 60
+      runas: ubuntu
+  ApplicationStart:
+    - location: scripts/start.sh
       timeout: 60
       runas: ubuntu
