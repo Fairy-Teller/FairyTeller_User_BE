@@ -1,5 +1,6 @@
 package jungle.fairyTeller.fairyTale.book.controller;
 
+import jungle.fairyTeller.fairyTale.Image.service.SaveImgService;
 import jungle.fairyTeller.fairyTale.audio.service.TtsService;
 import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
 import jungle.fairyTeller.fairyTale.book.dto.ResponseDTO;
@@ -23,6 +24,9 @@ public class BookController {
 
     @Autowired
     private BookService bookService;
+
+    @Autowired
+    private SaveImgService saveImgService;
 
     @Autowired
     private TtsService ttsService;
@@ -106,10 +110,18 @@ public class BookController {
             originalBook.setTitle(dto.getTitle());
 
             // 1. 이미지
-            // 1-1. 이미지를 저장경로에 저장한다.
-            String imgUrl = "temp/img/url";
-            // 1-2. imgUrl 변수에 경로를 담는다
-            originalBook.setThumbnailUrl(imgUrl);
+            try {
+                String fileName = String.valueOf(originalBook.getBookId());
+                // 1-1. 이미지를 바이트 배열로 변환
+                byte[] imageContent = saveImgService.convertBase64ToImage(dto.getThumbnailUrl());
+                // 1-2. 이미지를 저장경로에 저장한다.
+                String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
+                // 1-3. imgUrl 변수에 경로를 담는다
+                originalBook.setThumbnailUrl(imgUrl);
+
+            } catch (Exception e) {
+                throw new RuntimeException("Error converting image: " + e.getMessage(), e);
+            }
 
             // 2. tts
             try {
