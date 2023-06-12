@@ -6,11 +6,11 @@ cd $REPOSITORY
 JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep 'SNAPSHOT.jar' | tail -n 1)
 JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 
-DEPLOY_LOG = "$REPOSITORY/deploy.log"
+DEPLOY_LOG="$REPOSITORY/deploy.log"
 
 CURRENT_PID=$(pgrep -f $JAR_NAME)
 
-TIME_NOW = $(date + %c)
+TIME_NOW=$(date +%c)
 
 if [ -z $CURRENT_PID ] ;
 then

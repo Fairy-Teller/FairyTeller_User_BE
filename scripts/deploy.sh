@@ -6,11 +6,11 @@ cd $REPOSITORY
 JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep 'SNAPSHOT.jar' | tail -n 1)
 JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 
-APP_LOG = "$REPOSITORY/application.log"
-ERROR_LOG = "$REPOSITORY/error.log"
-DEPLOY_LOG = "$REPOSITORY/deploy.log"
+APP_LOG="$REPOSITORY/application.log"
+ERROR_LOG="$REPOSITORY/error.log"
+DEPLOY_LOG="$REPOSITORY/deploy.log"
 
-TIME_NOW = $(date + %c)
+TIME_NOW=$(date +%c)
 
 echo "$TIME_NOW> Deploy - $JAR_PATH "
 echo "$TIME_NOW > $JAR_NAME 파일 실행" >> $DEPLOY_LOG
