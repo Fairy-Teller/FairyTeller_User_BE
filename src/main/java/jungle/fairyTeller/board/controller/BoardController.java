@@ -7,6 +7,8 @@ import jungle.fairyTeller.board.entity.BoardEntity;
 import jungle.fairyTeller.board.entity.CommentEntity;
 import jungle.fairyTeller.board.service.BoardService;
 import jungle.fairyTeller.board.service.CommentService;
+import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
+import jungle.fairyTeller.fairyTale.book.repository.BookRepository;
 import jungle.fairyTeller.user.entity.UserEntity;
 import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,8 @@ public class BoardController {
     @Autowired
     private BoardService boardService;
     @Autowired
+    private BookRepository bookRepository;
+    @Autowired
     private CommentService commentService;
     @Autowired
     private UserRepository userRepository;
@@ -42,9 +46,15 @@ public class BoardController {
         try {
             UserEntity user = userRepository.findById(Integer.parseInt(userId))
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
             BoardEntity boardEntity = BoardDto.toEntity(boardDto);
             boardEntity.setNickname(user.getNickname());
+            // BookEntity 정보를 가져온 후 BoardDto에 설정
+            BookEntity bookEntity = bookRepository.findById(boardEntity.getBookId())
+                    .orElseThrow(() -> new IllegalArgumentException("Book not found"));
+            boardEntity.setBookId(bookEntity.getBookId());
+            boardEntity.setAuthor(bookEntity.getAuthor());
+            boardEntity.setTitle(bookEntity.getTitle());
+            boardEntity.setThumbnailUrl(bookEntity.getThumbnailUrl());
             BoardEntity savedBoard = boardService.saveBoard(boardEntity);
             Pageable pageable = PageRequest.of(0, 9); // 페이지 크기와 정렬 방식을 지정
             ResponseDto<BoardDto> response = getAllBoardsResponse(pageable); // 수정된 부분
