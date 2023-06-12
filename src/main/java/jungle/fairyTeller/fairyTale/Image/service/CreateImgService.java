@@ -3,6 +3,7 @@ package jungle.fairyTeller.fairyTale.Image.service;
 import jungle.fairyTeller.fairyTale.Image.dto.CreateImgRequestDTO;
 import jungle.fairyTeller.fairyTale.Image.dto.CreateImgResponseDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -12,7 +13,9 @@ import java.util.ArrayList;
 @Slf4j
 @Service
 public class CreateImgService {
-    String MlServerUrl = "https://628a125a0018390781.gradio.live/sdapi/v1/txt2img";
+
+    @Value("AI.SERVER.URL")
+    String MlServerUrl;
 
     public String createImg(String prompt){
         RestTemplate restTemplate = new RestTemplate();
