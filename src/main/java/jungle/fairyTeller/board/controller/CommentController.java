@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -71,6 +72,35 @@ public class CommentController {
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/{boardId}/comment/{commentId}")
+    public ResponseEntity<?> deleteComment(
+            @PathVariable Integer boardId,
+            @PathVariable Integer commentId,
+            @AuthenticationPrincipal String userId
+    ) {
+        try {
+            // 댓글 삭제를 위한 권한 확인
+            CommentEntity comment = commentService.getCommentById(commentId)
+                    .orElseThrow(() -> new NoSuchElementException("Comment not found"));
+            // 현재 인증된 사용자와 댓글 작성자 비교
+            if (!comment.getUserId().equals(Integer.parseInt(userId))) {
+                // 권한이 없는 경우 403 Forbidden 상태 코드 반환
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            // 댓글 삭제
+            commentService.deleteComment(commentId);
+
+            // 댓글 삭제가 성공적으로 이루어졌을 경우, 204 No Content 상태 코드를 반환
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            // 댓글이 존재하지 않는 경우 404 Not Found 상태 코드 반환
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Failed to delete the comment", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

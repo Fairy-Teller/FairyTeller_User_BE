@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {
-    private Long commentId;
+    private Integer commentId;
     private Integer boardId;
     private String content;
     private String author;

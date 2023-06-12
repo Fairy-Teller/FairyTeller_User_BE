@@ -18,7 +18,7 @@ import java.util.Date;
 public class CommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long commentId;
+    private Integer commentId;
 
     @Column(nullable = false)
     private Integer boardId;
