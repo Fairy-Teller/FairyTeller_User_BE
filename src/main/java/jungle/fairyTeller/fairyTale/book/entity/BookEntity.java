@@ -23,11 +23,13 @@ public class BookEntity {
     @Column(nullable = false)
     private Integer author;
 
-    @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    private String fullStory;
+
     private String thumbnailUrl;
+
+    private String audioUrl;
 
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
