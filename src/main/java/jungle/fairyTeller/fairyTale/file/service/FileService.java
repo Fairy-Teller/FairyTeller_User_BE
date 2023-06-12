@@ -32,7 +32,6 @@ public class FileService {
     public String uploadFile(byte[] file, String fileName) {
         // 프로필에 따라 S3 또는 로컬 파일 시스템에 파일 업로드
         String activeProfiles = environment.getProperty("spring.profiles.active");
-        System.out.println(activeProfiles);
         String filePath;
         if (activeProfiles != null && activeProfiles.contains("dev")) {
             filePath = uploadToS3(file, bucket, fileName);
@@ -58,9 +57,6 @@ public class FileService {
 
     private String uploadToLocal(byte[] file, String uploadPath, String fileName) {
         String localFilePath = uploadPath + "/" + fileName;
-        System.out.println(uploadPath);
-        System.out.println(fileName);
-        System.out.println(localFilePath);
 
         File directory = new File(uploadPath);
         if (!directory.exists()) {
