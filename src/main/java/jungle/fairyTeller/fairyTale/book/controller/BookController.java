@@ -30,6 +30,22 @@ public class BookController {
     @Autowired
     private FileService fileService;
 
+    @GetMapping("/getBookById")
+    public ResponseEntity<?> getBookByBookId(@RequestBody BookDTO bookDTO,@AuthenticationPrincipal String userId){
+        BookEntity book = bookService.getBookByBookId(bookDTO.getBookId());
+
+        BookDTO dto = BookDTO.builder()
+                .bookId(book.getBookId())
+                .author(book.getAuthor())
+                .title(book.getTitle())
+                .fullStory(book.getFullStory())
+                .thumbnailUrl(book.getThumbnailUrl())
+                .audioUrl(book.getAudioUrl())
+                .build();
+
+        return ResponseEntity.ok().body(dto);
+    }
+
     @GetMapping("/mine")
     public ResponseEntity<?> getBooksByUserId(@AuthenticationPrincipal String userId) {
         List<BookEntity> books = bookService.retrieve(Integer.parseInt(userId));
@@ -128,5 +144,6 @@ public class BookController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
 
 }
