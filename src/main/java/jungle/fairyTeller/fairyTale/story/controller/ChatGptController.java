@@ -30,15 +30,16 @@ public class ChatGptController {
         return chatGptService.askQuestion(requestDto);
     }
 
-@GetMapping("/summarize")
-public ResponseEntity<Object> sendQuestionToSummarize(@RequestBody SummarizingRequestDto requestDto
+    @GetMapping("/summarize")
+    public ResponseEntity<Object> sendQuestionToSummarize(@RequestBody SummarizingRequestDto requestDto,
                                                        @AuthenticationPrincipal String userId){
         ChatGptResponseDto gptResponseDto = chatGptService.askSummarize(requestDto);
         String summaryText = gptResponseDto.getText();
         summaryText = summaryText.replace("\n\n","");
         System.out.println("확인용:"+summaryText);
-
+//
         String base64Image = createImgService.createImg("<lora:model1:1> " + summaryText);
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf("image/jpeg"));
