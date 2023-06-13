@@ -57,6 +57,8 @@ public class BoardController {
             //boardEntity.setThumbnailUrl(bookEntity.getThumbnailUrl());
             String thumbnailUrl = "https://s3.ap-northeast-2.amazonaws.com/" + bookEntity.getThumbnailUrl();
             boardEntity.setThumbnailUrl(thumbnailUrl);
+            String audioUrl = "https://s3.ap-northeast-2.amazonaws.com/" + bookEntity.getAudioUrl();
+            boardEntity.setAudioUrl(audioUrl);
             // BookEntity 정보를 가져온 후 BoardDto에 설정
             BoardEntity savedBoard = boardService.saveBoard(boardEntity);
             Pageable pageable = PageRequest.of(0, 9); // 페이지 크기와 정렬 방식을 지정
