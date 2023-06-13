@@ -42,10 +42,10 @@ public class ChatGptController {
 
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf("image/jpeg"));
+        // headers.setContentType(MediaType.valueOf("image/jpeg"));
 
-        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+        // byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        return new ResponseEntity<>(base64Image, headers, HttpStatus.OK);
     }
 }
