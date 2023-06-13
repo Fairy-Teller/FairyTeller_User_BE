@@ -34,7 +34,7 @@ public class BookController {
     @Autowired
     private FileService fileService;
 
-    @GetMapping("/getBookById")
+    @PostMapping("/getBookById")
     public ResponseEntity<?> getBookByBookId(@RequestBody BookDTO bookDTO,@AuthenticationPrincipal String userId){
         BookEntity book = bookService.getBookByBookId(bookDTO.getBookId());
 
