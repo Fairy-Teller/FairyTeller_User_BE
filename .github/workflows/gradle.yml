@@ -60,7 +60,7 @@ jobs:
         sed -i "s|#spring.security.oauth2.client.registration.google.client-id=|spring.security.oauth2.client.registration.google.client-id=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
         sed -i "s|#spring.security.oauth2.client.registration.google.client-secret=|spring.security.oauth2.client.registration.google.client-secret=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
     
-    # (7)
+    # (6)
     - name: Replace secrets in Google JSON file
       run: |
         sed -i "s/\"private_key_id\":\"\"/\"private_key_id\": \"$TTS_KEY_ID\"/" ./src/main/resources/keys/fairyteller-389106-5d8a6e4f1894.json
@@ -68,7 +68,7 @@ jobs:
         sed -i "s/\"client_email\":\"\"/\"client_email\": \"$TTS_CLIENT_EMAIL\"/" ./src/main/resources/keys/fairyteller-389106-5d8a6e4f1894.json
     
     
-    # (6) Gradle Build (test 제외)
+    # (7) Gradle Build (test 제외)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
@@ -101,3 +101,15 @@ jobs:
                 --deployment-config-name CodeDeployDefault.AllAtOnce 
                 --deployment-group-name ${{env.DEPLOYMENT_GROUP_NAME}}  
                 --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+    
+    # (11) Slack 알림
+    - name: Send Slack notification
+      uses: slack/github-action@4.4.0
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      with:
+        status: ${{ job.status }}
+        fields: deployment-status,commit,author,repository,event-name
+        deployment: ${{ env.DEPLOYMENT_GROUP_NAME }}
+        environment: ${{ env.PROJECT_NAME }}
+        message: "Deployment completed successfully."
