@@ -41,24 +41,24 @@ jobs:
     # (3) application-chatgpt.properties 수정
     - name: Modify application-chatgpt.properties
       run: |
-        sed -i "s|chatgpt.api-key=|${{ secrets.CHATGPT_API_KEY }}|" ./src/main/resources/application-chatgpt.properties
+        sed -i "s|chatgpt.api-key=|chatgpt.api-key=${{ secrets.CHATGPT_API_KEY }}|" ./src/main/resources/application-chatgpt.properties
         
     # (4) application-file.properties 수정
     - name: Modify application-file.properties
       run: |
-        sed -i "s|cloud.aws.credentials.accessKey=|${{ secrets.AWS_S3_ACCESS_KEY }}|" ./src/main/resources/application-file.properties
-        sed -i "s|cloud.aws.credentials.secretKey=|${{ secrets.AWS_S3_SECRET_KEY }}|" ./src/main/resources/application-file.properties
+        sed -i "s|cloud.aws.credentials.accessKey=|cloud.aws.credentials.accessKey=${{ secrets.AWS_S3_ACCESS_KEY }}|" ./src/main/resources/application-file.properties
+        sed -i "s|cloud.aws.credentials.secretKey=|cloud.aws.credentials.secretKey=${{ secrets.AWS_S3_SECRET_KEY }}|" ./src/main/resources/application-file.properties
     
     # (5) application-oauth.properties 수정
     - name: Modify application-oauth.properties
       run: |
-        sed -i "s|spring.security.oauth2.client.registration.kakao.client-id=|${{ secrets.KAKAO_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
+        sed -i "s|spring.security.oauth2.client.registration.kakao.client-id=|spring.security.oauth2.client.registration.kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
         
-        sed -i "s|spring.security.oauth2.client.registration.naver.client-id=|${{ secrets.NAVER_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
-        sed -i "s|spring.security.oauth2.client.registration.naver.client-secret=|${{ secrets.NAVER_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
+        sed -i "s|spring.security.oauth2.client.registration.naver.client-id=|spring.security.oauth2.client.registration.naver.client-id=${{ secrets.NAVER_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
+        sed -i "s|spring.security.oauth2.client.registration.naver.client-secret=|spring.security.oauth2.client.registration.naver.client-secret=${{ secrets.NAVER_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
         
-        sed -i "s|spring.security.oauth2.client.registration.google.client-id=|${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
-        sed -i "s|spring.security.oauth2.client.registration.google.client-secret=|${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
+        sed -i "s|spring.security.oauth2.client.registration.google.client-id=|spring.security.oauth2.client.registration.google.client-id=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
+        sed -i "s|spring.security.oauth2.client.registration.google.client-secret=|spring.security.oauth2.client.registration.google.client-secret=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
     
     # (6) Gradle Build (test 제외)
     - name: Grant execute permission for gradlew
