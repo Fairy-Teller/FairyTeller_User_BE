@@ -47,14 +47,16 @@ public class BoardController {
             UserEntity user = userRepository.findById(Integer.parseInt(userId))
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             BoardEntity boardEntity = BoardDto.toEntity(boardDto);
+
+            boardEntity.setAuthor(user.getId());
             boardEntity.setNickname(user.getNickname());
-            // BookEntity 정보를 가져온 후 BoardDto에 설정
+
             BookEntity bookEntity = bookRepository.findById(boardEntity.getBookId())
                     .orElseThrow(() -> new IllegalArgumentException("Book not found"));
-            boardEntity.setBookId(bookEntity.getBookId());
-            boardEntity.setAuthor(bookEntity.getAuthor());
             boardEntity.setTitle(bookEntity.getTitle());
             boardEntity.setThumbnailUrl(bookEntity.getThumbnailUrl());
+
+            // BookEntity 정보를 가져온 후 BoardDto에 설정
             BoardEntity savedBoard = boardService.saveBoard(boardEntity);
             Pageable pageable = PageRequest.of(0, 9); // 페이지 크기와 정렬 방식을 지정
             ResponseDto<BoardDto> response = getAllBoardsResponse(pageable); // 수정된 부분
@@ -93,13 +95,17 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardDto>> getBoardById(
             @PathVariable Integer boardId,
-            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable,
+            @AuthenticationPrincipal String userId
     ) {
         Optional<BoardEntity> boardOptional = Optional.ofNullable(boardService.getBoardById(boardId));
-        if (boardOptional.isPresent()) {
-            BoardEntity board = boardOptional.get();
+        return boardOptional.map(board -> {
             BoardDto boardDto = new BoardDto(board);
-            Pageable commentPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC, "commentId");
+
+            // 게시글 작성자와 로그인한 사용자의 ID를 비교하여 수정 가능 여부 판단
+            boolean isEditable = board.getAuthor().equals(Integer.parseInt(userId));
+            boardDto.setEditable(isEditable);
+            Pageable commentPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, commentPageable);
             List<CommentEntity> comments = commentPage.getContent();
             List<CommentDto> commentDtos = comments.stream()
@@ -111,10 +117,9 @@ public class BoardController {
             response.setData(Collections.singletonList(boardDto));
             response.setCurrentPage(commentPage.getNumber());
             response.setTotalPages(commentPage.getTotalPages());
-            return ResponseEntity.ok().body(response);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+            return ResponseEntity.ok(response);
+        }).orElse(ResponseEntity.notFound().build());
     }
+
 
 }
