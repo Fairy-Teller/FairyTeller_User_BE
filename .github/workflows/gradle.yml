@@ -102,14 +102,14 @@ jobs:
                 --deployment-group-name ${{env.DEPLOYMENT_GROUP_NAME}}  
                 --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
     
-    # (11) Slack 알림
-    - name: Send Slack notification
-      uses: slack/github-action@4.4.0
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      with:
-        status: ${{ job.status }}
-        fields: deployment-status,commit,author,repository,event-name
-        deployment: ${{ env.DEPLOYMENT_GROUP_NAME }}
-        environment: ${{ env.PROJECT_NAME }}
-        message: "Deployment completed successfully."
+#     # (11) Slack 알림
+#     - name: Send Slack notification
+#       uses: slack/github-action@4.4.0
+#       env:
+#         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#       with:
+#         status: ${{ job.status }}
+#         fields: deployment-status,commit,author,repository,event-name
+#         deployment: ${{ env.DEPLOYMENT_GROUP_NAME }}
+#         environment: ${{ env.PROJECT_NAME }}
+#         message: "Deployment completed successfully."
