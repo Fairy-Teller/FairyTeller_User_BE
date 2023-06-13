@@ -21,7 +21,7 @@ public class ChatGptController {
         return chatGptService.askQuestion(requestDto);
     }
 
-    @GetMapping("/summarize")
+    @PostMapping("/summarize")
     public void sendQuestionToSummarize(@RequestBody SummarizingRequestDto requestDto,
                                                        @AuthenticationPrincipal String userId){
         ChatGptResponseDto gptResponseDto = chatGptService.askSummarize(requestDto);
