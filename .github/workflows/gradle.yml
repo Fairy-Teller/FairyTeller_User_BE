@@ -60,6 +60,14 @@ jobs:
         sed -i "s|#spring.security.oauth2.client.registration.google.client-id=|spring.security.oauth2.client.registration.google.client-id=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
         sed -i "s|#spring.security.oauth2.client.registration.google.client-secret=|spring.security.oauth2.client.registration.google.client-secret=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
     
+    # (7)
+    - name: Replace secrets in Google JSON file
+      run: |
+        sed -i "s/\"private_key_id\":\"\"/\"private_key_id\": \"$TTS_KEY_ID\"/" ./src/main/resources/keys/fairyteller-389106-5d8a6e4f1894.json
+        sed -i "s/\"private_key\":\"\"/\"private_key\": \"$TTS_PRIVATE_KEY\"/" ./src/main/resources/keys/fairyteller-389106-5d8a6e4f1894.json
+        sed -i "s/\"client_email\":\"\"/\"client_email\": \"$TTS_CLIENT_EMAIL\"/" ./src/main/resources/keys/fairyteller-389106-5d8a6e4f1894.json
+    
+    
     # (6) Gradle Build (test 제외)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
