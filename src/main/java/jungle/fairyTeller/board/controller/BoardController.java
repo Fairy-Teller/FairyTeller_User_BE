@@ -54,8 +54,9 @@ public class BoardController {
             BookEntity bookEntity = bookRepository.findById(boardEntity.getBookId())
                     .orElseThrow(() -> new IllegalArgumentException("Book not found"));
             boardEntity.setTitle(bookEntity.getTitle());
-            boardEntity.setThumbnailUrl(bookEntity.getThumbnailUrl());
-
+            //boardEntity.setThumbnailUrl(bookEntity.getThumbnailUrl());
+            String thumbnailUrl = "https://s3.ap-northeast-2.amazonaws.com/" + bookEntity.getThumbnailUrl();
+            boardEntity.setThumbnailUrl(thumbnailUrl);
             // BookEntity 정보를 가져온 후 BoardDto에 설정
             BoardEntity savedBoard = boardService.saveBoard(boardEntity);
             Pageable pageable = PageRequest.of(0, 9); // 페이지 크기와 정렬 방식을 지정
