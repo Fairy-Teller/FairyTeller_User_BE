@@ -47,14 +47,16 @@ public class BoardController {
             UserEntity user = userRepository.findById(Integer.parseInt(userId))
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             BoardEntity boardEntity = BoardDto.toEntity(boardDto);
+
+            boardEntity.setAuthor(user.getId());
             boardEntity.setNickname(user.getNickname());
-            // BookEntity 정보를 가져온 후 BoardDto에 설정
+
             BookEntity bookEntity = bookRepository.findById(boardEntity.getBookId())
                     .orElseThrow(() -> new IllegalArgumentException("Book not found"));
-            boardEntity.setBookId(bookEntity.getBookId());
-            boardEntity.setAuthor(bookEntity.getAuthor());
             boardEntity.setTitle(bookEntity.getTitle());
             boardEntity.setThumbnailUrl(bookEntity.getThumbnailUrl());
+
+            // BookEntity 정보를 가져온 후 BoardDto에 설정
             BoardEntity savedBoard = boardService.saveBoard(boardEntity);
             Pageable pageable = PageRequest.of(0, 9); // 페이지 크기와 정렬 방식을 지정
             ResponseDto<BoardDto> response = getAllBoardsResponse(pageable); // 수정된 부분
