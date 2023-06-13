@@ -62,8 +62,9 @@ public class ChatGptService {
     }
 
     public ChatGptResponseDto askSummarize(SummarizingRequestDto requestDto){
-        String question = requestParsingToSummarize(requestDto);
-        System.out.println("한 줄 요약:"+question);
+        //String question = requestParsingToSummarize(requestDto);
+        System.out.println("한 줄 요약:"+requestDto.getText());
+        String question = "'"+requestDto.getText()+"'"+"Please summarize a line in English";
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
