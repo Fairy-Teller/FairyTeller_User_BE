@@ -70,6 +70,8 @@ public class BookController {
                 .author(book.getAuthor())
                 .title(book.getTitle())
                 .thumbnailUrl(book.getThumbnailUrl())
+                .fullStory(book.getFullStory())
+                .audioUrl(book.getAudioUrl())
                 .build();
 
         return ResponseEntity.ok().body(dto);
