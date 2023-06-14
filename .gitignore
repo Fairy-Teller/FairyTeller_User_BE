@@ -37,6 +37,5 @@ out/
 .vscode/
 
 ### api key 등 민감정보 ###
-application-oauth.properties
-application-file.properties
-!**/src/main/resources/static/keys
+application-local.properties
+/src/main/resources/keys/fairyteller-389106-5d8a6e4f1894.json
