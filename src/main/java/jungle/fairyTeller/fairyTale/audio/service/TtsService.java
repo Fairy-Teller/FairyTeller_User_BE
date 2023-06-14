@@ -31,9 +31,10 @@ public class TtsService {
 
             // 음성 타입과 언어 설정
             VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
-                    .setLanguageCode("en-US") // 언어 코드
-                    .setSsmlGender(SsmlVoiceGender.FEMALE) // 음성 타입
+                    .setLanguageCode("ko-KR") // 한국어 언어 코드
+                    .setSsmlGender(SsmlVoiceGender.FEMALE) // 여성 음성 타입
                     .build();
+
 
             // 음성 출력 형식 설정 (MP3)
             AudioConfig audioConfig = AudioConfig.newBuilder()
