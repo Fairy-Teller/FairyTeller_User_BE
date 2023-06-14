@@ -1,5 +1,6 @@
 package jungle.fairyTeller.fairyTale.story.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,19 +12,15 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Choice implements Serializable {
     private String text;
-//    private Integer index;
-//    @JsonProperty("finish_reason")
-//    private String finishReason;
 
     @Builder
-    public Choice(String text) {
-        this.text = text;
+    @JsonCreator
+    public Choice(@JsonProperty("text") String text) {
+
+        //gpt가 작성한 시나리오 문자열 parsing
+        String tmpScenerio = text;
+        tmpScenerio = tmpScenerio.replaceAll("\n\n","");
+        tmpScenerio = tmpScenerio.replaceAll("\\.",".\n");
+        this.text = tmpScenerio;
     }
-
-//    public Choice(String text, Integer index, String finishReason) {
-//        this.text = text;
-//        this.index = index;
-//        this.finishReason = finishReason;
-//    }
-
 }
