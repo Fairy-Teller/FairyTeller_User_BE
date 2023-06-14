@@ -2,6 +2,7 @@ package jungle.fairyTeller.fairyTale.story.controller;
 
 import jungle.fairyTeller.fairyTale.story.dto.KeywordOptionDto;
 import jungle.fairyTeller.fairyTale.story.entity.KeywordEnum;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +13,7 @@ import java.util.List;
 @RestController
 public class KeywordController {
     @GetMapping("/keyword")
-    public List<KeywordOptionDto> getKeywords(@AuthenticationPrincipal String userId){
+    public ResponseEntity<?> getKeywords(@AuthenticationPrincipal String userId){
         List<KeywordOptionDto> options = new ArrayList<>();
 
         options.add(new KeywordOptionDto(KeywordEnum.ANIMAL, "강아지"));
@@ -28,6 +29,6 @@ public class KeywordController {
         options.add(new KeywordOptionDto(KeywordEnum.PEOPLE, "요리사"));
         options.add(new KeywordOptionDto(KeywordEnum.PEOPLE, "선생님"));
 
-        return options;
+        return ResponseEntity.ok().body(options);
     }
 }

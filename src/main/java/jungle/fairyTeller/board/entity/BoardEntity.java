@@ -28,6 +28,7 @@ public class BoardEntity {
     private String title;
     private String content;
     private String thumbnailUrl;
+    private String audioUrl;
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
 }

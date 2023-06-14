@@ -62,8 +62,9 @@ public class ChatGptService {
     }
 
     public ChatGptResponseDto askSummarize(SummarizingRequestDto requestDto){
-        String question = requestParsingToSummarize(requestDto);
-        System.out.println("한 줄 요약:"+question);
+        //String question = requestParsingToSummarize(requestDto);
+        System.out.println("한 줄 요약:"+requestDto.getText());
+        String question = "'"+requestDto.getText()+"'"+"Please summarize a line in English";
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
@@ -84,7 +85,7 @@ public class ChatGptService {
 //                +"를 가지고 1문단에 100자이내, 총 3문단짜리 2~5세를 위한 동화를 영어로 만들어줘";
         return "Please make a fairy tale for 2-5 year olds with '"
         +requestDto.getParameter1()+"',"+"'"+requestDto.getParameter2()+"',"
-        +"and '"+requestDto.getParameter3()+"'"+ "with less than 150 characters per paragraph";
+        +"and '"+requestDto.getParameter3()+"'"+ "with less than 150 characters per paragraph in English";
     }
 
     public String requestParsingToSummarize(SummarizingRequestDto requestDto){
