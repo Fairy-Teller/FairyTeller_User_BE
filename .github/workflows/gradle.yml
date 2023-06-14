@@ -42,7 +42,7 @@ jobs:
     - name: Modify application.properties
       run: |
         sed -i "s|spring.profiles.active=local|spring.profiles.active=dev|" ./src/main/resources/application.properties
-        sed -i "s|#spring.profiles.include=local|spring.profiles.include=file, oauth, tts, chatgpt|" ./src/main/resources/application.properties
+        sed -i "s|#spring.profiles.include=|spring.profiles.include=file, oauth, tts, chatgpt|" ./src/main/resources/application.properties
 
     # (4) application-chatgpt.properties 수정
     - name: Modify application-chatgpt.properties
