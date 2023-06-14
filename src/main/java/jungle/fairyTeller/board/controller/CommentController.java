@@ -1,5 +1,6 @@
 package jungle.fairyTeller.board.controller;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jungle.fairyTeller.board.dto.CommentDto;
 import jungle.fairyTeller.board.dto.ResponseDto;
 import jungle.fairyTeller.board.entity.CommentEntity;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/board")
 public class CommentController {
+    private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
     @Autowired
     private BoardService boardService;
     @Autowired
@@ -42,9 +44,10 @@ public class CommentController {
             CommentEntity commentEntity = CommentDto.toEntity(commentDto);
             commentEntity.setBoardId(boardId);
             commentEntity.setUserId(user.getId());
-            commentEntity.setAuthor(user.getNickname()); // Set the author as the user's nickname
+            commentEntity.setAuthor(user.getNickname());
             CommentEntity savedComment = commentService.saveComment(commentEntity);
             CommentDto savedCommentDto = new CommentDto(savedComment);
+            savedCommentDto.setEditable(savedComment.getUserId().equals(Integer.parseInt(userId)));
             ResponseDto<CommentDto> response = new ResponseDto<>();
             response.setData(Collections.singletonList(savedCommentDto));
             return ResponseEntity.ok().body(response);
@@ -56,13 +59,21 @@ public class CommentController {
     @GetMapping("/{boardId}/comments")
     public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardIdPaged(
             @PathVariable Integer boardId,
-            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable,
+            @AuthenticationPrincipal String userId
     ) {
         try {
+            Integer userIdInt = Integer.parseInt(userId);
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
             List<CommentEntity> comments = commentPage.getContent();
             List<CommentDto> commentDtos = comments.stream()
-                    .map(CommentDto::new)
+                    .map(comment -> {
+                        CommentDto commentDto = new CommentDto(comment);
+                        boolean isEditable = comment.getUserId().equals(userIdInt);
+                        commentDto.setEditable(isEditable);
+                        logger.info("userId: {}, comment.getUserId(): {}, isEditable: {}", userIdInt, comment.getUserId(), isEditable);
+                        return commentDto;
+                    })
                     .collect(Collectors.toList());
 
             ResponseDto<CommentDto> response = new ResponseDto<>();

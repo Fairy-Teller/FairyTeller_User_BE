@@ -1,4 +1,6 @@
 package jungle.fairyTeller.board.controller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jungle.fairyTeller.board.dto.BoardDto;
 import jungle.fairyTeller.board.dto.CommentDto;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/board")
 public class BoardController {
+    private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
     @Autowired
     private BoardService boardService;
     @Autowired
@@ -62,7 +65,7 @@ public class BoardController {
             // BookEntity 정보를 가져온 후 BoardDto에 설정
             BoardEntity savedBoard = boardService.saveBoard(boardEntity);
             Pageable pageable = PageRequest.of(0, 9); // 페이지 크기와 정렬 방식을 지정
-            ResponseDto<BoardDto> response = getAllBoardsResponse(pageable); // 수정된 부분
+            ResponseDto<BoardDto> response = getAllBoardsResponse(pageable, userId); // 수정된 부분
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             log.error("Failed to save the board", e);
@@ -75,7 +78,7 @@ public class BoardController {
     public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(@AuthenticationPrincipal String userId,
                                                               @PageableDefault(size = 9, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable) {
         try {
-            ResponseDto<BoardDto> response = getAllBoardsResponse(pageable);
+            ResponseDto<BoardDto> response = getAllBoardsResponse(pageable, userId);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             log.error("모든 게시물을 불러오는데 실패했습니다", e);
@@ -88,10 +91,15 @@ public class BoardController {
     }
 
     // 모든 Board를 반환하는 ResponseDto를 생성한다
-    private ResponseDto<BoardDto> getAllBoardsResponse(Pageable pageable) {
+    private ResponseDto<BoardDto> getAllBoardsResponse(Pageable pageable, String userId) {
         Page<BoardEntity> boardPage = boardService.getAllBoards(pageable);
         List<BoardEntity> boards = boardPage.getContent();
-        List<BoardDto> dtos = boards.stream().map(BoardDto::new).collect(Collectors.toList());
+        List<BoardDto> dtos = boards.stream().map(board -> {
+            BoardDto boardDto = new BoardDto(board);
+            boolean isEditable = board.getAuthor().equals(Integer.parseInt(userId));
+            boardDto.setEditable(isEditable);
+            return boardDto;
+        }).collect(Collectors.toList());
         return ResponseDto.<BoardDto>builder().data(dtos).build();
     }
 
@@ -108,11 +116,17 @@ public class BoardController {
             // 게시글 작성자와 로그인한 사용자의 ID를 비교하여 수정 가능 여부 판단
             boolean isEditable = board.getAuthor().equals(Integer.parseInt(userId));
             boardDto.setEditable(isEditable);
+
             Pageable commentPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, commentPageable);
             List<CommentEntity> comments = commentPage.getContent();
             List<CommentDto> commentDtos = comments.stream()
-                    .map(CommentDto::new)
+                    .map(comment -> {
+                        CommentDto commentDto = new CommentDto(comment);
+                        boolean isCommentEditable = comment.getUserId().equals(Integer.parseInt(userId));
+                        commentDto.setEditable(isCommentEditable);
+                        return commentDto;
+                    })
                     .collect(Collectors.toList());
             boardDto.setComments(commentDtos);
 
@@ -123,6 +137,5 @@ public class BoardController {
             return ResponseEntity.ok(response);
         }).orElse(ResponseEntity.notFound().build());
     }
-
 
 }
