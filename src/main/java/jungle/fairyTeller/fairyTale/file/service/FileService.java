@@ -34,31 +34,31 @@ public class FileService {
         String activeProfiles = environment.getProperty("spring.profiles.active");
         String filePath;
         if (activeProfiles != null && activeProfiles.contains("dev")) {
-            filePath = uploadToS3(file, bucket, fileName);
+            filePath = uploadToS3(file, fileName);
         } else {
-            filePath = uploadToLocal(file, localUrl, fileName);
+            filePath = uploadToLocal(file, fileName);
         }
         return filePath;
     }
 
-    private String uploadToS3(byte[] file, String uploadPath, String fileName) {
+    private String uploadToS3(byte[] file, String fileName) {
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.length);
 
             amazonS3Client.putObject(bucket, fileName, new ByteArrayInputStream(file), metadata);
 
-            return uploadPath +"/" + fileName;
+            return bucketUrl +"/" + fileName;
         } catch (AmazonS3Exception e) {
             log.error("Failed to upload file to S3: {}", e.getMessage());
             throw new RuntimeException("Failed to upload file to S3", e);
         }
     }
 
-    private String uploadToLocal(byte[] file, String uploadPath, String fileName) {
-        String localFilePath = uploadPath + "/" + fileName;
+    private String uploadToLocal(byte[] file, String fileName) {
+        String localFilePath = localUrl + "/" + fileName;
 
-        File directory = new File(uploadPath);
+        File directory = new File(localUrl);
         if (!directory.exists()) {
             directory.mkdirs();
         }
