@@ -23,7 +23,7 @@ public class PageEntity {
 
     @MapsId("bookId")
     @ManyToOne
-    @JoinColumn(name = "BOOK_ID")
+    @JoinColumn(name = "bookId")
     private BookEntity book;
 
     private String fullStory;

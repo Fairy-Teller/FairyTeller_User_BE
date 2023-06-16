@@ -12,22 +12,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageDTO {
-    private int no;
-    private String story;
+    private int pageNo;
+    private String fullStory;
     private String imageUrl;
     private String audioUrl;
 
     public PageDTO(final PageEntity entity) {
-        this.no = entity.getPageNo().getPageNo();
-        this.story = entity.getFullStory();
+        this.pageNo = entity.getPageNo().getPageNo();
+        this.fullStory = entity.getFullStory();
         this.imageUrl = entity.getImageUrl();
         this.audioUrl = entity.getAudioUrl();
     }
 
     public static PageEntity toEntity(final PageDTO dto) {
         PageEntity pageEntity = PageEntity.builder()
-                .pageNo(new PageId(dto.getNo(), null))
-                .fullStory(dto.getStory())
+                .pageNo(new PageId(dto.getPageNo(), null))
+                .fullStory(dto.getFullStory())
                 .imageUrl(dto.getImageUrl())
                 .audioUrl(dto.getAudioUrl())
                 .build();

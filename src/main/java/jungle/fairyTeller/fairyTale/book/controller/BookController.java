@@ -3,8 +3,10 @@ package jungle.fairyTeller.fairyTale.book.controller;
 import jungle.fairyTeller.fairyTale.Image.service.SaveImgService;
 import jungle.fairyTeller.fairyTale.audio.service.TtsService;
 import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
+import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
 import jungle.fairyTeller.fairyTale.book.dto.ResponseDTO;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
+import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
 import jungle.fairyTeller.fairyTale.book.service.BookService;
 import jungle.fairyTeller.fairyTale.file.service.FileService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -159,5 +163,29 @@ public class BookController {
         }
     }
 
+    @GetMapping("/{bookId}")
+    public ResponseEntity<ResponseDTO<BookDTO>> getBookById(
+            @PathVariable Integer bookId,
+            @AuthenticationPrincipal String userId
+    ) {
+        Optional<BookEntity> bookOptional = Optional.ofNullable(bookService.getBookByBookId(bookId));
+        if (bookOptional.isPresent()) {
+            BookEntity book = bookOptional.get();
+            BookDTO bookDto = new BookDTO(book);
+
+            // 페이지 조회
+            List<PageEntity> pages = book.getPages();
+            List<PageDTO> pageDtos = pages.stream()
+                    .map(PageDTO::new)
+                    .collect(Collectors.toList());
+            bookDto.setPages(pageDtos);
+
+            ResponseDTO<BookDTO> response = new ResponseDTO<>();
+            response.setData(Collections.singletonList(bookDto));
+            return ResponseEntity.ok().body(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

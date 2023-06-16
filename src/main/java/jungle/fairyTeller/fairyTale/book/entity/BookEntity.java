@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class BookEntity {
     private String thumbnailUrl;
 
     @OneToMany(mappedBy = "book")
-    private List<PageEntity> pages = new ArrayList<PageEntity>();
+    private List<PageEntity> pages;
 
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
