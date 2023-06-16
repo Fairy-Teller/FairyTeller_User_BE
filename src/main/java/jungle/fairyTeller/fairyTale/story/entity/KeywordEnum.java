@@ -1,6 +1,10 @@
 package jungle.fairyTeller.fairyTale.story.entity;
 
 public enum KeywordEnum {
+    PEOPLE,
     ANIMAL,
-    PEOPLE
+    COLOR,
+    THING,
+    PLACE
+
 }

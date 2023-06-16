@@ -7,27 +7,43 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class KeywordController {
     @GetMapping("/keyword")
     public ResponseEntity<?> getKeywords(@AuthenticationPrincipal String userId){
-        List<KeywordOptionDto> options = new ArrayList<>();
+        List<Map<String,Object>> options = new ArrayList<>();
 
-        options.add(new KeywordOptionDto(KeywordEnum.ANIMAL, "강아지"));
-        options.add(new KeywordOptionDto(KeywordEnum.ANIMAL, "고양이"));
-        options.add(new KeywordOptionDto(KeywordEnum.ANIMAL, "공룡"));
-        options.add(new KeywordOptionDto(KeywordEnum.ANIMAL, "토끼"));
-        options.add(new KeywordOptionDto(KeywordEnum.ANIMAL, "돼지"));
-        options.add(new KeywordOptionDto(KeywordEnum.ANIMAL, "판다"));
-        options.add(new KeywordOptionDto(KeywordEnum.PEOPLE, "엄마"));
-        options.add(new KeywordOptionDto(KeywordEnum.PEOPLE, "아빠"));
-        options.add(new KeywordOptionDto(KeywordEnum.PEOPLE, "구름"));
-        options.add(new KeywordOptionDto(KeywordEnum.PEOPLE, "사탕"));
-        options.add(new KeywordOptionDto(KeywordEnum.PEOPLE, "공주님"));
-        options.add(new KeywordOptionDto(KeywordEnum.PEOPLE, "왕자님"));
+        Map<String , Object> peopleOptions = new HashMap<>();
+        peopleOptions.put("theme", "PEOPLE");
+        peopleOptions.put("titles", Arrays.asList("공주", "왕자", "엄마", "아빠", "요정", "화가", "요리사",
+                "경찰관", "선생님", "개발자"));
+        options.add(peopleOptions);
+
+        Map<String , Object> animalOptions = new HashMap<>();
+        animalOptions.put("theme", "ANIMAL");
+        animalOptions.put("titles", Arrays.asList("토끼","강아지", "고양이", "사자","돼지",
+                "펭귄","호랑이", "병아리", "사슴","공룡","말"));
+        options.add(animalOptions);
+
+        Map<String , Object> colorOptions = new HashMap<>();
+        colorOptions.put("theme", "COLOR");
+        colorOptions.put("titles", Arrays.asList("분홍색", "노랑색", "하늘색", "초록색", "보라색",
+                "흰색", "무지개색", "주황색", "금색", "은색"));
+        options.add(colorOptions);
+
+        Map<String , Object> thingOptions = new HashMap<>();
+        thingOptions.put("theme", "THING");
+        thingOptions.put("titles", Arrays.asList("소방차", "경찰차", "반지", "선물", "핸드폰", "사탕",
+                "구름", "솜사탕", "드레스", "구두", "왕관", "컴퓨터"));
+        options.add(thingOptions);
+
+        Map<String , Object> placeOptions = new HashMap<>();
+        placeOptions.put("theme", "PLACE");
+        placeOptions.put("titles", Arrays.asList("바다", "유치원", "숲", "학교", "정원", "집", "궁전",
+                "공원", "놀이터", "놀이동산", "동물원"));
+        options.add(placeOptions);
 
         return ResponseEntity.ok().body(options);
     }
