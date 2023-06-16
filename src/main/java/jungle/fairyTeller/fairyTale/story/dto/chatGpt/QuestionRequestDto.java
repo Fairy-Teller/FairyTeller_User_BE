@@ -1,4 +1,4 @@
-package jungle.fairyTeller.fairyTale.story.dto;
+package jungle.fairyTeller.fairyTale.story.dto.chatGpt;
 
 import lombok.Getter;
 

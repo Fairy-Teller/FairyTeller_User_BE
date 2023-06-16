@@ -32,7 +32,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
-	//윤설추가
+	//chat gpt
 	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.0'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
@@ -41,7 +41,12 @@ dependencies {
 
 	// s3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE';
+
+	//papago
+	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+
 }
+
 
 tasks.named('test') {
 	useJUnitPlatform()
