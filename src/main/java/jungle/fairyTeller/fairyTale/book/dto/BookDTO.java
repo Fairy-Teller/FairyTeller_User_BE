@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -14,18 +18,18 @@ public class BookDTO {
     private Integer bookId;
     private Integer author;
     private String title;
-    private String fullStory;
     private String thumbnailUrl;
-
-    private String audioUrl;
+    private List<PageDTO> pages;
 
     public BookDTO(final BookEntity entity) {
         this.bookId = entity.getBookId();
         this.author = entity.getAuthor();
         this.title = entity.getTitle();
-//        this.fullStory = entity.getFullStory();
-//        this.thumbnailUrl = entity.getThumbnailUrl();
-//        this.audioUrl = entity.getAudioUrl();
+        this.thumbnailUrl = entity.getThumbnailUrl();
+        this.pages = entity.getPages()
+                .stream()
+                .map(PageDTO::new)
+                .collect(Collectors.toList());
     }
 
     public static BookEntity toEntity(final BookDTO dto) {
@@ -33,9 +37,11 @@ public class BookDTO {
                 .bookId(dto.getBookId())
                 .author(dto.getAuthor())
                 .title(dto.getTitle())
-//                .fullStory(dto.getFullStory())
-//                .thumbnailUrl(dto.getThumbnailUrl())
-//                .audioUrl(dto.getAudioUrl())
+                .thumbnailUrl(dto.getThumbnailUrl())
+                .pages(dto.getPages()
+                        .stream()
+                        .map(PageDTO::toEntity)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

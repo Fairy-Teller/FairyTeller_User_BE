@@ -21,15 +21,25 @@ public class PageEntity {
     @EmbeddedId
     private PageId pageNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bookId", insertable = false, updatable = false)
+    @MapsId("bookId")
+    @ManyToOne
+    @JoinColumn(name = "BOOK_ID")
     private BookEntity book;
 
     private String fullStory;
 
-    private String thumbnailUrl;
+    private String imageUrl;
 
     private String audioUrl;
+
+    // 연관관계 편의 메소드
+    public void setBook(BookEntity book) {
+        this.book = book;
+
+        if(!book.getPages().contains(this)) {
+            book.getPages().add(this);
+        }
+    }
 
 }
 
