@@ -98,8 +98,9 @@ public class CommentController {
             // 댓글 삭제를 위한 권한 확인
             CommentEntity comment = commentService.getCommentById(commentId)
                     .orElseThrow(() -> new NoSuchElementException("Comment not found"));
-            // 현재 인증된 사용자와 댓글 작성자 비교
-            if (!comment.getUserId().equals(Integer.parseInt(userId))) {
+            // 현재 인증된 사용자와 댓글 작성자, 혹은 보드 작성자 비교
+            if (!comment.getUserId().equals(Integer.parseInt(userId))
+                    && !boardService.getAuthorByBoardId(boardId).equals(Integer.parseInt(userId))) {
                 // 권한이 없는 경우 403 Forbidden 상태 코드 반환
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
