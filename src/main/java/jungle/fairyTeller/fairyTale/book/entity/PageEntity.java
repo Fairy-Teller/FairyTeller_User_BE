@@ -23,7 +23,7 @@ public class PageEntity {
 
     @MapsId("bookId")
     @ManyToOne
-    @JoinColumn(name = "bookId")
+    @JoinColumn(name = "BOOK_ID")
     private BookEntity book;
 
     private String fullStory;
@@ -32,7 +32,6 @@ public class PageEntity {
 
     private String audioUrl;
 
-    // 연관관계 편의 메소드
     public void setBook(BookEntity book) {
         this.book = book;
 

@@ -7,12 +7,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.criteria.CriteriaBuilder;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageDTO {
-    private int pageNo;
+    private Integer pageNo;
     private String fullStory;
     private String imageUrl;
     private String audioUrl;
