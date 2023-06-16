@@ -37,6 +37,16 @@ public class BookService {
         return bookRepository.findByBookId(entity.getBookId());
     }
 
+    public BookEntity updateUserVoice(final BookEntity entity) {
+        validate(entity);
+
+        bookRepository.save(entity);
+
+        log.info("Book Entity Id : {} is updated", entity.getBookId());
+
+        return bookRepository.findByBookId(entity.getBookId());
+    }
+
     // userId로 조회
     public List<BookEntity> retrieve(final Integer userId) {
         return bookRepository.findAllByAuthor(userId);

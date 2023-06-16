@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageDTO {
-    private int no;
+    private Integer pageNo;
     private String story;
     private String imageUrl;
     private String audioUrl;
 
     public PageDTO(final PageEntity entity) {
-        this.no = entity.getPageNo().getPageNo();
+        this.pageNo = entity.getPageNo().getPageNo();
         this.story = entity.getFullStory();
         this.imageUrl = entity.getImageUrl();
         this.audioUrl = entity.getAudioUrl();
@@ -26,7 +26,7 @@ public class PageDTO {
 
     public static PageEntity toEntity(final PageDTO dto) {
         PageEntity pageEntity = PageEntity.builder()
-                .pageNo(new PageId(dto.getNo(), null))
+                .pageNo(new PageId(dto.getPageNo(), null))
                 .fullStory(dto.getStory())
                 .imageUrl(dto.getImageUrl())
                 .audioUrl(dto.getAudioUrl())
