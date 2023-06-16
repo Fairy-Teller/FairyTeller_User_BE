@@ -3,7 +3,6 @@ package jungle.fairyTeller.fairyTale.book.dto;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import lombok.*;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 

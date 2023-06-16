@@ -17,6 +17,7 @@ public class CommentDto {
     private String content;
     private String author;
     private Integer userId;
+    private boolean editable;
     private Date createdDatetime;
 
     public CommentDto(CommentEntity entity) {

@@ -16,7 +16,8 @@ public class BookService {
     private BookRepository bookRepository;
 
     // 줄거리 확정 이후 BookId를 채번하고, 줄거리만을 저장하는 로직
-    public BookEntity createBookIdAndSaveStory(final BookEntity entity) {
+    // 다중 페이지 형식 이후 수정
+    public BookEntity createBookId(final BookEntity entity) {
         validate(entity);
 
         bookRepository.save(entity);
