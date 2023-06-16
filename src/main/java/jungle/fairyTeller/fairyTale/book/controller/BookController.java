@@ -42,9 +42,9 @@ public class BookController {
                 .bookId(book.getBookId())
                 .author(book.getAuthor())
                 .title(book.getTitle())
-                .fullStory(book.getFullStory())
-                .thumbnailUrl(book.getThumbnailUrl())
-                .audioUrl(book.getAudioUrl())
+//                .fullStory(book.getFullStory())
+//                .thumbnailUrl(book.getThumbnailUrl())
+//                .audioUrl(book.getAudioUrl())
                 .build();
 
         return ResponseEntity.ok().body(dto);
@@ -69,9 +69,9 @@ public class BookController {
                 .bookId(book.getBookId())
                 .author(book.getAuthor())
                 .title(book.getTitle())
-                .thumbnailUrl(book.getThumbnailUrl())
-                .fullStory(book.getFullStory())
-                .audioUrl(book.getAudioUrl())
+//                .thumbnailUrl(book.getThumbnailUrl())
+//                .fullStory(book.getFullStory())
+//                .audioUrl(book.getAudioUrl())
                 .build();
 
         return ResponseEntity.ok().body(dto);
@@ -90,7 +90,7 @@ public class BookController {
                     .bookId(savedBook.getBookId())
                     .author(savedBook.getAuthor())
                     .title("임시"+savedBook.getBookId())
-                    .fullStory(savedBook.getFullStory())
+//                    .fullStory(savedBook.getFullStory())
                     .build();
 
             return ResponseEntity.ok().body(savedBookDto);
@@ -119,7 +119,7 @@ public class BookController {
                 // 1-2. 이미지를 저장경로에 저장한다.
                 String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
                 // 1-3. imgUrl 변수에 경로를 담는다
-                originalBook.setThumbnailUrl(imgUrl);
+//                originalBook.setThumbnailUrl(imgUrl);
 
             } catch (Exception e) {
                 throw new RuntimeException("Error converting image: " + e.getMessage(), e);
@@ -129,11 +129,11 @@ public class BookController {
             try {
                 String fileName = String.valueOf(originalBook.getBookId());
                 // 2-1. tts를 호출한다
-                byte[] audioContent = ttsService.synthesizeText(originalBook.getFullStory(), fileName);
+//                byte[] audioContent = ttsService.synthesizeText(originalBook.getFullStory(), fileName);
                 // 2-2. 생성된 오디오파일을 저장경로에 저장한다.
-                String audioUrl = fileService.uploadFile(audioContent, fileName + ".mp3");
+//                String audioUrl = fileService.uploadFile(audioContent, fileName + ".mp3");
                 // 2-3. audioUrl 변수에 경로를 담는다.
-                originalBook.setAudioUrl(audioUrl);
+//                originalBook.setAudioUrl(audioUrl);
 
             } catch (Exception e) {
                 throw new RuntimeException("Error synthesizing text: " + e.getMessage(), e);
@@ -146,9 +146,9 @@ public class BookController {
                     .bookId(originalBook.getBookId())
                     .author(originalBook.getAuthor())
                     .title(originalBook.getTitle())
-                    .fullStory(originalBook.getFullStory())
-                    .thumbnailUrl(originalBook.getThumbnailUrl())
-                    .audioUrl(originalBook.getAudioUrl())
+//                    .fullStory(originalBook.getFullStory())
+//                    .thumbnailUrl(originalBook.getThumbnailUrl())
+//                    .audioUrl(originalBook.getAudioUrl())
                     .build();
 
             return ResponseEntity.ok().body(savedBookDto);

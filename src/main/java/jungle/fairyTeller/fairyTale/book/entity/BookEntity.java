@@ -14,7 +14,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "book")
+@Table(name = "books")
 public class BookEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -24,12 +24,6 @@ public class BookEntity {
     private Integer author;
 
     private String title;
-
-    private String fullStory;
-
-    private String thumbnailUrl;
-
-    private String audioUrl;
 
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
