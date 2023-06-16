@@ -46,4 +46,10 @@ public class BoardService {
         return boardRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
     }
+
+    @Transactional(readOnly = true)
+    public Integer getAuthorByBoardId(Integer boardId) {
+        BoardEntity boardEntity = getBoardById(boardId);
+        return boardEntity.getAuthor();
+    }
 }
