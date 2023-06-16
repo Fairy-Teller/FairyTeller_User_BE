@@ -16,7 +16,7 @@ public class ChatGptRequestDto implements Serializable {
     @JsonProperty ("max_tokens")
     private Integer maxTokens;
     private Double temperature;
-    @JsonProperty("top_p")
+    @JsonProperty("top_p")    
     private Double topP;
 
     @Builder

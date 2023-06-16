@@ -5,6 +5,7 @@ import jungle.fairyTeller.fairyTale.story.dto.ChatGptResponseDto;
 import jungle.fairyTeller.fairyTale.story.dto.QuestionRequestDto;
 import jungle.fairyTeller.config.ChatGptConfig;
 import jungle.fairyTeller.fairyTale.story.dto.SummarizingRequestDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,19 +17,31 @@ import org.springframework.web.client.RestTemplate;
 public class ChatGptService {
 
     private static RestTemplate restTemplate = new RestTemplate();
+    private final ChatGptConfig chatGptConfig;
+
+    @Autowired
+    public ChatGptService(ChatGptConfig chatGptConfig) {
+        this.chatGptConfig = chatGptConfig;
+    }
 
     public HttpEntity<ChatGptRequestDto> buildHttpEntity(ChatGptRequestDto requestDto) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(ChatGptConfig.MEDIA_TYPE));
-        headers.add(ChatGptConfig.AUTHORIZATION, ChatGptConfig.BEARER + ChatGptConfig.API_KEY);
+        headers.setContentType(MediaType.parseMediaType(chatGptConfig.getMediaType()));
+        headers.add(chatGptConfig.getAuthorization(), chatGptConfig.getBearer() + chatGptConfig.getApiKey());
         return new HttpEntity<>(requestDto, headers);
     }
 
     public ChatGptResponseDto getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + chatGptConfig.getApiKey());
+
+        HttpEntity<ChatGptRequestDto> requestEntity = new HttpEntity<>(chatGptRequestDtoHttpEntity.getBody(), headers);
+
         ResponseEntity<ChatGptResponseDto> responseEntity = restTemplate.postForEntity(
-                ChatGptConfig.URL,
-                chatGptRequestDtoHttpEntity,
+                chatGptConfig.getUrl(),
+                requestEntity,
                 ChatGptResponseDto.class);
+
         return responseEntity.getBody();
     }
 
@@ -38,11 +51,11 @@ public class ChatGptService {
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
-                                ChatGptConfig.MODEL,
+                                chatGptConfig.getModel(),
                                 question,
-                                ChatGptConfig.MAX_TOKEN,
-                                ChatGptConfig.TEMPERATURE,
-                                ChatGptConfig.TOP_P
+                                chatGptConfig.getMaxToken(),
+                                chatGptConfig.getTemperature(),
+                                chatGptConfig.getTopP()
                         )
                 )
         );
@@ -50,43 +63,31 @@ public class ChatGptService {
 
     public ChatGptResponseDto askSummarize(SummarizingRequestDto requestDto){
         String question = requestParsingToSummarize(requestDto);
-        System.out.println("한 줄 요약:"+question);
+        //System.out.println("한 줄 요약:"+requestDto.getText());
+        //String question = "'"+requestDto.getText()+"'"+"Please summarize a line in English";
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
-                                ChatGptConfig.MODEL,
+                                chatGptConfig.getModel(),
                                 question,
-                                ChatGptConfig.MAX_TOKEN,
-                                ChatGptConfig.TEMPERATURE,
-                                ChatGptConfig.TOP_P
+                                chatGptConfig.getMaxToken(),
+                                chatGptConfig.getTemperature(),
+                                chatGptConfig.getTopP()
                         )
                 )
         );
     }
 
     public String requestParsing(QuestionRequestDto requestDto){
-//        return "'"+requestDto.getParameter1()+"',"
-//                +"'"+requestDto.getParameter2()+"',"
-//                +"'"+requestDto.getParameter3()+"'"
-//                +"를 가지고 1문단에 100자이내, 총 3문단짜리 2~5세를 위한 동화를 영어로 만들어줘";
         return "Please make a fairy tale for 2-5 year olds with '"
         +requestDto.getParameter1()+"',"+"'"+requestDto.getParameter2()+"',"
-        +"and '"+requestDto.getParameter3()+"'"+ "with less than 150 characters per paragraph";
+        +"and '"+requestDto.getParameter3()+"'"+ "with less than 150 characters per paragraph in English";
     }
 
     public String requestParsingToSummarize(SummarizingRequestDto requestDto){
         String tmpText = requestDto.getText();
-        String targetParagraph = "\n\n";
-        int startIndex = tmpText.indexOf(targetParagraph);
-        String parsedParagraph = "";
-        if (startIndex != -1) {
-            startIndex += targetParagraph.length();
-            int endIndex = tmpText.indexOf("\n\n", startIndex);
-            if (endIndex != -1) {
-                parsedParagraph += tmpText.substring(startIndex, endIndex);
-            }
-        }
-        //return "Summarize a line from"+"'"+parsedParagraph+"'";
-        return "'"+parsedParagraph+"'"+"Please summarize a line in English";
+        tmpText = tmpText.replaceAll("\n","");
+
+        return "'"+tmpText+"'"+"Please summarize a line in English";
     }
 }

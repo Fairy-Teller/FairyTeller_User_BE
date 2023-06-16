@@ -36,4 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 
-application-oauth.properties
+### api key 등 민감정보 ###
+application-local.properties
