@@ -8,7 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
-
+import java.util.List;
 @Data
 @Entity
 @Builder
@@ -22,7 +22,7 @@ public class BoardEntity {
     @Column(nullable = false)
     private Integer bookId;
     @Column(nullable = false)
-    private Integer author;
+    private Integer authorId;
     private String nickname;
     @Column(nullable = false)
     private String title;
@@ -30,4 +30,6 @@ public class BoardEntity {
     private String thumbnailUrl;
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentEntity> pages;
 }

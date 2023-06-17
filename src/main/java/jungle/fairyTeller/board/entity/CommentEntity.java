@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Data
 @Entity
@@ -20,17 +18,7 @@ public class CommentEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer commentId;
 
-    @Column(nullable = false)
-    private Integer boardId;
-
-    @Column(nullable = false)
-    private String content;
-
-    @Column(nullable = false)
-    private String author;
-    @Column(nullable = false)
-    private Integer userId;
-
-    @CreationTimestamp
-    private Date createdDatetime;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    private BoardEntity board;
 }
