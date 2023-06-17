@@ -23,7 +23,7 @@ public class CommentEntity {
 
     @MapsId("boardId")
     @ManyToOne
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "boardId")
     private BoardEntity board;
 
     @Column(nullable = false)
