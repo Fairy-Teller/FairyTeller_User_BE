@@ -1,55 +1,92 @@
 package jungle.fairyTeller.board.service;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
+import jungle.fairyTeller.board.dto.BoardDTO;
+import jungle.fairyTeller.board.dto.CommentDTO;
 import jungle.fairyTeller.board.entity.BoardEntity;
+import jungle.fairyTeller.board.entity.CommentEntity;
 import jungle.fairyTeller.board.repository.BoardRepository;
+import jungle.fairyTeller.board.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+
 @RequiredArgsConstructor
 @Service
 public class BoardService {
-    private static final Logger log = LoggerFactory.getLogger(BoardService.class);
     @Autowired
     private BoardRepository boardRepository;
 
-    public Page<BoardEntity> getAllBoards(Pageable pageable) {
-        try {
-            return boardRepository.findAll(pageable);
-        } catch (Exception e) {
-            log.error("Failed to retrieve boards", e);
-            throw new ServiceException("Failed to retrieve boards");
-        }
+    @Autowired
+    private CommentRepository commentRepository;
+
+    public List<BoardDTO> getAllBoards() {
+        List<BoardEntity> boardEntities = boardRepository.findAll();
+        return boardEntities.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Page<BoardEntity> getPagedBoards(Pageable pageable) {
-        return boardRepository.findAll(pageable);
+    public BoardDTO saveBoard(BoardDTO boardDTO) {
+        BoardEntity boardEntity = convertToEntity(boardDTO);
+        BoardEntity savedBoard = boardRepository.save(boardEntity);
+        return convertToDTO(savedBoard);
     }
 
-    @Transactional
-    public BoardEntity saveBoard(BoardEntity boardEntity) {
-        try {
-            return boardRepository.save(boardEntity);
-        } catch (Exception e) {
-            throw new ServiceException("Failed to save the board");
-        }
+    public BoardDTO getBoardById(Integer boardId) {
+        BoardEntity boardEntity = boardRepository.findByBoardId(boardId);
+        return convertToDTO(boardEntity);
     }
 
-    @Transactional(readOnly = true)
-    public BoardEntity getBoardById(Integer boardId) {
-        return boardRepository.findByBoardId(boardId)
-                .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
+    public String getAuthorByBoardId(Integer boardId) {
+        BoardEntity boardEntity = boardRepository.findByBoardId(boardId);
+        return boardEntity.getNickname();
     }
 
-    @Transactional(readOnly = true)
-    public Integer getAuthorByBoardId(Integer boardId) {
-        BoardEntity boardEntity = getBoardById(boardId);
-        return boardEntity.getAuthor();
+    private BoardDTO convertToDTO(BoardEntity boardEntity) {
+        return BoardDTO.builder()
+                .boardId(boardEntity.getBoardId())
+                .bookId(boardEntity.getBookId())
+                .authorId(boardEntity.getAuthorId())
+                .nickname(boardEntity.getNickname())
+                .title(boardEntity.getTitle())
+                .content(boardEntity.getContent())
+                .thumbnailUrl(boardEntity.getThumbnailUrl())
+                .createdDatetime(boardEntity.getCreatedDatetime())
+                .comments(getCommentsByBoardId(boardEntity.getBoardId()))
+                .build();
+    }
+
+    private BoardEntity convertToEntity(BoardDTO boardDTO) {
+        return BoardEntity.builder()
+                .bookId(boardDTO.getBookId())
+                .authorId(boardDTO.getAuthorId())
+                .nickname(boardDTO.getNickname())
+                .title(boardDTO.getTitle())
+                .content(boardDTO.getContent())
+                .thumbnailUrl(boardDTO.getThumbnailUrl())
+                .createdDatetime(boardDTO.getCreatedDatetime())
+                .build();
+    }
+
+    private List<CommentDTO> getCommentsByBoardId(Integer boardId) {
+        List<CommentEntity> commentEntities = commentRepository.findByBoardBoardId(boardId);
+        return commentEntities.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private CommentDTO convertToDTO(CommentEntity commentEntity) {
+        return CommentDTO.builder()
+                .commentId(commentEntity.getCommentId())
+                .boardId(commentEntity.getBoard().getBoardId())
+                .userId(commentEntity.getUserId())
+                .nickname(commentEntity.getNickname())
+                .content(commentEntity.getContent())
+                .createdDatetime(commentEntity.getCreatedDatetime())
+                .build();
     }
 }
