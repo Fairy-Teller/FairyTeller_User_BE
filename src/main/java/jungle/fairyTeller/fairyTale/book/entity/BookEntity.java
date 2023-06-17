@@ -1,5 +1,6 @@
 package jungle.fairyTeller.fairyTale.book.entity;
 
+import jungle.fairyTeller.board.entity.BoardEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,8 +30,11 @@ public class BookEntity {
 
     private String thumbnailUrl;
 
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PageEntity> pages = new ArrayList<>();
+
     @OneToMany(mappedBy = "book")
-    private List<PageEntity> pages;
+    private List<BoardEntity> boards = new ArrayList<>();
 
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime

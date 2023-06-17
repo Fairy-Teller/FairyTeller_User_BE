@@ -1,5 +1,6 @@
 package jungle.fairyTeller.board.entity;
 
+import jungle.fairyTeller.user.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,23 +15,22 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "comment")
+@Table(name = "comments")
 public class CommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer commentId;
 
-    @Column(nullable = false)
-    private Integer boardId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "boardId")
+    private BoardEntity board;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity user;
 
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private String author;
-    @Column(nullable = false)
-    private Integer userId;
-
     @CreationTimestamp
-    private Date createdDatetime;
+    private Date createdDatetime; // LocalDateTime
 }
