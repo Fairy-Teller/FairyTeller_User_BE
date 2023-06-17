@@ -35,7 +35,7 @@ public class ChatGptController {
     public HttpEntity<List<HashMap<String, Object>>> sendQuestion
             (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
 
-        return chatGptService.askQuestion(requestDto);
+        return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto));
     }
 
     @PostMapping("/summarize")

@@ -112,11 +112,41 @@ public class ChatGptService {
     }
 
     public String requestParsing(QuestionRequestDto requestDto){
-        return "Please make a fairy tale for 2-5 year olds with '"
-        +requestDto.getParameter1()+"',"+"'"+requestDto.getParameter2()+"',"
-        +"'"+requestDto.getParameter3()+"',"+"'"+requestDto.getParameter4()
-        +",'"+requestDto.getParameter5()+"'"
-        + "in English";
+
+        String word1= "";
+        String word2= "";
+        String word3= "";
+        String word4= "";
+        String word5= "";
+
+        if(!requestDto.getParameter1().isEmpty()){
+            word1 = requestDto.getParameter1();
+        }
+        if(requestDto.getParameter2() != null && !requestDto.getParameter2().isEmpty()){
+            word2 = requestDto.getParameter2();
+        }
+        if(requestDto.getParameter3() != null &&!requestDto.getParameter3().isEmpty()){
+            word3 = requestDto.getParameter3();
+        }
+        if(requestDto.getParameter4() != null &&!requestDto.getParameter4().isEmpty()){
+            word4 = requestDto.getParameter4();
+        }
+        if(requestDto.getParameter5() != null &&!requestDto.getParameter5().isEmpty()){
+            word5 = requestDto.getParameter5();
+        }
+
+
+//        return "Please make a happy fairy tale for 2-5 years old with '"
+//        +requestDto.getParameter1()+"',"+"'"+requestDto.getParameter2()+"',"
+//        +"'"+requestDto.getParameter3()+"',"+"'"+requestDto.getParameter4()
+//        +",'"+requestDto.getParameter5()+"'"
+//        + "in English";
+
+        return "Please make a happy fairy tale for 2-5 years old with '"
+                +word1+"',"+"'"+word2+"',"
+                +"'"+word3+"',"+"'"+word4+"'"
+                +",'"+word5+"'"
+                + "in English";
     }
 
     public String requestParsingToSummarize(SummarizingRequestDto requestDto){
@@ -164,4 +194,89 @@ public class ChatGptService {
         return paragraphs;
     }
 
+    public QuestionRequestDto koreanEnglishMapping(QuestionRequestDto requestDto){
+        HashMap<String,String> mapping = new HashMap<>();
+        mapping.put("공주","princess");
+        mapping.put("왕자","prince");
+        mapping.put("엄마","mom");
+        mapping.put("아빠","dad");
+        mapping.put("요정","fairy");
+        mapping.put("화가","artist");
+        mapping.put("요리사","chef");
+        mapping.put("경찰관","police officer");
+        mapping.put("선생님","teacher");
+        mapping.put("개발자","developer");
+
+        mapping.put("토끼","rabbit");
+        mapping.put("강아지","dog");
+        mapping.put("고양이","cat");
+        mapping.put("사자","lion");
+        mapping.put("돼지","pig");
+        mapping.put("펭귄","penguin");
+        mapping.put("호랑이","tiger");
+        mapping.put("병아리","chick");
+        mapping.put("사슴","deer");
+        mapping.put("공룡","dinosaur");
+        mapping.put("말","horse");
+
+        mapping.put("분홍색","pink");
+        mapping.put("노랑색","yellow");
+        mapping.put("하늘색","sky blue");
+        mapping.put("초록색","green");
+        mapping.put("보라색","purple");
+        mapping.put("흰색","white");
+        mapping.put("무지개색","rainbow");
+        mapping.put("주황색","orange");
+        mapping.put("금색","gold");
+        mapping.put("은색","silver");
+
+        mapping.put("소방차","fire engine");
+        mapping.put("경찰차","police car");
+        mapping.put("반지","ring");
+        mapping.put("선물","gift");
+        mapping.put("핸드폰","cell phone");
+        mapping.put("사탕","candy");
+        mapping.put("구름","cloud");
+        mapping.put("솜사탕","cotton candy");
+        mapping.put("드레스","dress");
+        mapping.put("구두","shoe");
+        mapping.put("왕관","crown");
+        mapping.put("컴퓨터","computer");
+
+        mapping.put("바다","sea");
+        mapping.put("유치원","kindergarten");
+        mapping.put("숲","forest");
+        mapping.put("학교","school");
+        mapping.put("정원","garden");
+        mapping.put("집","house");
+        mapping.put("궁전","palace");
+        mapping.put("공원","park");
+        mapping.put("놀이터","playground");
+        mapping.put("놀이동산","amusement park");
+        mapping.put("동물원","zoo");
+
+        QuestionRequestDto questionRequestDto = new QuestionRequestDto();
+
+        if(!requestDto.getParameter1().isEmpty()){
+            String transWord1 = mapping.get(requestDto.getParameter1());
+            questionRequestDto.setParameter1(transWord1);
+        }
+        if(!requestDto.getParameter2().isEmpty()){
+            String transWord2 = mapping.get(requestDto.getParameter2());
+            questionRequestDto.setParameter2(transWord2);
+        }
+        if(!requestDto.getParameter3().isEmpty()){
+            String transWord3 = mapping.get(requestDto.getParameter3());
+            questionRequestDto.setParameter3(transWord3);
+        }
+        if(!requestDto.getParameter4().isEmpty()){
+            String transWord4 = mapping.get(requestDto.getParameter4());
+            questionRequestDto.setParameter4(transWord4);
+        }
+        if(!requestDto.getParameter5().isEmpty()){
+            String transWord5 = mapping.get(requestDto.getParameter5());
+            questionRequestDto.setParameter5(transWord5);
+        }
+        return questionRequestDto;
+    }
 }
