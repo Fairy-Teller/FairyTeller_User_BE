@@ -231,4 +231,71 @@ public class BookController {
         }
     }
 
+
+    @PostMapping("/create/image")
+    // 최종 책 제목, 이미지, 오디오 파일을 저장한다
+    public ResponseEntity<?> saveImg(@AuthenticationPrincipal String userId, @RequestBody BookDTO bookDto) {
+        try {
+            // 기존에 저장된 bookEntity 찾기
+            BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
+
+            // 1. 각 페이지를 돌며 page 저장
+            List<PageDTO> updatedPages = new ArrayList<>();
+            for (PageDTO pageDto : bookDto.getPages()) {
+                // 1-0. 해당하는 page를 찾아온다
+                PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
+
+                // 1-1. 이미지
+                try {
+                    String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
+                    // 1-1-0. 이미지를 바이트 배열로 변환
+                    byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getImageUrl());
+                    // 1-1-1. 이미지를 저장경로에 저장한다.
+                    String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
+                    // 1-1-2. imgUrl 변수에 경로를 담는다
+                    originalPage.setImageUrl(imgUrl);
+
+                    log.info(String.valueOf(pageDto.getPageNo()));
+
+                    // 첫 페이지 thumbnailUrl 저장
+                    if(pageDto.getPageNo() == 1){
+                        originalBook.setThumbnailUrl(imgUrl);
+                    }
+
+                } catch (Exception e) {
+                    throw new RuntimeException("Error converting image: " + e.getMessage(), e);
+                }
+                // 1-3. 이미지랑 오디오를 pages에 저장한다.
+                pageService.updateStoryAndAudio(originalPage);
+
+                // 1-4. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
+                PageDTO updatedPageDto = PageDTO.builder()
+                        .pageNo(pageDto.getPageNo())
+                        .fullStory(pageDto.getFullStory())
+                        .imageUrl(originalPage.getImageUrl())
+                        .audioUrl(originalPage.getAudioUrl())
+                        .build();
+                updatedPages.add(updatedPageDto);
+            }
+
+            // 3. bookEntity를 db에 저장한다
+            bookService.updateTitleStoryAudio(originalBook);
+
+            // 4. bookDTO를 반환한다
+            BookDTO savedBookDto = BookDTO.builder()
+                    .bookId(originalBook.getBookId())
+                    .author(originalBook.getAuthor())
+                    .title(originalBook.getTitle())
+                    .thumbnailUrl(originalBook.getThumbnailUrl())
+                    .pages(updatedPages)
+                    .build();
+
+            return ResponseEntity.ok().body(savedBookDto);
+        } catch(Exception e) {
+            String error = e.getMessage();
+            ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
 }
