@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -28,6 +29,7 @@ public class ChatGptService {
     }
     @Autowired
     public PaPagoTranslationService paPagoTranslationService;
+
     public HttpEntity<ChatGptRequestDto> buildHttpEntity(ChatGptRequestDto requestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(chatGptConfig.getMediaType()));
@@ -35,7 +37,7 @@ public class ChatGptService {
         return new HttpEntity<>(requestDto, headers);
     }
 
-    public ChatGptResponseDto getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
+    public HttpEntity<List<HashMap<String, Object>>> getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
 
         String source = "en";
         String target = "ko";
@@ -45,19 +47,21 @@ public class ChatGptService {
 
         HttpEntity<ChatGptRequestDto> requestEntity = new HttpEntity<>(chatGptRequestDtoHttpEntity.getBody(), headers);
 
+        //gpt 응답 받음
         ChatGptResponseDto responseDto = restTemplate.postForEntity(
                 chatGptConfig.getUrl(),
                 requestEntity,
                 ChatGptResponseDto.class).getBody();
+
+        //이야기 번역(en->ko)
         String tmp = clearString(responseDto.getText());
-        System.out.println("번역 전: "+tmp);
         String translateToText = paPagoTranslationService.translate(tmp,source,target);
-        divideIntoParagraphs(translateToText);
+        List<HashMap<String,Object>> divideParagraphs = divideIntoParagraphs(translateToText);
 
         responseDto.setText(translateToText);
-        HttpEntity<ChatGptResponseDto> httpResponseDto = new HttpEntity<>(responseDto);
+        HttpEntity<List<HashMap<String, Object>>> httpdivideParagraphs = new HttpEntity<>(divideParagraphs);
 
-        return httpResponseDto.getBody();
+        return httpdivideParagraphs;
     }
 
     public ChatGptResponseDto tmpGetResponseToSummarize(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
@@ -74,7 +78,7 @@ public class ChatGptService {
 
         return responseDto;
     }
-    public ChatGptResponseDto askQuestion(QuestionRequestDto requestDto) {
+    public HttpEntity<List<HashMap<String, Object>>> askQuestion(QuestionRequestDto requestDto) {
         String question = requestParsing(requestDto);
         System.out.println("시나리오 작성:"+question);
         return this.getResponse(
@@ -132,7 +136,7 @@ public class ChatGptService {
         parsingText = parsingText.replaceAll("Once upon a time, ", "");
         return parsingText;
     }
-    // 문단 나눌 예정
+
     //1. '.' 카운트해서 몇 문장인지 확인
     public int countDots(String text){
         int cnt = 0;
@@ -142,17 +146,20 @@ public class ChatGptService {
         System.out.println("cnt: "+cnt);
         return cnt;
     }
-
-    public List<String> divideIntoParagraphs(String text) {
+    public List<HashMap<String,Object>> divideIntoParagraphs(String text) {
+        List<HashMap<String,Object>> paragraphs = new ArrayList<>();
         String[] sentences = text.split("\\.\\s*"); // 마침표를 기준으로 문장 분리
-        List<String> paragraphs = new ArrayList<>();
+
         int paragraphSize = (int) Math.ceil((double) sentences.length / 5); // 5개의 문단으로 분할
 
         for (int i = 0; i < sentences.length; i += paragraphSize) {
             int endIndex = Math.min(i + paragraphSize, sentences.length);
             String[] paragraphSentences = Arrays.copyOfRange(sentences, i, endIndex);
+
+            HashMap<String,Object> divideParagraph = new HashMap<>();
             String paragraph = String.join(". ", paragraphSentences) + "."; // 문장을 다시 문단으로 결합
-            paragraphs.add(paragraph);
+            divideParagraph.put("paragraph",paragraph);
+            paragraphs.add(divideParagraph);
         }
         return paragraphs;
     }
