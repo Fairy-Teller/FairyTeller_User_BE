@@ -38,21 +38,22 @@ public class ChatGptController {
         return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto));
     }
 
-    @PostMapping("/summarize")
-    public ResponseEntity<Object> sendQuestionToSummarize(@RequestBody SummarizingRequestDto requestDto,
+    @PostMapping("/textToImage")
+    public ResponseEntity<Object> textToImage(@RequestBody SummarizingRequestDto requestDto,
                                                           @AuthenticationPrincipal String userId){
         try {
             if(requestDto == null || requestDto.getText() == null) {
                 throw new RuntimeException("requestDto is null.");
             }
             String transToText =translationService.translate(requestDto.getText(),"ko","en");
-            requestDto.setText(transToText);
-            ChatGptResponseDto gptResponseDto = chatGptService.askSummarize(requestDto);
-            String summaryText = gptResponseDto.getText();
-            summaryText = summaryText.replace("\n\n","");
-            System.out.println("확인용:"+summaryText);
+            //요약 로직
+           // requestDto.setText(transToText);
+          //  ChatGptResponseDto gptResponseDto = chatGptService.askSummarize(requestDto);
+          //  String summaryText = gptResponseDto.getText();
+          //  summaryText = summaryText.replace("\n\n","");
+          //  System.out.println("확인용:"+summaryText);
 //
-            String base64Image = createImgService.createImg("<lora:model1:1> " + summaryText);
+            String base64Image = createImgService.createImg("<lora:model1:1> " + transToText);
 
             HttpHeaders headers = new HttpHeaders();
             // headers.setContentType(MediaType.valueOf("image/jpeg"));
