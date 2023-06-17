@@ -1,10 +1,10 @@
 package jungle.fairyTeller.board.service;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import jungle.fairyTeller.fairyTale.book.repository.BookRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import jungle.fairyTeller.board.entity.BoardEntity;
 import jungle.fairyTeller.board.repository.BoardRepository;
+import jungle.fairyTeller.user.entity.UserEntity;
+import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class BoardService {
@@ -22,28 +23,64 @@ public class BoardService {
     private BoardRepository boardRepository;
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Transactional
     public BoardEntity saveBoard(Integer bookId, String userId, String description) {
         // BookEntity 조회
         BookEntity bookEntity = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ServiceException("Book not found"));
 
+        // UserEntity 조회
+        UserEntity userEntity = userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         // 필요한 정보 추출
         String title = bookEntity.getTitle();
         String thumbnailUrl = bookEntity.getThumbnailUrl();
 
         // BoardEntity 생성
-        BoardEntity boardEntity = new BoardEntity();
-        boardEntity.setTitle(title);
-        boardEntity.setThumbnailUrl(thumbnailUrl);
-        boardEntity.setDescription(description);
-        // BookEntity와 관계 설정
-        boardEntity.setBook(bookEntity);
-        boardEntity.setPages(bookEntity.getPages());
+        BoardEntity boardEntity = BoardEntity.builder()
+                .title(title)
+                .thumbnailUrl(thumbnailUrl)
+                .description(description)
+                .book(bookEntity)
+                .author(userEntity)
+                .build();
 
         // BoardEntity 저장
         return boardRepository.save(boardEntity);
     }
+}
+//    @Transactional
+//    public BoardEntity saveBoard(Integer bookId, String userId, String description) {
+//        // BookEntity 조회
+//        BookEntity bookEntity = bookRepository.findById(bookId)
+//                .orElseThrow(() -> new ServiceException("Book not found"));
+//
+//        UserEntity userEntity = userRepository.findById(Integer.parseInt(userId))
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//
+//        // 필요한 정보 추출
+//        String title = bookEntity.getTitle();
+//        String thumbnailUrl = bookEntity.getThumbnailUrl();
+//
+//        // BoardEntity 생성
+//        BoardEntity boardEntity = new BoardEntity();
+//        boardEntity.setTitle(title);
+//        boardEntity.setThumbnailUrl(thumbnailUrl);
+//        boardEntity.setDescription(description);
+//        // BookEntity와 관계 설정
+//        boardEntity.setBook(bookEntity);
+//        boardEntity.setAuthor(userEntity);
+//        boardEntity.setPages(bookEntity.getPages());
+//
+//        // BoardEntity 저장
+//        return boardRepository.save(boardEntity);
+//    }
+//}
 
 
 //    public Page<BoardEntity> getAllBoards(Pageable pageable) {
@@ -83,4 +120,4 @@ public class BoardService {
 //        BoardEntity boardEntity = getBoardById(boardId);
 //        return boardEntity.getAuthor();
 //    }
-}
+//}
