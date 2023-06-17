@@ -7,11 +7,15 @@ import jungle.fairyTeller.fairyTale.story.dto.SummarizingRequestDto;
 import jungle.fairyTeller.fairyTale.story.service.ChatGptService;
 import jungle.fairyTeller.fairyTale.story.service.PaPagoTranslationService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -28,8 +32,8 @@ public class ChatGptController {
         this.translationService = translationService;
     }
     @PostMapping("/question")
-    public ChatGptResponseDto sendQuestion(@RequestBody QuestionRequestDto requestDto,
-                                           @AuthenticationPrincipal String userId){
+    public HttpEntity<List<HashMap<String, Object>>> sendQuestion
+            (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
 
         return chatGptService.askQuestion(requestDto);
     }
@@ -39,7 +43,7 @@ public class ChatGptController {
                                                           @AuthenticationPrincipal String userId){
         try {
             if(requestDto == null || requestDto.getText() == null) {
-                throw new RuntimeException("Invalid Password Value.");
+                throw new RuntimeException("requestDto is null.");
             }
             String transToText =translationService.translate(requestDto.getText(),"ko","en");
             requestDto.setText(transToText);
@@ -57,7 +61,7 @@ public class ChatGptController {
 
             return new ResponseEntity<>(base64Image, headers, HttpStatus.OK);
         }catch (Exception e){
-            log.error("Failed to save the board", e);
+            log.error("Failed to create image", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
