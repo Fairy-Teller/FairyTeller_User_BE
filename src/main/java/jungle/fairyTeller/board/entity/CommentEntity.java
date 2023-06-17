@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -14,13 +15,14 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "comment")
+@Table(name = "comments")
 public class CommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer commentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("boardId")
+    @ManyToOne
     @JoinColumn(name = "board_id")
     private BoardEntity board;
 
@@ -34,5 +36,5 @@ public class CommentEntity {
     private String content;
 
     @CreationTimestamp
-    private Date createdDatetime;
+    private LocalDateTime createdDatetime;
 }

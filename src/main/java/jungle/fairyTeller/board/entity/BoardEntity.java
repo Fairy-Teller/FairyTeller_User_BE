@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 @Data
@@ -29,7 +30,7 @@ public class BoardEntity {
     private String content;
     private String thumbnailUrl;
     @CreationTimestamp
-    private Date createdDatetime; // LocalDateTime
+    private LocalDateTime createdDatetime; // LocalDateTime
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentEntity> pages;
+    private List<CommentEntity> comments;
 }
