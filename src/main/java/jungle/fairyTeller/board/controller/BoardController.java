@@ -104,12 +104,6 @@ public class BoardController {
         try {
             BoardEntity savedBoardEntity = boardService.saveBoard(boardDto.getBookId(), userId, boardDto.getDescription());
 
-            // BookEntity의 페이지 정보 가져오기
-            BookEntity bookEntity = bookRepository.findById(boardDto.getBookId())
-                    .orElseThrow(() -> new ServiceException("Book not found"));
-            List<PageEntity> pages = bookEntity.getPages();
-            List<PageDTO> pageDTOs = PageDTO.fromEntityList(pages);
-
             // Retrieve sorted board list
             Sort sort = Sort.by(Sort.Direction.DESC, "boardId");
             Pageable pageable = PageRequest.of(0, 8, sort);
