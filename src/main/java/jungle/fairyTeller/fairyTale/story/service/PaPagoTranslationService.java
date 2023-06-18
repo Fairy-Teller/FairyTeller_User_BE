@@ -14,16 +14,15 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
-@PropertySource("classpath:application-papago.properties")
 public class PaPagoTranslationService {
 
     public PaPagoTranslationService(){}
 
-    @Value("${client-id}")
+    @Value("${papago.client-id}")
     private String client_id;
-    @Value("${client-secret-key}")
+    @Value("${papago.client-secret-key}")
     private String client_secret_key;
-    @Value("${papago-url}")
+    @Value("${papago.papago-url}")
     private String papago_url;
 
     public String translate(String text,String source, String target) {
