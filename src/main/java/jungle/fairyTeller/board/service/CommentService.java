@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,22 +15,23 @@ import java.util.Optional;
 public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
+    @Transactional
     public CommentEntity saveComment(CommentEntity comment) {
         return commentRepository.save(comment);
     }
-
-    public Optional<CommentEntity> getCommentById(Integer commentId) {
-        return commentRepository.findById(commentId);
-    }
-
-    public CommentEntity updateComment(CommentEntity comment) {
-        return commentRepository.save(comment);
-    }
-
-    public void deleteComment(Integer commentId) {
-        commentRepository.deleteById(commentId);
-    }
-    public Page<CommentEntity> getCommentsByBoardIdPaged(Integer boardId, Pageable pageable) {
-        return commentRepository.findAllByBoardId(boardId, pageable);
-    }
+//
+//    public Optional<CommentEntity> getCommentById(Integer commentId) {
+//        return commentRepository.findById(commentId);
+//    }
+//
+//    public CommentEntity updateComment(CommentEntity comment) {
+//        return commentRepository.save(comment);
+//    }
+//
+//    public void deleteComment(Integer commentId) {
+//        commentRepository.deleteById(commentId);
+//    }
+//    public Page<CommentEntity> getCommentsByBoardIdPaged(Integer boardId, Pageable pageable) {
+//        return commentRepository.findAllByBoardId(boardId, pageable);
+//    }
 }

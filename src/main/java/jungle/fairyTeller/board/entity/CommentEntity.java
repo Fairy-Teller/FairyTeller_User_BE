@@ -18,15 +18,22 @@ import java.util.Date;
 @Table(name = "comments")
 public class CommentEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer commentId;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "boardId")
+    @JoinColumn(name = "board_id")
     private BoardEntity board;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private UserEntity user;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "boardId")
+//    private BoardEntity board;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    private UserEntity user;
 
     @Column(nullable = false)
     private String content;

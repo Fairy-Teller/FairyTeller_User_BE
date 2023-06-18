@@ -1,5 +1,6 @@
 package jungle.fairyTeller.board.service;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
+import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
 import jungle.fairyTeller.fairyTale.book.repository.BookRepository;
 import jungle.fairyTeller.board.entity.BoardEntity;
 import jungle.fairyTeller.board.repository.BoardRepository;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -52,6 +54,12 @@ public class BoardService {
 
         // BoardEntity 저장
         return boardRepository.save(boardEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public BoardEntity getBoardById(Integer boardId) {
+        return boardRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
     }
 }
 //    @Transactional
@@ -109,11 +117,7 @@ public class BoardService {
 //        }
 //    }
 //
-//    @Transactional(readOnly = true)
-//    public BoardEntity getBoardById(Integer boardId) {
-//        return boardRepository.findByBoardId(boardId)
-//                .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
-//    }
+
 //
 //    @Transactional(readOnly = true)
 //    public Integer getAuthorByBoardId(Integer boardId) {
