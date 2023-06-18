@@ -5,38 +5,42 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {
-    private Integer commentId;
     private Integer boardId;
-    private String content;
-    private String author;
+    private Integer commentId;
     private Integer userId;
+    private String nickname;
+    private String content;
     private boolean editable;
     private Date createdDatetime;
 
-    public CommentDto(CommentEntity entity) {
-        this.commentId = entity.getCommentId();
-        this.boardId = entity.getBoardId();
-        this.content = entity.getContent();
-        this.author = entity.getAuthor();
-        this.userId = entity.getUserId();
-        this.createdDatetime = entity.getCreatedDatetime();
+    public static List<CommentDto> fromEntityList(List<CommentEntity> commentEntities) {
+        if (commentEntities == null) {
+            return Collections.emptyList();
+        }
+        return commentEntities.stream()
+                .map(CommentDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    public static CommentEntity toEntity(CommentDto dto) {
-        return CommentEntity.builder()
-                .commentId(dto.getCommentId())
-                .boardId(dto.getBoardId())
-                .content(dto.getContent())
-                .author(dto.getAuthor())
-                .userId(dto.getUserId())
-                .createdDatetime(dto.getCreatedDatetime())
+    public static CommentDto fromEntity(CommentEntity commentEntity) {
+        return CommentDto.builder()
+                .boardId(commentEntity.getBoard().getBoardId())
+                .commentId(commentEntity.getCommentId())
+                .userId(commentEntity.getUser().getId())
+                .nickname(commentEntity.getUser().getNickname())
+                .content(commentEntity.getContent())
+                .createdDatetime(commentEntity.getCreatedDatetime())
                 .build();
     }
+
 }

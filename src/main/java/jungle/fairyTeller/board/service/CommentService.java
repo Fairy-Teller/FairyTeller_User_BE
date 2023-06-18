@@ -7,29 +7,26 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
 public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
+    public Optional<CommentEntity> getCommentById(Integer commentId) {
+        return commentRepository.findById(commentId);
+    }
+    @Transactional
     public CommentEntity saveComment(CommentEntity comment) {
         return commentRepository.save(comment);
     }
 
-    public Optional<CommentEntity> getCommentById(Integer commentId) {
-        return commentRepository.findById(commentId);
-    }
-
-    public CommentEntity updateComment(CommentEntity comment) {
-        return commentRepository.save(comment);
+    public Page<CommentEntity> getCommentsByBoardIdPaged(Integer boardId, Pageable pageable) {
+        return commentRepository.findByBoardBoardId(boardId, pageable);
     }
 
     public void deleteComment(Integer commentId) {
         commentRepository.deleteById(commentId);
-    }
-    public Page<CommentEntity> getCommentsByBoardIdPaged(Integer boardId, Pageable pageable) {
-        return commentRepository.findAllByBoardId(boardId, pageable);
     }
 }
