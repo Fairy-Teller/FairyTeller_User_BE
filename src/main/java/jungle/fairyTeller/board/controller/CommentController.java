@@ -39,6 +39,7 @@ public class CommentController {
     private UserRepository userRepository;
     @GetMapping
     public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardIdPaged(
+            @AuthenticationPrincipal String userId,
             @PathVariable Integer boardId,
             @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
     ) {
@@ -46,6 +47,12 @@ public class CommentController {
             // Retrieve pages & comments for specified board with pagination
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
             List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
+
+            // Set editable value for each comment
+            for (CommentDto commentDto : commentDtos) {
+                boolean isCommentEditable = commentDto.getUserId().equals(Integer.parseInt(userId));
+                commentDto.setEditable(isCommentEditable);
+            }
 
             // Response DTO
             ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
@@ -118,19 +125,20 @@ public class CommentController {
                     .orElseThrow(() -> new NoSuchElementException("Comment not found"));
 
             // 댓글 작성자와 현재 사용자의 일치 여부 확인
-            if (!comment.getUser().getId().equals(Integer.parseInt(userId))) {
+            boolean isUserCommentAuthor = comment.getUser().getId().equals(Integer.parseInt(userId));
+            if(!isUserCommentAuthor){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-
             comment.setContent(updatedCommentDto.getContent());
             CommentEntity updatedComment = commentService.saveComment(comment);
-            CommentDto responseCommentDto = CommentDto.fromEntity(updatedComment);
 
-            responseCommentDto.setEditable(true);
+            CommentDto responseCommentDto = CommentDto.fromEntity(updatedComment);
+            responseCommentDto.setEditable(isUserCommentAuthor);
 
             ResponseDto<CommentDto> response = new ResponseDto<>();
             response.setData(Collections.singletonList(responseCommentDto));
             return ResponseEntity.ok().body(response);
+
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -140,7 +148,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> deleteComment(
+    public ResponseEntity<CommentDto> deleteComment(
             @PathVariable Integer boardId,
             @PathVariable Integer commentId,
             @AuthenticationPrincipal String userId
@@ -148,23 +156,32 @@ public class CommentController {
         try {
             CommentEntity comment = commentService.getCommentById(commentId)
                     .orElseThrow(() -> new NoSuchElementException("Comment not found"));
-            // 현재 인증된 사용자와 댓글 작성자, 혹은 보드 작성자 비교
-            if (!comment.getUser().getId().equals(Integer.parseInt(userId))
-                    && !boardService.getAuthorByBoardId(boardId).equals(Integer.parseInt(userId))) {
+
+            Integer commentUserId = comment.getUser().getId();
+            Integer boardAuthorId = boardService.getAuthorByBoardId(boardId).getId();
+
+            if (!commentUserId.equals(Integer.parseInt(userId)) && !boardAuthorId.equals(Integer.parseInt(userId))) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-            // 댓글 삭제
+
             commentService.deleteComment(commentId);
 
-            // 댓글 삭제가 성공적으로 이루어졌을 경우, 204 No Content 상태 코드를 반환
-            return ResponseEntity.noContent().build();
+            CommentDto deletedCommentDto = CommentDto.builder()
+                    .boardId(boardId)
+                    .commentId(commentId)
+                    .userId(commentUserId)
+                    .nickname(comment.getUser().getNickname())
+                    .content(comment.getContent())
+                    .editable(false) // 삭제된 댓글은 수정 불가능하도록 설정
+                    .createdDatetime(comment.getCreatedDatetime())
+                    .build();
+
+            return ResponseEntity.ok(deletedCommentDto);
         } catch (NoSuchElementException e) {
-            // 댓글이 존재하지 않는 경우 404 Not Found 상태 코드 반환
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             log.error("Failed to delete the comment", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 }

@@ -177,6 +177,12 @@ public class BoardController {
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
             List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
+             //Set editable value for each comment
+            for (CommentDto commentDto : commentDtos) {
+                boolean isCommentEditable = commentDto.getUserId().equals(Integer.parseInt(userId));
+                commentDto.setEditable(isCommentEditable);
+            }
+
             // Convert the board entity to DTO
             BoardDto boardDto = BoardDto.builder()
                     .boardId(boardEntity.getBoardId())
