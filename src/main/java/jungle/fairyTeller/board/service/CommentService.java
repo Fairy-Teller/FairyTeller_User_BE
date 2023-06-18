@@ -19,6 +19,10 @@ public class CommentService {
     public CommentEntity saveComment(CommentEntity comment) {
         return commentRepository.save(comment);
     }
+
+    public Page<CommentEntity> getCommentsByBoardIdPaged(Integer boardId, Pageable pageable) {
+        return commentRepository.findByBoardBoardId(boardId, pageable);
+    }
 //
 //    public Optional<CommentEntity> getCommentById(Integer commentId) {
 //        return commentRepository.findById(commentId);

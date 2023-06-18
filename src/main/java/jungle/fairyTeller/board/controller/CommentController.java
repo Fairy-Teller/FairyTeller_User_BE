@@ -12,6 +12,7 @@ import jungle.fairyTeller.user.entity.UserEntity;
 import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,8 +38,30 @@ public class CommentController {
     private CommentService commentService;
     @Autowired
     private UserRepository userRepository;
+    @GetMapping("/{boardId}/comment")
+    public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardId(
+            @PathVariable Integer boardId, @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable) {
+        try {
+            // Retrieve the comments for the specified board ID
+            Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
 
-//    @PostMapping("/{boardId}/comment")
+            // Convert comment entities to DTOs
+            List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
+
+            // Response DTO
+            ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
+                    .error(null)
+                    .data(commentDtos)
+                    .build();
+
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            log.error("Failed to retrieve comments for board ID: " + boardId, e);
+            throw new ServiceException("Failed to retrieve comments for board ID: " + boardId);
+        }
+    }
+
+    //    @PostMapping("/{boardId}/comment")
 //    public ResponseEntity<ResponseDto<CommentDto>> saveComment(
 //            @PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
 //        try {

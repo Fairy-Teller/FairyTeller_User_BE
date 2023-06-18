@@ -20,6 +20,7 @@ import jungle.fairyTeller.user.entity.UserEntity;
 import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -51,18 +52,23 @@ public class BoardController {
     private UserRepository userRepository;
 
     @GetMapping
-    public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(@AuthenticationPrincipal String userId,
-                                                              @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(
+            @AuthenticationPrincipal String userId,
+            @Qualifier("boardPageable") @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable boardPageable,
+            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable) {
         try {
             // Retrieve sorted board page
-            Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(pageable);
+            Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(boardPageable);
 
             // Convert board entities to DTOs
             List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
                     .map(boardEntity -> {
-                        // Retrieve pages and comments for each board
+                        // Retrieve pages for each board
                         List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
-                        List<CommentDto> commentDtos = CommentDto.fromEntityList(boardEntity.getComments());
+
+                        // Retrieve comments for each board with pagination
+                        Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), commentPageable);
+                        List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
                         // Convert board entity to DTO
                         return BoardDto.builder()
@@ -74,8 +80,8 @@ public class BoardController {
                                 .createdDatetime(boardEntity.getCreatedDatetime())
                                 .authorId(boardEntity.getAuthor().getId())
                                 .nickname(boardEntity.getAuthor().getNickname())
-                                .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())  // Check if pages is null
-                                .comments(commentDtos != null ? commentDtos : new ArrayList<>())  // Check if comments is null
+                                .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())
+                                .comments(commentDtos != null ? commentDtos : new ArrayList<>())
                                 .build();
                     })
                     .collect(Collectors.toList());
@@ -92,6 +98,50 @@ public class BoardController {
             throw new ServiceException("Failed to retrieve the boards");
         }
     }
+
+
+//    @GetMapping
+//    public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(@AuthenticationPrincipal String userId,
+//                                                              @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable) {
+//        try {
+//            // Retrieve sorted board page
+//            Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(pageable);
+//
+//            // Convert board entities to DTOs
+//            List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
+//                    .map(boardEntity -> {
+//                        // Retrieve pages and comments for each board
+//                        List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
+//                        List<CommentDto> commentDtos = CommentDto.fromEntityList(boardEntity.getComments());
+//
+//                        // Convert board entity to DTO
+//                        return BoardDto.builder()
+//                                .boardId(boardEntity.getBoardId())
+//                                .bookId(boardEntity.getBook().getBookId())
+//                                .title(boardEntity.getTitle())
+//                                .description(boardEntity.getDescription())
+//                                .thumbnailUrl(boardEntity.getThumbnailUrl())
+//                                .createdDatetime(boardEntity.getCreatedDatetime())
+//                                .authorId(boardEntity.getAuthor().getId())
+//                                .nickname(boardEntity.getAuthor().getNickname())
+//                                .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())  // Check if pages is null
+//                                .comments(commentDtos != null ? commentDtos : new ArrayList<>())  // Check if comments is null
+//                                .build();
+//                    })
+//                    .collect(Collectors.toList());
+//
+//            // Response DTO
+//            ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
+//                    .error(null)
+//                    .data(boardDtos)
+//                    .build();
+//
+//            return ResponseEntity.ok(responseDto);
+//        } catch (Exception e) {
+//            log.error("Failed to retrieve the boards", e);
+//            throw new ServiceException("Failed to retrieve the boards");
+//        }
+//    }
 
 
 //    @GetMapping
