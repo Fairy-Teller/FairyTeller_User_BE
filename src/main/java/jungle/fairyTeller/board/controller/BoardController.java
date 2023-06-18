@@ -59,7 +59,25 @@ public class BoardController {
 
             // Convert board entities to DTOs
             List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
-                    .map(this::convertToBoardDto)
+                    .map(boardEntity -> {
+                        // Retrieve pages and comments for each board
+                        List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
+                        List<CommentDto> commentDtos = CommentDto.fromEntityList(boardEntity.getComments());
+
+                        // Convert board entity to DTO
+                        return BoardDto.builder()
+                                .boardId(boardEntity.getBoardId())
+                                .bookId(boardEntity.getBook().getBookId())
+                                .title(boardEntity.getTitle())
+                                .description(boardEntity.getDescription())
+                                .thumbnailUrl(boardEntity.getThumbnailUrl())
+                                .createdDatetime(boardEntity.getCreatedDatetime())
+                                .authorId(boardEntity.getAuthor().getId())
+                                .nickname(boardEntity.getAuthor().getNickname())
+                                .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())  // Check if pages is null
+                                .comments(commentDtos != null ? commentDtos : new ArrayList<>())  // Check if comments is null
+                                .build();
+                    })
                     .collect(Collectors.toList());
 
             // Response DTO
@@ -74,6 +92,7 @@ public class BoardController {
             throw new ServiceException("Failed to retrieve the boards");
         }
     }
+
 
 //    @GetMapping
 //    public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(@AuthenticationPrincipal String userId,
