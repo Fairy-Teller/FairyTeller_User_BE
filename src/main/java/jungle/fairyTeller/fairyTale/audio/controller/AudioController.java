@@ -67,7 +67,7 @@ public class AudioController {
                     originalPage.setUserAudioUrl(audioUrl);
 
                     // 1-4. pageEntity를 db에 저장한다
-                    pageService.updateUserAudio(originalPage);
+                    pageService.updatePage(originalPage);
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);

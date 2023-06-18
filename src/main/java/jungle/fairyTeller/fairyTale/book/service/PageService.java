@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class PageService {
@@ -20,7 +22,12 @@ public class PageService {
         return pageRepository.findByPageNo(pageId);
     }
 
-    public PageEntity createPageAndSaveStory(final PageEntity entity) {
+    public List<PageEntity> retrieveByBookId(Integer bookId) {
+        return pageRepository.findAllByBookBookId(bookId);
+    }
+
+    // 페이지가 생성되면서 줄거리가 저장된다
+    public PageEntity createPage(final PageEntity entity) {
         validate(entity);
 
         pageRepository.save(entity);
@@ -30,7 +37,7 @@ public class PageService {
         return pageRepository.findByPageNo(entity.getPageNo());
     }
 
-    public PageEntity updateStoryAndAudio(final PageEntity entity) {
+    public PageEntity updatePage(final PageEntity entity) {
         validate(entity);
 
         pageRepository.save(entity);
@@ -38,17 +45,6 @@ public class PageService {
         log.info("Page Entity : {} - {} is updated", entity.getBook().getBookId(), entity.getPageNo().getPageNo());
 
         return pageRepository.findByPageNo(entity.getPageNo());
-    }
-
-    public PageEntity updateUserAudio(final PageEntity entity) {
-        validate(entity);
-
-        pageRepository.save(entity);
-
-        log.info("Page Entity : {} - {} is updated", entity.getBook().getBookId(), entity.getPageNo().getPageNo());
-
-        return pageRepository.findByPageNo(new PageId(entity.getBook().getBookId(), entity.getPageNo().getPageNo()));
-
     }
 
     private void validate(final PageEntity entity) {

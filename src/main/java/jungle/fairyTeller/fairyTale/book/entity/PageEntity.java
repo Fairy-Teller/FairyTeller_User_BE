@@ -28,7 +28,9 @@ public class PageEntity {
 
     private String fullStory;
 
-    private String imageUrl;
+    private String originalImageUrl;
+
+    private String finalImageUrl;
 
     private String audioUrl;
 
