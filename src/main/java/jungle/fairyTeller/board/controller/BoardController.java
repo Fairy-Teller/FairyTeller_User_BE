@@ -162,10 +162,11 @@ public class BoardController {
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<ResponseDto<BoardDto>> getBoardById(@PathVariable Integer boardId) {
+    public ResponseEntity<ResponseDto<BoardDto>> getBoardById(@AuthenticationPrincipal String userId, @PathVariable Integer boardId) {
         try {
             // Retrieve the board entity by boardId
             BoardEntity boardEntity = boardService.getBoardById(boardId);
+            boolean isEditable = boardEntity.getAuthor().getId().equals(Integer.parseInt(userId));
 
             // Convert the board entity to DTO
             BoardDto boardDto = BoardDto.builder()
@@ -178,6 +179,7 @@ public class BoardController {
                     .authorId(boardEntity.getAuthor().getId())
                     .nickname(boardEntity.getAuthor().getNickname())
                     .comments(CommentDto.fromEntityList(boardEntity.getComments()))
+                    .editable(isEditable)
                     .build();
 
             // Response DTO

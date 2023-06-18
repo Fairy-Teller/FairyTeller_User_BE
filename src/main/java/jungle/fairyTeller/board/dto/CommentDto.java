@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +20,7 @@ public class CommentDto {
     private Integer userId;
     private String nickname;
     private String content;
-    //private boolean editable;
+    private boolean editable;
     private Date createdDatetime;
 
     public static List<CommentDto> fromEntityList(List<CommentEntity> commentEntities) {

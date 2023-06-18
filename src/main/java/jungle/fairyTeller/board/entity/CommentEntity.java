@@ -28,13 +28,6 @@ public class CommentEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "boardId")
-//    private BoardEntity board;
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private UserEntity user;
-
     @Column(nullable = false)
     private String content;
 

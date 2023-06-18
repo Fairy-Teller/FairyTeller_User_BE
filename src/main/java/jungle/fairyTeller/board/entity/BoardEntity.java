@@ -1,7 +1,6 @@
 package jungle.fairyTeller.board.entity;
 
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
-import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
 import jungle.fairyTeller.user.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,13 +37,7 @@ public class BoardEntity {
     @Column(nullable = true)
     private String description;
     private String thumbnailUrl;
+    private boolean editable;
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
-    public BoardEntity(String title, String thumbnailUrl, String description, BookEntity book, UserEntity author, List<PageEntity> pages) {
-        this.title = title;
-        this.thumbnailUrl = thumbnailUrl;
-        this.description = description;
-        this.book = book;
-        this.author = author;
-    }
 }
