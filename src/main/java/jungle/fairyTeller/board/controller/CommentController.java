@@ -12,7 +12,6 @@ import jungle.fairyTeller.user.entity.UserEntity;
 import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -39,25 +38,27 @@ public class CommentController {
     @Autowired
     private UserRepository userRepository;
     @GetMapping
-    public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardId(
-            @PathVariable Integer boardId, @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable) {
+    public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardIdPaged(
+            @PathVariable Integer boardId,
+            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
         try {
-            // Retrieve the comments for the specified board ID
+            // Retrieve pages & comments for specified board with pagination
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
-
-            // Convert comment entities to DTOs
             List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
             // Response DTO
             ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
                     .error(null)
                     .data(commentDtos)
+                    .currentPage(commentPage.getNumber())
+                    .totalPages(commentPage.getTotalPages())
                     .build();
 
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            log.error("Failed to retrieve comments for board ID: " + boardId, e);
-            throw new ServiceException("Failed to retrieve comments for board ID: " + boardId);
+            log.error("Failed to retrieve the comments for boardId: {}", boardId, e);
+            throw new ServiceException("Failed to retrieve the comments");
         }
     }
 
