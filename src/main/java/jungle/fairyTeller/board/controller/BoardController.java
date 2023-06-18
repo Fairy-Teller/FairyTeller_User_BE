@@ -55,10 +55,17 @@ public class BoardController {
     public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(
             @AuthenticationPrincipal String userId,
             @Qualifier("boardPageable") @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable boardPageable,
-            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable) {
+            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
+    ) {
         try {
+            // Update pageable objects with dynamic page and size values
+            boardPageable = PageRequest.of(page, size, boardPageable.getSort());
+            final Pageable finalCommentPageable = PageRequest.of(page, size, commentPageable.getSort());
+
             // Retrieve sorted board page
-            Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(boardPageable);
+            Page<BoardEntity> sortedBoardPage = boardService.getAllBoards(boardPageable);
 
             // Convert board entities to DTOs
             List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
@@ -67,7 +74,8 @@ public class BoardController {
                         List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
 
                         // Retrieve comments for each board with pagination
-                        Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), commentPageable);
+                        Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), finalCommentPageable);
+
                         List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
                         // Convert board entity to DTO
@@ -90,6 +98,8 @@ public class BoardController {
             ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
                     .error(null)
                     .data(boardDtos)
+                    .currentPage(sortedBoardPage.getNumber())
+                    .totalPages(sortedBoardPage.getTotalPages())
                     .build();
 
             return ResponseEntity.ok(responseDto);
@@ -138,6 +148,8 @@ public class BoardController {
             ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
                     .error(null)
                     .data(boardDtos)
+                    .currentPage(sortedBoardPage.getNumber())
+                    .totalPages(sortedBoardPage.getTotalPages())
                     .build();
 
             return ResponseEntity.ok(responseDto);
@@ -148,7 +160,11 @@ public class BoardController {
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<ResponseDto<BoardDto>> getBoardById(@AuthenticationPrincipal String userId, @PathVariable Integer boardId) {
+    public ResponseEntity<ResponseDto<BoardDto>> getBoardById(
+            @AuthenticationPrincipal String userId,
+            @PathVariable Integer boardId,
+            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
         try {
             // Retrieve the board entity by boardId
             BoardEntity boardEntity = boardService.getBoardById(boardId);
@@ -156,6 +172,10 @@ public class BoardController {
 
             // Retrieve pages for the board
             List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
+
+            // Retrieve comments for the board with pagination
+            Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
+            List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
             // Convert the board entity to DTO
             BoardDto boardDto = BoardDto.builder()
@@ -167,7 +187,7 @@ public class BoardController {
                     .createdDatetime(boardEntity.getCreatedDatetime())
                     .authorId(boardEntity.getAuthor().getId())
                     .nickname(boardEntity.getAuthor().getNickname())
-                    .comments(CommentDto.fromEntityList(boardEntity.getComments()))
+                    .comments(commentDtos)
                     .editable(isEditable)
                     .pages(pageDTOs)
                     .build();
@@ -176,6 +196,8 @@ public class BoardController {
             ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
                     .error(null)
                     .data(Collections.singletonList(boardDto))
+                    .currentPage(commentPage.getNumber())
+                    .totalPages(commentPage.getTotalPages())
                     .build();
 
             return ResponseEntity.ok(responseDto);
@@ -184,5 +206,4 @@ public class BoardController {
             throw new ServiceException("Failed to retrieve the board");
         }
     }
-
 }
