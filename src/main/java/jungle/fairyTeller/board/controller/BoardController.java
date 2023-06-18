@@ -154,6 +154,9 @@ public class BoardController {
             BoardEntity boardEntity = boardService.getBoardById(boardId);
             boolean isEditable = boardEntity.getAuthor().getId().equals(Integer.parseInt(userId));
 
+            // Retrieve pages for the board
+            List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
+
             // Convert the board entity to DTO
             BoardDto boardDto = BoardDto.builder()
                     .boardId(boardEntity.getBoardId())
@@ -166,6 +169,7 @@ public class BoardController {
                     .nickname(boardEntity.getAuthor().getNickname())
                     .comments(CommentDto.fromEntityList(boardEntity.getComments()))
                     .editable(isEditable)
+                    .pages(pageDTOs)
                     .build();
 
             // Response DTO
