@@ -38,52 +38,96 @@ public class CommentController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/{boardId}/comment")
-    public ResponseEntity<ResponseDto<CommentDto>> saveComment(
-            @PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
-        try {
-            // Retrieve the board entity
-            BoardEntity boardEntity = boardService.getBoardById(boardId);
+//    @PostMapping("/{boardId}/comment")
+//    public ResponseEntity<ResponseDto<CommentDto>> saveComment(
+//            @PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
+//        try {
+//            // Retrieve the board entity
+//            BoardEntity boardEntity = boardService.getBoardById(boardId);
+//
+//            // Retrieve the user entity
+//            UserEntity userEntity = userRepository.findById(Integer.parseInt(userId))
+//                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//
+//            // Create the comment entity
+//            CommentEntity commentEntity = CommentEntity.builder()
+//                    .content(commentDto.getContent())
+//                    .board(boardEntity)
+//                    .user(userEntity)
+//                    .build();
+//
+//            // Save the comment entity
+//            CommentEntity savedCommentEntity = commentService.saveComment(commentEntity);
+//
+//            // Convert the saved comment to DTO
+//            CommentDto savedCommentDto = CommentDto.builder()
+//                    .commentId(savedCommentEntity.getCommentId())
+//                    .boardId(savedCommentEntity.getBoard().getBoardId())
+//                    .userId(savedCommentEntity.getUser().getId())
+//                    .nickname(savedCommentEntity.getUser().getNickname())
+//                    .content(savedCommentEntity.getContent())
+//                    .createdDatetime(savedCommentEntity.getCreatedDatetime())
+//                    .build();
+//
+//            // Update the board entity with the new comment
+//            boardEntity.getComments().add(savedCommentEntity);
+//
+//            // Response DTO
+//            ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
+//                    .error(null)
+//                    .data(Collections.singletonList(savedCommentDto))
+//                    .build();
+//
+//            return ResponseEntity.ok(responseDto);
+//        } catch (Exception e) {
+//            logger.error("Failed to save the comment", e);
+//            throw new ServiceException("Failed to save the comment");
+//        }
+//    }
+@PostMapping("/{boardId}/comment")
+public ResponseEntity<ResponseDto<CommentDto>> saveComment(
+        @PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
+    try {
+        // Retrieve the board entity
+        BoardEntity boardEntity = boardService.getBoardById(boardId);
 
-            // Retrieve the user entity
-            UserEntity userEntity = userRepository.findById(Integer.parseInt(userId))
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        // Retrieve the user entity
+        UserEntity userEntity = userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-            // Create the comment entity
-            CommentEntity commentEntity = CommentEntity.builder()
-                    .content(commentDto.getContent())
-                    .board(boardEntity)
-                    .user(userEntity)
-                    .build();
+        // Create the comment entity
+        CommentEntity commentEntity = CommentEntity.builder()
+                .content(commentDto.getContent())
+                .board(boardEntity)
+                .user(userEntity)
+                .build();
 
-            // Save the comment entity
-            CommentEntity savedCommentEntity = commentService.saveComment(commentEntity);
+        // Save the comment entity
+        CommentEntity savedCommentEntity = commentService.saveComment(commentEntity);
 
-            // Convert the saved comment to DTO
-            CommentDto savedCommentDto = CommentDto.builder()
-                    .commentId(savedCommentEntity.getCommentId())
-                    .boardId(savedCommentEntity.getBoard().getBoardId())
-                    .userId(savedCommentEntity.getUser().getId())
-                    .nickname(savedCommentEntity.getUser().getNickname())
-                    .content(savedCommentEntity.getContent())
-                    .createdDatetime(savedCommentEntity.getCreatedDatetime())
-                    .build();
+        // Convert the saved comment to DTO
+        CommentDto savedCommentDto = CommentDto.builder()
+                .commentId(savedCommentEntity.getCommentId())
+                .boardId(savedCommentEntity.getBoard().getBoardId())
+                .userId(savedCommentEntity.getUser().getId())
+                .nickname(savedCommentEntity.getUser().getNickname())
+                .content(savedCommentEntity.getContent())
+                .createdDatetime(savedCommentEntity.getCreatedDatetime())
+                .build();
 
-            // Update the board entity with the new comment
-            boardEntity.getComments().add(savedCommentEntity);
+        // Response DTO
+        ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
+                .error(null)
+                .data(Collections.singletonList(savedCommentDto))
+                .build();
 
-            // Response DTO
-            ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
-                    .error(null)
-                    .data(Collections.singletonList(savedCommentDto))
-                    .build();
-
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            logger.error("Failed to save the comment", e);
-            throw new ServiceException("Failed to save the comment");
-        }
+        return ResponseEntity.ok(responseDto);
+    } catch (Exception e) {
+        logger.error("Failed to save the comment", e);
+        throw new ServiceException("Failed to save the comment");
     }
+}
+
 
 
 //    @PostMapping("/{boardId}/comment")

@@ -49,10 +49,44 @@ public class BoardController {
     private CommentService commentService;
     @Autowired
     private UserRepository userRepository;
+
+    @GetMapping
+    public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(@AuthenticationPrincipal String userId,
+                                                              @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable) {
+        try {
+            // Retrieve sorted board page
+            Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(pageable);
+
+            // Convert board entities to DTOs
+            List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
+                    .map(this::convertToBoardDto)
+                    .collect(Collectors.toList());
+
+            // Response DTO
+            ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
+                    .error(null)
+                    .data(boardDtos)
+                    .build();
+
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            log.error("Failed to retrieve the boards", e);
+            throw new ServiceException("Failed to retrieve the boards");
+        }
+    }
+
+//    @GetMapping
+//    public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(@AuthenticationPrincipal String userId,
+//                                                              @PageableDefault(size = 9, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable) {
+//        try {
+//            ResponseDto<BoardDto> response = getAllBoardsResponse(pageable, userId);
+//            return ResponseEntity.ok().body(response);
+//        }
+//    }
+
     @PostMapping("/save")
     public ResponseEntity<ResponseDto<BoardDto>> saveBoard(@AuthenticationPrincipal String userId, @RequestBody BoardDto boardDto) {
         try {
-
             BoardEntity savedBoardEntity = boardService.saveBoard(boardDto.getBookId(), userId, boardDto.getDescription());
 
             // BookEntity의 페이지 정보 가져오기
@@ -60,6 +94,16 @@ public class BoardController {
                     .orElseThrow(() -> new ServiceException("Book not found"));
             List<PageEntity> pages = bookEntity.getPages();
             List<PageDTO> pageDTOs = PageDTO.fromEntityList(pages);
+
+            // Retrieve sorted board list
+            Sort sort = Sort.by(Sort.Direction.DESC, "boardId");
+            Pageable pageable = PageRequest.of(0, 8, sort);
+            Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(pageable);
+
+            // Convert sorted board entities to DTOs
+            List<BoardDto> sortedBoardDtos = sortedBoardPage.getContent().stream()
+                    .map(this::convertToBoardDto)
+                    .collect(Collectors.toList());
 
             // BoardDto로 변환
             BoardDto savedBoardDto = BoardDto.builder()
@@ -78,7 +122,7 @@ public class BoardController {
             // ResponseDto 생성
             ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
                     .error(null)
-                    .data(Collections.singletonList(savedBoardDto))
+                    .data(sortedBoardDtos) // Set the sorted board list as data
                     .build();
 
             return ResponseEntity.ok(responseDto);
@@ -87,6 +131,60 @@ public class BoardController {
             throw new ServiceException("Failed to save the board");
         }
     }
+
+    private BoardDto convertToBoardDto(BoardEntity boardEntity) {
+
+        return BoardDto.builder()
+                .boardId(boardEntity.getBoardId())
+                .bookId(boardEntity.getBook().getBookId())
+                .title(boardEntity.getTitle())
+                .description(boardEntity.getDescription())
+                .thumbnailUrl(boardEntity.getThumbnailUrl())
+                .createdDatetime(boardEntity.getCreatedDatetime())
+                .authorId(boardEntity.getAuthor().getId())
+                .nickname(boardEntity.getAuthor().getNickname())
+                .build();
+    }
+
+
+//    @PostMapping("/save")
+//    public ResponseEntity<ResponseDto<BoardDto>> saveBoard(@AuthenticationPrincipal String userId, @RequestBody BoardDto boardDto) {
+//        try {
+//
+//            BoardEntity savedBoardEntity = boardService.saveBoard(boardDto.getBookId(), userId, boardDto.getDescription());
+//
+//            // BookEntity의 페이지 정보 가져오기
+//            BookEntity bookEntity = bookRepository.findById(boardDto.getBookId())
+//                    .orElseThrow(() -> new ServiceException("Book not found"));
+//            List<PageEntity> pages = bookEntity.getPages();
+//            List<PageDTO> pageDTOs = PageDTO.fromEntityList(pages);
+//
+//            // BoardDto로 변환
+//            BoardDto savedBoardDto = BoardDto.builder()
+//                    .boardId(savedBoardEntity.getBoardId())
+//                    .bookId(savedBoardEntity.getBook().getBookId())
+//                    .title(savedBoardEntity.getTitle())
+//                    .description(savedBoardEntity.getDescription())
+//                    .thumbnailUrl(savedBoardEntity.getThumbnailUrl())
+//                    .createdDatetime(savedBoardEntity.getCreatedDatetime())
+//                    .authorId(savedBoardEntity.getAuthor().getId())
+//                    .nickname(savedBoardEntity.getAuthor().getNickname())
+//                    .comments(new ArrayList<>())
+//                    .pages(pageDTOs)
+//                    .build();
+//
+//            // ResponseDto 생성
+//            ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
+//                    .error(null)
+//                    .data(Collections.singletonList(savedBoardDto))
+//                    .build();
+//
+//            return ResponseEntity.ok(responseDto);
+//        } catch (Exception e) {
+//            log.error("Failed to save the board", e);
+//            throw new ServiceException("Failed to save the board");
+//        }
+//    }
 
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardDto>> getBoardById(@PathVariable Integer boardId) {
@@ -152,18 +250,6 @@ public class BoardController {
 //        }
 //    }
 //
-//    // 모든 Board를 반환한다
-//    @GetMapping
-//    public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(@AuthenticationPrincipal String userId,
-//                                                              @PageableDefault(size = 9, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable) {
-//        try {
-//            ResponseDto<BoardDto> response = getAllBoardsResponse(pageable, userId);
-//            return ResponseEntity.ok().body(response);
-//        } catch (Exception e) {
-//            log.error("모든 게시물을 불러오는데 실패했습니다", e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
 //    @GetMapping("/paged")
 //    public Page<BoardEntity> getAllBoardsPaged(Pageable pageable) {
 //        return boardService.getPagedBoards(pageable);

@@ -9,6 +9,8 @@ import jungle.fairyTeller.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
@@ -60,6 +62,10 @@ public class BoardService {
     public BoardEntity getBoardById(Integer boardId) {
         return boardRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
+    }
+    @Transactional(readOnly = true)
+    public Page<BoardEntity> getAllBoardsPaged(Pageable pageable) {
+        return boardRepository.findAll(pageable);
     }
 }
 //    @Transactional
