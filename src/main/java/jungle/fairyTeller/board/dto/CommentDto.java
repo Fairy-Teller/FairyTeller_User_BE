@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +23,11 @@ public class CommentDto {
     private String content;
     //private boolean editable;
     private Date createdDatetime;
+
     public static List<CommentDto> fromEntityList(List<CommentEntity> commentEntities) {
+        if (commentEntities == null) {
+            return Collections.emptyList();
+        }
         return commentEntities.stream()
                 .map(CommentDto::fromEntity)
                 .collect(Collectors.toList());
