@@ -17,15 +17,18 @@ import java.util.List;
 public class PageDTO {
     private Integer pageNo;
     private String fullStory;
-    private String imageUrl;
-    private String audioUrl;
 
+    private String originalImageUrl;
+
+    private String finalImageUrl;
+    private String audioUrl;
     private String userAudioUrl;
 
     public PageDTO(final PageEntity entity) {
         this.pageNo = entity.getPageNo().getPageNo();
         this.fullStory = entity.getFullStory();
-        this.imageUrl = entity.getImageUrl();
+        this.originalImageUrl = entity.getOriginalImageUrl();
+        this.finalImageUrl = entity.getFinalImageUrl();
         this.audioUrl = entity.getAudioUrl();
         this.userAudioUrl = entity.getUserAudioUrl();
     }
@@ -34,7 +37,8 @@ public class PageDTO {
         PageEntity entity = PageEntity.builder()
                 .pageNo(new PageId(dto.getPageNo(), null))
                 .fullStory(dto.getFullStory())
-                .imageUrl(dto.getImageUrl())
+                .originalImageUrl(dto.getOriginalImageUrl())
+                .finalImageUrl(dto.getFinalImageUrl())
                 .audioUrl(dto.getAudioUrl())
                 .userAudioUrl(dto.getUserAudioUrl())
                 .build();
