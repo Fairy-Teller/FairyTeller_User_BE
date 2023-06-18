@@ -120,20 +120,6 @@ public class BoardController {
                     .map(this::convertToBoardDto)
                     .collect(Collectors.toList());
 
-            // BoardDto로 변환
-            BoardDto savedBoardDto = BoardDto.builder()
-                    .boardId(savedBoardEntity.getBoardId())
-                    .bookId(savedBoardEntity.getBook().getBookId())
-                    .title(savedBoardEntity.getTitle())
-                    .description(savedBoardEntity.getDescription())
-                    .thumbnailUrl(savedBoardEntity.getThumbnailUrl())
-                    .createdDatetime(savedBoardEntity.getCreatedDatetime())
-                    .authorId(savedBoardEntity.getAuthor().getId())
-                    .nickname(savedBoardEntity.getAuthor().getNickname())
-                    .comments(new ArrayList<>())
-                    .pages(pageDTOs)
-                    .build();
-
             // ResponseDto 생성
             ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
                     .error(null)
