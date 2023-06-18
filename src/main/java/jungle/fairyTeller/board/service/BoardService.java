@@ -1,6 +1,5 @@
 package jungle.fairyTeller.board.service;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
-import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
 import jungle.fairyTeller.fairyTale.book.repository.BookRepository;
 import jungle.fairyTeller.board.entity.BoardEntity;
 import jungle.fairyTeller.board.repository.BoardRepository;
@@ -76,15 +75,3 @@ public class BoardService {
     }
 
 }
-
-//    public Page<BoardEntity> getAllBoards(Pageable pageable) {
-//        try {
-//            return boardRepository.findAll(pageable);
-//        } catch (Exception e) {
-//            log.error("Failed to retrieve boards", e);
-//            throw new ServiceException("Failed to retrieve boards");
-//        }
-//    }
-//
-
-//}
