@@ -56,6 +56,15 @@ public class BoardService {
         // BoardEntity 저장
         return boardRepository.save(boardEntity);
     }
+    @Transactional(readOnly = true)
+    public Page<BoardEntity> getAllBoards(Pageable pageable) {
+        try {
+            return boardRepository.findAll(pageable);
+        } catch (Exception e) {
+            log.error("Failed to retrieve boards", e);
+            throw new ServiceException("Failed to retrieve boards");
+        }
+    }
 
     @Transactional(readOnly = true)
     public BoardEntity getBoardById(Integer boardId) {
