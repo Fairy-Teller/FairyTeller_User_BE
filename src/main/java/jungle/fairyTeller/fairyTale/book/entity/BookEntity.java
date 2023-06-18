@@ -31,8 +31,7 @@ public class BookEntity {
 
     private String thumbnailUrl;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "book")
     private List<PageEntity> pages = new ArrayList<>();
 
     @OneToMany(mappedBy = "book")

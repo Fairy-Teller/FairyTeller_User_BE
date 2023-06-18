@@ -58,7 +58,8 @@ public class PageDTO {
         return PageDTO.builder()
                 .pageNo(entity.getPageNo().getPageNo())
                 .fullStory(entity.getFullStory())
-                .imageUrl(entity.getImageUrl())
+                .originalImageUrl(entity.getOriginalImageUrl())
+                .finalImageUrl(entity.getFinalImageUrl())
                 .audioUrl(entity.getAudioUrl())
                 .build();
     }
