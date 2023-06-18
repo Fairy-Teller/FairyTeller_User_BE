@@ -67,35 +67,15 @@ public class BoardService {
     public Page<BoardEntity> getAllBoardsPaged(Pageable pageable) {
         return boardRepository.findAll(pageable);
     }
-}
-//    @Transactional
-//    public BoardEntity saveBoard(Integer bookId, String userId, String description) {
-//        // BookEntity 조회
-//        BookEntity bookEntity = bookRepository.findById(bookId)
-//                .orElseThrow(() -> new ServiceException("Book not found"));
-//
-//        UserEntity userEntity = userRepository.findById(Integer.parseInt(userId))
-//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//
-//        // 필요한 정보 추출
-//        String title = bookEntity.getTitle();
-//        String thumbnailUrl = bookEntity.getThumbnailUrl();
-//
-//        // BoardEntity 생성
-//        BoardEntity boardEntity = new BoardEntity();
-//        boardEntity.setTitle(title);
-//        boardEntity.setThumbnailUrl(thumbnailUrl);
-//        boardEntity.setDescription(description);
-//        // BookEntity와 관계 설정
-//        boardEntity.setBook(bookEntity);
-//        boardEntity.setAuthor(userEntity);
-//        boardEntity.setPages(bookEntity.getPages());
-//
-//        // BoardEntity 저장
-//        return boardRepository.save(boardEntity);
-//    }
-//}
+    @Transactional(readOnly = true)
+    public UserEntity getAuthorByBoardId(Integer boardId) {
+        BoardEntity boardEntity = boardRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
 
+        return boardEntity.getAuthor();
+    }
+
+}
 
 //    public Page<BoardEntity> getAllBoards(Pageable pageable) {
 //        try {
@@ -106,28 +86,5 @@ public class BoardService {
 //        }
 //    }
 //
-//    public Page<BoardEntity> getPagedBoards(Pageable pageable) {
-//        return boardRepository.findAll(pageable);
-//    }
 
-
-
-//
-//    @Transactional
-//    public BoardEntity saveBoard(BoardEntity boardEntity) {
-//        try {
-//            boardEntity.
-//            return boardRepository.save(boardEntity);
-//        } catch (Exception e) {
-//            throw new ServiceException("Failed to save the board");
-//        }
-//    }
-//
-
-//
-//    @Transactional(readOnly = true)
-//    public Integer getAuthorByBoardId(Integer boardId) {
-//        BoardEntity boardEntity = getBoardById(boardId);
-//        return boardEntity.getAuthor();
-//    }
 //}

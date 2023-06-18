@@ -26,15 +26,16 @@ public class CommentService {
     public Page<CommentEntity> getCommentsByBoardIdPaged(Integer boardId, Pageable pageable) {
         return commentRepository.findByBoardBoardId(boardId, pageable);
     }
+
+    public void deleteComment(Integer commentId) {
+        commentRepository.deleteById(commentId);
+    }
 //
 //
 //    public CommentEntity updateComment(CommentEntity comment) {
 //        return commentRepository.save(comment);
 //    }
 //
-//    public void deleteComment(Integer commentId) {
-//        commentRepository.deleteById(commentId);
-//    }
 //    public Page<CommentEntity> getCommentsByBoardIdPaged(Integer boardId, Pageable pageable) {
 //        return commentRepository.findAllByBoardId(boardId, pageable);
 //    }

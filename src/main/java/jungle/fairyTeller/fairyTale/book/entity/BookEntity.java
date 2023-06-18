@@ -1,5 +1,6 @@
 package jungle.fairyTeller.fairyTale.book.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jungle.fairyTeller.board.entity.BoardEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,7 @@ public class BookEntity {
 
     private String thumbnailUrl;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PageEntity> pages = new ArrayList<>();
 
