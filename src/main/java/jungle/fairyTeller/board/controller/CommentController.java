@@ -91,6 +91,7 @@ public class CommentController {
                     .content(savedCommentEntity.getContent())
                     .createdDatetime(savedCommentEntity.getCreatedDatetime())
                     .build();
+            savedCommentDto.setEditable(savedCommentEntity.getUser().getId().equals(Integer.parseInt(userId)));
 
             // Response DTO
             ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
@@ -185,26 +186,7 @@ public class CommentController {
 //    }
 
 
-//    @PostMapping("/comment")
-//    public ResponseEntity<ResponseDto<CommentDto>> saveComment(@PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
-//        try {
-//            UserEntity user = userRepository.findById(Integer.parseInt(userId))
-//                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//
-//            CommentEntity commentEntity = CommentDto.toEntity(commentDto);
-//            commentEntity.setBoardId(boardId);
-//            commentEntity.setUserId(user.getId());
-//            commentEntity.setAuthor(user.getNickname());
-//            CommentEntity savedComment = commentService.saveComment(commentEntity);
-//            CommentDto savedCommentDto = new CommentDto(savedComment);
-//            savedCommentDto.setEditable(savedComment.getUserId().equals(Integer.parseInt(userId)));
-//            ResponseDto<CommentDto> response = new ResponseDto<>();
-//            response.setData(Collections.singletonList(savedCommentDto));
-//            return ResponseEntity.ok().body(response);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
+
 //
 //    @GetMapping("/comment")
 //    public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardIdPaged(
