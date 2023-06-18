@@ -32,6 +32,8 @@ public class PageEntity {
 
     private String audioUrl;
 
+    private String userAudioUrl;
+
     public void setBook(BookEntity book) {
         this.book = book;
 

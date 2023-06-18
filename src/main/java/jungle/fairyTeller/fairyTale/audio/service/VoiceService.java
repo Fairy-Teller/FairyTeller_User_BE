@@ -14,12 +14,11 @@ public class VoiceService {
 
     public byte[] convertBase64ToAudio(String base64Audio) throws IOException {
         if (Objects.isNull(base64Audio) || base64Audio.isEmpty()) {
-            throw new IllegalArgumentException("Base64 image is empty or null");
+            throw new IllegalArgumentException("Base64 Audio is empty or null");
         }
 
         // Remove data URL prefix (e.g., "data:image/png;base64,")
-        //String base64Data = base64Audio.replaceAll("^data:image/[a-zA-Z]+;base64,", "");
-        String base64Data = base64Audio;
+        String base64Data = base64Audio.replaceAll("^data:audio/[a-zA-Z]+;base64,", "");
 
         byte[] imageBytes = Base64.getDecoder().decode(base64Data);
         ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);

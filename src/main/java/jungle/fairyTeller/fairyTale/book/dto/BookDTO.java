@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 public class BookDTO {
     private Integer bookId;
     private Integer author;

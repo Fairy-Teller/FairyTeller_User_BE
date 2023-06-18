@@ -6,6 +6,7 @@ import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
 import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
+import jungle.fairyTeller.fairyTale.book.entity.PageId;
 import jungle.fairyTeller.fairyTale.book.service.BookService;
 import jungle.fairyTeller.fairyTale.book.service.PageService;
 import jungle.fairyTeller.fairyTale.file.service.FileService;
@@ -53,7 +54,7 @@ public class AudioController {
                 try {
                     Integer pageNo = page.getPageNo();
                     // 1-0. 기존에 저장된 pageEntity 찾기
-                    PageEntity originalPage = pageService.retrieveByBookId(dto.getBookId(), pageNo);
+                    PageEntity originalPage = pageService.retrieveByPageId(new PageId(dto.getBookId(), pageNo));
 
                     // 1-1. 요청으로 넘어온 음성을 바이트 배열로 변환
                     String audioBeforeConvert = page.getAudioUrl();
@@ -63,7 +64,7 @@ public class AudioController {
                     String audioUrl = fileService.uploadFile(audioContent, fileName + "_" + pageNo + "_custom.mp3");
 
                     // 1-3. audioUrl 변수에 경로를 담는다.
-                    originalPage.setAudioUrl(audioUrl);
+                    originalPage.setUserAudioUrl(audioUrl);
 
                     // 1-4. pageEntity를 db에 저장한다
                     pageService.updateUserAudio(originalPage);

@@ -17,11 +17,14 @@ public class PageDTO {
     private String imageUrl;
     private String audioUrl;
 
+    private String userAudioUrl;
+
     public PageDTO(final PageEntity entity) {
         this.pageNo = entity.getPageNo().getPageNo();
         this.fullStory = entity.getFullStory();
         this.imageUrl = entity.getImageUrl();
         this.audioUrl = entity.getAudioUrl();
+        this.userAudioUrl = entity.getUserAudioUrl();
     }
 
     public static PageEntity toEntity(final PageDTO dto) {
@@ -30,6 +33,7 @@ public class PageDTO {
                 .fullStory(dto.getFullStory())
                 .imageUrl(dto.getImageUrl())
                 .audioUrl(dto.getAudioUrl())
+                .userAudioUrl(dto.getUserAudioUrl())
                 .build();
         // Set the book entity if needed
         // pageEntity.setBook(bookEntity);
