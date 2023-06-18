@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/board/{boardId}/comment")
 public class CommentController {
     private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
     @Autowired
@@ -38,7 +38,7 @@ public class CommentController {
     private CommentService commentService;
     @Autowired
     private UserRepository userRepository;
-    @GetMapping("/{boardId}/comment")
+    @GetMapping
     public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardId(
             @PathVariable Integer boardId, @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable) {
         try {
@@ -61,7 +61,51 @@ public class CommentController {
         }
     }
 
-    @PutMapping("/{boardId}/comment/{commentId}")
+    @PostMapping
+    public ResponseEntity<ResponseDto<CommentDto>> saveComment(
+            @PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
+        try {
+            // Retrieve the board entity
+            BoardEntity boardEntity = boardService.getBoardById(boardId);
+
+            // Retrieve the user entity
+            UserEntity userEntity = userRepository.findById(Integer.parseInt(userId))
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            // Create the comment entity
+            CommentEntity commentEntity = CommentEntity.builder()
+                    .content(commentDto.getContent())
+                    .board(boardEntity)
+                    .user(userEntity)
+                    .build();
+
+            // Save the comment entity
+            CommentEntity savedCommentEntity = commentService.saveComment(commentEntity);
+
+            // Convert the saved comment to DTO
+            CommentDto savedCommentDto = CommentDto.builder()
+                    .commentId(savedCommentEntity.getCommentId())
+                    .boardId(savedCommentEntity.getBoard().getBoardId())
+                    .userId(savedCommentEntity.getUser().getId())
+                    .nickname(savedCommentEntity.getUser().getNickname())
+                    .content(savedCommentEntity.getContent())
+                    .createdDatetime(savedCommentEntity.getCreatedDatetime())
+                    .build();
+
+            // Response DTO
+            ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
+                    .error(null)
+                    .data(Collections.singletonList(savedCommentDto))
+                    .build();
+
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            logger.error("Failed to save the comment", e);
+            throw new ServiceException("Failed to save the comment");
+        }
+    }
+
+    @PutMapping("/{commentId}")
     public ResponseEntity<ResponseDto<CommentDto>> updateComment(
             @AuthenticationPrincipal String userId,
             @PathVariable Integer commentId,
@@ -93,7 +137,7 @@ public class CommentController {
         }
     }
 
-    //    @PostMapping("/{boardId}/comment")
+    //    @PostMapping("/comment")
 //    public ResponseEntity<ResponseDto<CommentDto>> saveComment(
 //            @PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
 //        try {
@@ -139,53 +183,9 @@ public class CommentController {
 //            throw new ServiceException("Failed to save the comment");
 //        }
 //    }
-@PostMapping("/{boardId}/comment")
-public ResponseEntity<ResponseDto<CommentDto>> saveComment(
-        @PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
-    try {
-        // Retrieve the board entity
-        BoardEntity boardEntity = boardService.getBoardById(boardId);
-
-        // Retrieve the user entity
-        UserEntity userEntity = userRepository.findById(Integer.parseInt(userId))
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        // Create the comment entity
-        CommentEntity commentEntity = CommentEntity.builder()
-                .content(commentDto.getContent())
-                .board(boardEntity)
-                .user(userEntity)
-                .build();
-
-        // Save the comment entity
-        CommentEntity savedCommentEntity = commentService.saveComment(commentEntity);
-
-        // Convert the saved comment to DTO
-        CommentDto savedCommentDto = CommentDto.builder()
-                .commentId(savedCommentEntity.getCommentId())
-                .boardId(savedCommentEntity.getBoard().getBoardId())
-                .userId(savedCommentEntity.getUser().getId())
-                .nickname(savedCommentEntity.getUser().getNickname())
-                .content(savedCommentEntity.getContent())
-                .createdDatetime(savedCommentEntity.getCreatedDatetime())
-                .build();
-
-        // Response DTO
-        ResponseDto<CommentDto> responseDto = ResponseDto.<CommentDto>builder()
-                .error(null)
-                .data(Collections.singletonList(savedCommentDto))
-                .build();
-
-        return ResponseEntity.ok(responseDto);
-    } catch (Exception e) {
-        logger.error("Failed to save the comment", e);
-        throw new ServiceException("Failed to save the comment");
-    }
-}
 
 
-
-//    @PostMapping("/{boardId}/comment")
+//    @PostMapping("/comment")
 //    public ResponseEntity<ResponseDto<CommentDto>> saveComment(@PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
 //        try {
 //            UserEntity user = userRepository.findById(Integer.parseInt(userId))
@@ -206,7 +206,7 @@ public ResponseEntity<ResponseDto<CommentDto>> saveComment(
 //        }
 //    }
 //
-//    @GetMapping("/{boardId}/comments")
+//    @GetMapping("/comment")
 //    public ResponseEntity<ResponseDto<CommentDto>> getCommentsByBoardIdPaged(
 //            @PathVariable Integer boardId,
 //            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable,
