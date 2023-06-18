@@ -15,6 +15,9 @@ import java.util.Optional;
 public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
+    public Optional<CommentEntity> getCommentById(Integer commentId) {
+        return commentRepository.findById(commentId);
+    }
     @Transactional
     public CommentEntity saveComment(CommentEntity comment) {
         return commentRepository.save(comment);
@@ -24,9 +27,6 @@ public class CommentService {
         return commentRepository.findByBoardBoardId(boardId, pageable);
     }
 //
-//    public Optional<CommentEntity> getCommentById(Integer commentId) {
-//        return commentRepository.findById(commentId);
-//    }
 //
 //    public CommentEntity updateComment(CommentEntity comment) {
 //        return commentRepository.save(comment);

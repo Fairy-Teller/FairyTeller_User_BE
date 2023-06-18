@@ -61,6 +61,38 @@ public class CommentController {
         }
     }
 
+    @PutMapping("/{boardId}/comment/{commentId}")
+    public ResponseEntity<ResponseDto<CommentDto>> updateComment(
+            @AuthenticationPrincipal String userId,
+            @PathVariable Integer commentId,
+            @RequestBody CommentDto updatedCommentDto
+    ) {
+        try {
+            CommentEntity comment = commentService.getCommentById(commentId)
+                    .orElseThrow(() -> new NoSuchElementException("Comment not found"));
+
+            // 댓글 작성자와 현재 사용자의 일치 여부 확인
+            if (!comment.getUser().getId().equals(Integer.parseInt(userId))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            comment.setContent(updatedCommentDto.getContent());
+            CommentEntity updatedComment = commentService.saveComment(comment);
+            CommentDto responseCommentDto = CommentDto.fromEntity(updatedComment);
+
+            responseCommentDto.setEditable(true);
+
+            ResponseDto<CommentDto> response = new ResponseDto<>();
+            response.setData(Collections.singletonList(responseCommentDto));
+            return ResponseEntity.ok().body(response);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Failed to update the comment", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     //    @PostMapping("/{boardId}/comment")
 //    public ResponseEntity<ResponseDto<CommentDto>> saveComment(
 //            @PathVariable Integer boardId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal String userId) {
@@ -235,35 +267,4 @@ public ResponseEntity<ResponseDto<CommentDto>> saveComment(
 //        }
 //    }
 //
-//    @PutMapping("/{boardId}/comment/{commentId}")
-//    public ResponseEntity<ResponseDto<CommentDto>> updateComment(
-//            @AuthenticationPrincipal String userId,
-//            @PathVariable Integer boardId,
-//            @PathVariable Integer commentId,
-//            @RequestBody CommentDto updatedCommentDto
-//    ) {
-//        try {
-//            CommentEntity comment = commentService.getCommentById(commentId)
-//                    .orElseThrow(() -> new NoSuchElementException("Comment not found"));
-//            if (!comment.getUserId().equals(Integer.parseInt(userId))) {
-//                //권한이 없는 경우 403 Forbidden 상태 코드 반환
-//                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//            }
-//            comment.setContent(updatedCommentDto.getContent());
-//
-//            CommentEntity updatedComment = commentService.saveComment(comment);
-//            CommentDto responseCommentDto = new CommentDto(updatedComment);
-//            responseCommentDto.setEditable(true);
-//            // ResponseDto와 데이터 설정
-//            ResponseDto<CommentDto> response = new ResponseDto<>();
-//            response.setData(Collections.singletonList(responseCommentDto));
-//            return ResponseEntity.ok().body(response);
-//        } catch (NoSuchElementException e) {
-//            // 댓글이 존재하지 않는 경우 404 Not Found 상태 코드 반환
-//               return ResponseEntity.notFound().build();
-//        } catch (Exception e) {
-//            log.error("Failed to update the comment", e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
 }
