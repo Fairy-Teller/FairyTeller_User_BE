@@ -66,6 +66,12 @@ jobs:
         sed -i "s|#spring.security.oauth2.client.registration.google.client-id=|spring.security.oauth2.client.registration.google.client-id=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
         sed -i "s|#spring.security.oauth2.client.registration.google.client-secret=|spring.security.oauth2.client.registration.google.client-secret=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
     
+    # (7) application-papago.properties 수정
+    - name: Modify application-papago.properties
+      run: |
+        sed -i "s|#client-id=|client-id=${{ secrets.PAPAGO_API_KEY }}|" ./src/main/resources/application-papago.properties
+        sed -i "s|#client-secret-key=|client-secret-key=${{ secrets.PAPAGO_SECRET_KEY }}|" ./src/main/resources/application-papago.properties
+    
     # (7) Gradle Build (test 제외)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
