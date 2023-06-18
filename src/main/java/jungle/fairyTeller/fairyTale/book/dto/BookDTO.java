@@ -1,10 +1,7 @@
 package jungle.fairyTeller.fairyTale.book.dto;
 
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;

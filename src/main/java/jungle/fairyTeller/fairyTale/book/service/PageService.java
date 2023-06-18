@@ -40,6 +40,17 @@ public class PageService {
         return pageRepository.findByPageNo(entity.getPageNo());
     }
 
+    public PageEntity updateUserAudio(final PageEntity entity) {
+        validate(entity);
+
+        pageRepository.save(entity);
+
+        log.info("Page Entity : {} - {} is updated", entity.getBook().getBookId(), entity.getPageNo().getPageNo());
+
+        return pageRepository.findByPageNo(new PageId(entity.getBook().getBookId(), entity.getPageNo().getPageNo()));
+
+    }
+
     private void validate(final PageEntity entity) {
         if(entity == null) {
             log.warn("Entity cannot be null");
