@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
-@PropertySource("classpath:application-local.properties")
+@PropertySource("classpath:application-papago.properties")
 public class PaPagoTranslationService {
 
     public PaPagoTranslationService(){}
