@@ -1,8 +1,8 @@
 package jungle.fairyTeller.security;
 
-import jungle.fairyTeller.security.TokenProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,12 @@ import static jungle.fairyTeller.security.RedirectUrlCookieFilter.REDIRECT_URI_P
 @AllArgsConstructor
 public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    private final Environment environment;
+
     private static final String LOCAL_REDIRECT_URL = "http://localhost:3000";
+    private static final String DEV_REDIRECT_URL = "http://www.fairy-teller.shop";
+
+    private static String REDIRECT_URL;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -34,8 +39,15 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         Optional<String> redirectURi = oCookie.map(Cookie::getValue);
 
+        String activeProfiles = environment.getProperty("spring.profiles.active");
+        if (activeProfiles != null && activeProfiles.contains("dev")) {
+            REDIRECT_URL = DEV_REDIRECT_URL;
+        } else {
+            REDIRECT_URL = LOCAL_REDIRECT_URL;
+        }
+
         log.info("token {}", token);
-        response.sendRedirect(redirectURi.orElseGet(() -> LOCAL_REDIRECT_URL) + "/sociallogin?token=" + token);
+        response.sendRedirect(redirectURi.orElseGet(() -> REDIRECT_URL) + "/sociallogin?token=" + token);
     }
 
 }
