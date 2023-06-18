@@ -55,10 +55,17 @@ public class BoardController {
     public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(
             @AuthenticationPrincipal String userId,
             @Qualifier("boardPageable") @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable boardPageable,
-            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable) {
+            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
+    ) {
         try {
+            // Update pageable objects with dynamic page and size values
+            boardPageable = PageRequest.of(page, size, boardPageable.getSort());
+            final Pageable finalCommentPageable = PageRequest.of(page, size, commentPageable.getSort());
+
             // Retrieve sorted board page
-            Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(boardPageable);
+            Page<BoardEntity> sortedBoardPage = boardService.getAllBoards(boardPageable);
 
             // Convert board entities to DTOs
             List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
@@ -67,7 +74,8 @@ public class BoardController {
                         List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
 
                         // Retrieve comments for each board with pagination
-                        Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), commentPageable);
+                        Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), finalCommentPageable);
+
                         List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
                         // Convert board entity to DTO
@@ -90,6 +98,8 @@ public class BoardController {
             ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
                     .error(null)
                     .data(boardDtos)
+                    .currentPage(sortedBoardPage.getNumber())
+                    .totalPages(sortedBoardPage.getTotalPages())
                     .build();
 
             return ResponseEntity.ok(responseDto);
@@ -99,53 +109,53 @@ public class BoardController {
         }
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<ResponseDto<BoardDto>> saveBoard(
-            @AuthenticationPrincipal String userId,
-            @RequestBody BoardDto requestDto,
-            @Qualifier("boardPageable") @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable boardPageable,
-            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable
-    ) {
-        try {
-            BoardEntity savedBoardEntity = boardService.saveBoard(requestDto.getBookId(), userId, requestDto.getDescription());
-            Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(boardPageable);
-            List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
-                    .map(boardEntity -> {
-                        // Retrieve pages for each board
-                        List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
-
-                        // Retrieve comments for each board with pagination
-                        Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), commentPageable);
-                        List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
-
-                        // Convert board entity to DTO
-                        return BoardDto.builder()
-                                .boardId(boardEntity.getBoardId())
-                                .bookId(boardEntity.getBook().getBookId())
-                                .title(boardEntity.getTitle())
-                                .description(boardEntity.getDescription())
-                                .thumbnailUrl(boardEntity.getThumbnailUrl())
-                                .createdDatetime(boardEntity.getCreatedDatetime())
-                                .authorId(boardEntity.getAuthor().getId())
-                                .nickname(boardEntity.getAuthor().getNickname())
-                                .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())
-                                .comments(commentDtos != null ? commentDtos : new ArrayList<>())
-                                .build();
-                    })
-                    .collect(Collectors.toList());
-
-            // Response DTO
-            ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
-                    .error(null)
-                    .data(boardDtos)
-                    .build();
-
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            log.error("Failed to save the board", e);
-            throw new ServiceException("Failed to save the board");
-        }
-    }
+//    @PostMapping("/save")
+//    public ResponseEntity<ResponseDto<BoardDto>> saveBoard(
+//            @AuthenticationPrincipal String userId,
+//            @RequestBody BoardDto requestDto
+//    ) {
+//        try {
+//            BoardEntity boardEntity = boardService.saveBoard(requestDto.getBookId(), userId, requestDto.getDescription());
+//            Pageable pageable = PageRequest.of(0, 9); // 페이지 크기와 정렬 방식을 지정
+//            ResponseDto<BoardDto> response = getAllBoardsResponse(pageable); // 수정된 부분
+//
+//            List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
+//                    .map(boardEntity -> {
+//                        // Retrieve pages for each board
+//                        List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
+//
+//                        // Retrieve comments for each board with pagination
+//                        Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), commentPageable);
+//                        List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
+//
+//                        // Convert board entity to DTO
+//                        return BoardDto.builder()
+//                                .boardId(boardEntity.getBoardId())
+//                                .bookId(boardEntity.getBook().getBookId())
+//                                .title(boardEntity.getTitle())
+//                                .description(boardEntity.getDescription())
+//                                .thumbnailUrl(boardEntity.getThumbnailUrl())
+//                                .createdDatetime(boardEntity.getCreatedDatetime())
+//                                .authorId(boardEntity.getAuthor().getId())
+//                                .nickname(boardEntity.getAuthor().getNickname())
+//                                .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())
+//                                .comments(commentDtos != null ? commentDtos : new ArrayList<>())
+//                                .build();
+//                    })
+//                    .collect(Collectors.toList());
+//
+//            // Response DTO
+//            ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
+//                    .error(null)
+//                    .data(boardDtos)
+//                    .build();
+//
+//            return ResponseEntity.ok(responseDto);
+//        } catch (Exception e) {
+//            log.error("Failed to save the board", e);
+//            throw new ServiceException("Failed to save the board");
+//        }
+//    }
 
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardDto>> getBoardById(@AuthenticationPrincipal String userId, @PathVariable Integer boardId) {
