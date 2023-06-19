@@ -212,11 +212,11 @@ public class BookController {
                 try {
                     String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
                     // 1-1-0. 이미지를 바이트 배열로 변환
-                    byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getImageUrl());
+                    byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
                     // 1-1-1. 이미지를 저장경로에 저장한다.
                     String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
                     // 1-1-2. imgUrl 변수에 경로를 담는다
-                    originalPage.setImageUrl(imgUrl);
+                    originalPage.setFinalImageUrl(imgUrl);
 
                     log.info(String.valueOf(pageDto.getPageNo()));
 
