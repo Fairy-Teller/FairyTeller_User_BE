@@ -24,7 +24,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final Environment environment;
 
     private static final String LOCAL_REDIRECT_URL = "http://localhost:3000";
-    private static final String DEV_REDIRECT_URL = "http://www.fairy-teller.shop";
+    private static final String DEV_REDIRECT_URL = "https://www.fairy-teller.shop";
 
     private static String REDIRECT_URL;
 
