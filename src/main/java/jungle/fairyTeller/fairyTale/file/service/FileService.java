@@ -46,7 +46,7 @@ public class FileService {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.length);
 
-            amazonS3Client.putObject(bucketUrl, fileName, new ByteArrayInputStream(file), metadata);
+            amazonS3Client.putObject(bucket, fileName, new ByteArrayInputStream(file), metadata);
 
             return bucketUrl +"/" + fileName;
         } catch (AmazonS3Exception e) {
