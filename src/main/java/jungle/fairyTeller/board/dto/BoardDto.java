@@ -24,5 +24,7 @@ public class BoardDto {
     private List<CommentDto> comments;
     private Integer authorId;
     private String nickname;
+    private Integer likeCount;
+    private boolean liked;
     private boolean editable;
 }

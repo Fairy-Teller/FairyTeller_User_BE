@@ -1,5 +1,6 @@
 package jungle.fairyTeller.board.controller;
 import com.amazonaws.services.kms.model.NotFoundException;
+import jungle.fairyTeller.board.entity.LikeEntity;
 import jungle.fairyTeller.board.repository.BoardRepository;
 import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
 import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
@@ -176,7 +177,17 @@ public class BoardController {
             // Retrieve comments for the board with pagination
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
             List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
-
+            // 좋아요 수
+            List<LikeEntity> likes = boardEntity.getLikes();
+            int likeCount = likes.size();
+            // 유저별로 좋아요 여부 확인
+            boolean liked = false;
+            for (LikeEntity like : likes) {
+                if (like.getUser().getId().equals(Integer.parseInt(userId))) {
+                    liked = true;
+                    break;
+                }
+            }
              //Set editable value for each comment
             for (CommentDto commentDto : commentDtos) {
                 boolean isCommentEditable = commentDto.getUserId().equals(Integer.parseInt(userId));
@@ -196,6 +207,8 @@ public class BoardController {
                     .comments(commentDtos)
                     .editable(isEditable)
                     .pages(pageDTOs)
+                    .likeCount(likeCount)
+                    .liked(liked)
                     .build();
 
             // Response DTO
@@ -212,4 +225,26 @@ public class BoardController {
             throw new ServiceException("Failed to retrieve the board");
         }
     }
+
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<String> deleteBoard(
+            @AuthenticationPrincipal String userId,
+            @PathVariable Integer boardId
+    ) {
+        try {
+            BoardEntity boardEntity = boardService.getBoardById(boardId);
+            boolean isEditable = boardEntity.getAuthor().getId().equals(Integer.parseInt(userId));
+            if (!isEditable) {
+                throw new IllegalArgumentException("You are not authorized to delete this board.");
+            }
+            // Delete the board and its associated comments
+            boardService.deleteBoard(boardId);
+            // Return a success message
+            return ResponseEntity.ok("Board and associated comments deleted successfully.");
+        } catch (Exception e) {
+            log.error("Failed to delete the board", e);
+            throw new ServiceException("Failed to delete the board");
+        }
+    }
+
 }
