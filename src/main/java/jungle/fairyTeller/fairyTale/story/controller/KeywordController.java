@@ -25,7 +25,7 @@ public class KeywordController {
         Map<String , Object> animalOptions = new HashMap<>();
         animalOptions.put("theme", "ANIMAL");
         animalOptions.put("titles", Arrays.asList("토끼","강아지", "고양이", "사자","돼지",
-                "펭귄","호랑이", "병아리", "사슴","공룡","말"));
+                "펭귄","상어", "오리", "양","공룡","말"));
         options.add(animalOptions);
 
         Map<String , Object> colorOptions = new HashMap<>();
@@ -37,13 +37,13 @@ public class KeywordController {
         Map<String , Object> thingOptions = new HashMap<>();
         thingOptions.put("theme", "THING");
         thingOptions.put("titles", Arrays.asList("소방차", "경찰차", "반지", "선물", "핸드폰", "사탕",
-                "구름", "솜사탕", "드레스", "구두", "왕관", "컴퓨터"));
+                "구름", "솜사탕", "드레스", "과자", "왕관", "컴퓨터"));
         options.add(thingOptions);
 
         Map<String , Object> placeOptions = new HashMap<>();
         placeOptions.put("theme", "PLACE");
-        placeOptions.put("titles", Arrays.asList("바다", "유치원", "숲", "학교", "정원", "집", "궁전",
-                "공원", "놀이터", "놀이동산", "동물원"));
+        placeOptions.put("titles", Arrays.asList("바다", "유치원", "숲", "학교", "박물관", "집", "궁전",
+                "산", "놀이터", "놀이동산", "동물원"));
         options.add(placeOptions);
 
         return ResponseEntity.ok().body(options);
