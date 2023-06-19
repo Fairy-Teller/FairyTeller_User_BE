@@ -212,4 +212,26 @@ public class BoardController {
             throw new ServiceException("Failed to retrieve the board");
         }
     }
+
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<String> deleteBoard(
+            @AuthenticationPrincipal String userId,
+            @PathVariable Integer boardId
+    ) {
+        try {
+            BoardEntity boardEntity = boardService.getBoardById(boardId);
+            boolean isEditable = boardEntity.getAuthor().getId().equals(Integer.parseInt(userId));
+            if (!isEditable) {
+                throw new IllegalArgumentException("You are not authorized to delete this board.");
+            }
+            // Delete the board and its associated comments
+            boardService.deleteBoard(boardId);
+            // Return a success message
+            return ResponseEntity.ok("Board and associated comments deleted successfully.");
+        } catch (Exception e) {
+            log.error("Failed to delete the board", e);
+            throw new ServiceException("Failed to delete the board");
+        }
+    }
+
 }

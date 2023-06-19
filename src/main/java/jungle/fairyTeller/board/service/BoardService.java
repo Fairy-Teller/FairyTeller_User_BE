@@ -1,4 +1,6 @@
 package jungle.fairyTeller.board.service;
+import com.amazonaws.services.kms.model.NotFoundException;
+import jungle.fairyTeller.board.repository.CommentRepository;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import jungle.fairyTeller.fairyTale.book.repository.BookRepository;
 import jungle.fairyTeller.board.entity.BoardEntity;
@@ -26,9 +28,10 @@ public class BoardService {
     private BoardRepository boardRepository;
     @Autowired
     private BookRepository bookRepository;
-
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Transactional
     public BoardEntity saveBoard(Integer bookId, String userId, String description) {
@@ -81,6 +84,17 @@ public class BoardService {
                 .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
 
         return boardEntity.getAuthor();
+    }
+
+    @Transactional
+    public void deleteBoard(Integer boardId) {
+        // Retrieve the board entity by boardId
+        BoardEntity boardEntity = boardRepository.findById(boardId)
+                .orElseThrow(() -> new NotFoundException("Board not found"));
+
+        // Delete the board and its associated comments
+        commentRepository.deleteByBoard(boardEntity);
+        boardRepository.delete(boardEntity);
     }
 
 }
