@@ -21,7 +21,7 @@ public class OAuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 
-        String errorMessage = "Invalid Username or Password"; // 기본 예외 메시지
+        String errorMessage = "default"; // 기본 예외 메시지
 
         // exceprion 처리
         if(exception instanceof BadCredentialsException) {
