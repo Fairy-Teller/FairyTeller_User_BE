@@ -1,6 +1,7 @@
 package jungle.fairyTeller.config;
 
 import jungle.fairyTeller.security.JwtAuthenticationFilter;
+import jungle.fairyTeller.security.OAuthFailureHandler;
 import jungle.fairyTeller.security.OAuthSuccessHandler;
 import jungle.fairyTeller.security.OAuthUserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,9 @@ public class WebSecurityConfig{
     @Autowired
     private OAuthSuccessHandler oAuthSuccessHandler;
 
+    @Autowired
+    private OAuthFailureHandler oAuthFailureHandler;
+
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.cors()
@@ -48,6 +52,7 @@ public class WebSecurityConfig{
                 .userService(oAuthUserService)
                 .and()
                 .successHandler(oAuthSuccessHandler)
+                .failureHandler(oAuthFailureHandler)
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(new Http403ForbiddenEntryPoint());

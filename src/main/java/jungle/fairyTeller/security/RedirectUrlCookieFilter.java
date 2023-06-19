@@ -28,6 +28,7 @@ public class RedirectUrlCookieFilter  extends OncePerRequestFilter {
                 Cookie cookie = new Cookie(REDIRECT_URI_PARAM, redirectUrl);
                 cookie.setPath("/");
                 cookie.setMaxAge(MAX_AGE);
+                cookie.setHttpOnly(true);
                 cookie.setSecure(true);
                 response.addCookie(cookie);
             } catch (Exception ex) {
