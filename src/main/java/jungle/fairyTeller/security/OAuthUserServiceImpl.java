@@ -30,6 +30,8 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         final OAuth2User oAuth2User = super.loadUser(userRequest);
 
+        log.info("oAuth2User loadUser 호출 {}", oAuth2User);
+
         try {
             log.info("OAuth2User attributes {} ", new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
         } catch (JsonProcessingException e) {
