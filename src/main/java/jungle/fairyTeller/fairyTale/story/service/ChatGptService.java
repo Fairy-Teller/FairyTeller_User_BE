@@ -228,9 +228,9 @@ public class ChatGptService {
         mapping.put("사자","lion");
         mapping.put("돼지","pig");
         mapping.put("펭귄","penguin");
-        mapping.put("호랑이","tiger");
-        mapping.put("병아리","chick");
-        mapping.put("사슴","deer");
+        mapping.put("상어","shark");
+        mapping.put("오리","duck");
+        mapping.put("코끼리","elephant");
         mapping.put("공룡","dinosaur");
         mapping.put("말","horse");
 
@@ -254,7 +254,7 @@ public class ChatGptService {
         mapping.put("구름","cloud");
         mapping.put("솜사탕","cotton candy");
         mapping.put("드레스","dress");
-        mapping.put("구두","shoe");
+        mapping.put("과자","snack");
         mapping.put("왕관","crown");
         mapping.put("컴퓨터","computer");
 
@@ -262,10 +262,10 @@ public class ChatGptService {
         mapping.put("유치원","kindergarten");
         mapping.put("숲","forest");
         mapping.put("학교","school");
-        mapping.put("정원","garden");
+        mapping.put("산","mountain");
         mapping.put("집","house");
         mapping.put("궁전","palace");
-        mapping.put("공원","park");
+        mapping.put("박물관","museum");
         mapping.put("놀이터","playground");
         mapping.put("놀이동산","amusement park");
         mapping.put("동물원","zoo");
