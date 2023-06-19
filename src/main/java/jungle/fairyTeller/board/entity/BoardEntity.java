@@ -38,7 +38,6 @@ public class BoardEntity {
     @Column(nullable = true)
     private String description;
     private String thumbnailUrl;
-    private boolean editable;
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
 }
