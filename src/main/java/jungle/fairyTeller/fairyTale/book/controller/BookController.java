@@ -304,7 +304,7 @@ public class BookController {
     private void saveOriginalBookImage(BookEntity originalBook, PageDTO pageDto, PageEntity originalPage) {
 
         try {
-            String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
+            String fileName = "original_" + String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
             // 1-1-0. 이미지를 바이트 배열로 변환
             byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getOriginalImageUrl());
             // 1-1-1. 이미지를 저장경로에 저장한다.
