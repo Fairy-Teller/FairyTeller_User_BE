@@ -61,10 +61,10 @@ jobs:
         sed -i "s|#spring.security.oauth2.client.registration.kakao.client-id=|spring.security.oauth2.client.registration.kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
         
         sed -i "s|#spring.security.oauth2.client.registration.naver.client-id=|spring.security.oauth2.client.registration.naver.client-id=${{ secrets.NAVER_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
-        sed -i "s|#spring.security.oauth2.client.registration.naver.client-secret=|spring.security.oauth2.client.registration.naver.client-secret=${{ secrets.NAVER_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
+        sed -i "s|#spring.security.oauth2.client.registration.naver.client-secret=|spring.security.oauth2.client.registration.naver.client-secret=${{ secrets.NAVER_CLIENT_SECRET }}|" ./src/main/resources/application-oauth.properties
         
         sed -i "s|#spring.security.oauth2.client.registration.google.client-id=|spring.security.oauth2.client.registration.google.client-id=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
-        sed -i "s|#spring.security.oauth2.client.registration.google.client-secret=|spring.security.oauth2.client.registration.google.client-secret=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
+        sed -i "s|#spring.security.oauth2.client.registration.google.client-secret=|spring.security.oauth2.client.registration.google.client-secret=${{ secrets.GOOGLE_CLIENT_SECRET }}|" ./src/main/resources/application-oauth.properties
     
     # (7) application-papago.properties 수정
     - name: Modify application-papago.properties
