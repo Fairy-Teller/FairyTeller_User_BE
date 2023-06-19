@@ -150,7 +150,7 @@ public class BookController {
 
                     log.info(String.valueOf(pageDto.getPageNo()));
 
-                    // 첫 페이지 thumbnailUrl 저장
+                    // 첫 페이지 thumbnailUrl 저장 로직
                     if(pageDto.getPageNo() == 1){
                         originalBook.setThumbnailUrl(imgUrl);
                     }
