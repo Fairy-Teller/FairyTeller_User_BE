@@ -23,7 +23,6 @@ public class BoardEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Integer boardId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bookId")
     private BookEntity book;
@@ -32,6 +31,8 @@ public class BoardEntity {
     private UserEntity author;
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LikeEntity> likes = new ArrayList<>();
 
     private String title;
     @Column(nullable = true)
