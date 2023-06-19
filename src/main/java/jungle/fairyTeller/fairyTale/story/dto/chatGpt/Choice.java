@@ -1,14 +1,16 @@
-package jungle.fairyTeller.fairyTale.story.dto;
+package jungle.fairyTeller.fairyTale.story.dto.chatGpt;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class Choice implements Serializable {
     private String text;
@@ -16,11 +18,6 @@ public class Choice implements Serializable {
     @Builder
     @JsonCreator
     public Choice(@JsonProperty("text") String text) {
-
-        //gpt가 작성한 시나리오 문자열 parsing
-        String tmpScenerio = text;
-        tmpScenerio = tmpScenerio.replaceAll("\n\n","");
-        tmpScenerio = tmpScenerio.replaceAll("\\.",".\n");
-        this.text = tmpScenerio;
+        this.text = text;
     }
 }

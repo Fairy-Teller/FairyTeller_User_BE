@@ -7,7 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.criteria.CriteriaBuilder;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -16,25 +17,51 @@ import javax.persistence.criteria.CriteriaBuilder;
 public class PageDTO {
     private Integer pageNo;
     private String fullStory;
-    private String imageUrl;
+
+    private String originalImageUrl;
+
+    private String finalImageUrl;
     private String audioUrl;
+    private String userAudioUrl;
 
     public PageDTO(final PageEntity entity) {
         this.pageNo = entity.getPageNo().getPageNo();
         this.fullStory = entity.getFullStory();
-        this.imageUrl = entity.getImageUrl();
+        this.originalImageUrl = entity.getOriginalImageUrl();
+        this.finalImageUrl = entity.getFinalImageUrl();
         this.audioUrl = entity.getAudioUrl();
+        this.userAudioUrl = entity.getUserAudioUrl();
     }
 
-    public static PageEntity toEntity(final PageDTO dto) {
-        PageEntity pageEntity = PageEntity.builder()
+    public static PageEntity toEntity(PageDTO dto) {
+        PageEntity entity = PageEntity.builder()
                 .pageNo(new PageId(dto.getPageNo(), null))
                 .fullStory(dto.getFullStory())
-                .imageUrl(dto.getImageUrl())
+                .originalImageUrl(dto.getOriginalImageUrl())
+                .finalImageUrl(dto.getFinalImageUrl())
                 .audioUrl(dto.getAudioUrl())
+                .userAudioUrl(dto.getUserAudioUrl())
                 .build();
-        // Set the book entity if needed
-        // pageEntity.setBook(bookEntity);
-        return pageEntity;
+        // 필요하다면 book과의 관계 설정
+        return entity;
     }
+
+    public static List<PageDTO> fromEntityList(List<PageEntity> entities) {
+        List<PageDTO> dtos = new ArrayList<>();
+        for (PageEntity entity : entities) {
+            dtos.add(fromEntity(entity));
+        }
+        return dtos;
+    }
+
+    public static PageDTO fromEntity(PageEntity entity) {
+        return PageDTO.builder()
+                .pageNo(entity.getPageNo().getPageNo())
+                .fullStory(entity.getFullStory())
+                .originalImageUrl(entity.getOriginalImageUrl())
+                .finalImageUrl(entity.getFinalImageUrl())
+                .audioUrl(entity.getAudioUrl())
+                .build();
+    }
+
 }

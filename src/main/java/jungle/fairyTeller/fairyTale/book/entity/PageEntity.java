@@ -28,9 +28,13 @@ public class PageEntity {
 
     private String fullStory;
 
-    private String imageUrl;
+    private String originalImageUrl;
+
+    private String finalImageUrl;
 
     private String audioUrl;
+
+    private String userAudioUrl;
 
     public void setBook(BookEntity book) {
         this.book = book;

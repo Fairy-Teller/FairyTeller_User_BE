@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<CommentEntity, Integer> {
-    Page<CommentEntity> findAllByBoardId(Integer boardId, Pageable pageable);
+    Page<CommentEntity> findByBoardBoardId(Integer boardId, Pageable pageable);
 }

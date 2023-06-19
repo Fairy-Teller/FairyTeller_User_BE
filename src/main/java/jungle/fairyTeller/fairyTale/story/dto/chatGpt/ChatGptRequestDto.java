@@ -1,4 +1,4 @@
-package jungle.fairyTeller.fairyTale.story.dto;
+package jungle.fairyTeller.fairyTale.story.dto.chatGpt;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

@@ -9,7 +9,7 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
     
 env:
   AWS_REGION: ap-northeast-2
@@ -42,7 +42,7 @@ jobs:
     - name: Modify application.properties
       run: |
         sed -i "s|spring.profiles.active=local|spring.profiles.active=dev|" ./src/main/resources/application.properties
-        sed -i "s|#spring.profiles.include=|spring.profiles.include=file, oauth, tts, chatgpt|" ./src/main/resources/application.properties
+        sed -i "s|#spring.profiles.include=|spring.profiles.include=file, oauth, tts, chatgpt, papago|" ./src/main/resources/application.properties
 
     # (4) application-chatgpt.properties 수정
     - name: Modify application-chatgpt.properties
@@ -66,7 +66,13 @@ jobs:
         sed -i "s|#spring.security.oauth2.client.registration.google.client-id=|spring.security.oauth2.client.registration.google.client-id=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
         sed -i "s|#spring.security.oauth2.client.registration.google.client-secret=|spring.security.oauth2.client.registration.google.client-secret=${{ secrets.GOOGLE_CLIENT_ID }}|" ./src/main/resources/application-oauth.properties
     
-    # (7) Gradle Build (test 제외)
+    # (7) application-papago.properties 수정
+    - name: Modify application-papago.properties
+      run: |
+        sed -i "s|#papago.client-id=|papago.client-id=${{ secrets.PAPAGO_API_KEY }}|" ./src/main/resources/application-papago.properties
+        sed -i "s|#papago.client-secret-key=|papago.client-secret-key=${{ secrets.PAPAGO_SECRET_KEY }}|" ./src/main/resources/application-papago.properties
+    
+    # (8) Gradle Build (test 제외)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
@@ -75,12 +81,12 @@ jobs:
 #         arguments: build
       run: ./gradlew clean build --exclude-task test
     
-    # (8) 압축 파일 형태로 전달
+    # (9) 압축 파일 형태로 전달
     - name: Make Zip File
       run: zip -qq -r ./$GITHUB_SHA.zip .
       shell: bash
       
-    # (9) AWS 인증
+    # (10) AWS 인증
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -88,11 +94,11 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_PRIVATE_ACCESS_KEY }}
         aws-region: ap-northeast-2
     
-    # (10) S3 bucket으로 copy
+    # (11) S3 bucket으로 copy
     - name: Upload to S3
       run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
     
-    # (11) EC2 배포
+    # (12) EC2 배포
     - name: Code Deploy To EC2 instance
       run: aws deploy create-deployment 
                 --application-name ${{env.CODE_DEPLOY_APP_NAME}} 
@@ -100,7 +106,7 @@ jobs:
                 --deployment-group-name ${{env.DEPLOYMENT_GROUP_NAME}}  
                 --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
     
-    # (12) Slack 알림
+    # (13) Slack 알림
     - name: Send Slack notification
       uses: 8398a7/action-slack@v3
       env:
