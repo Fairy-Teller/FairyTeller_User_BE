@@ -209,6 +209,26 @@ public class BookController {
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
 
                 // 1-1. 이미지
+                try {
+                    String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
+                    // 1-1-0. 이미지를 바이트 배열로 변환
+                    byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getImageUrl());
+                    // 1-1-1. 이미지를 저장경로에 저장한다.
+                    String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
+                    // 1-1-2. imgUrl 변수에 경로를 담는다
+                    originalPage.setImageUrl(imgUrl);
+
+                    log.info(String.valueOf(pageDto.getPageNo()));
+
+                    // 첫 페이지 thumbnailUrl 저장 로직
+                    if(pageDto.getPageNo() == 1){
+                        originalBook.setThumbnailUrl(imgUrl);
+                    }
+
+                } catch (Exception e) {
+                    throw new RuntimeException("Error converting image: " + e.getMessage(), e);
+                }
+              
                 saveFinalBookImage(originalBook, pageDto, originalPage);
 
                 // 1-2. tts
