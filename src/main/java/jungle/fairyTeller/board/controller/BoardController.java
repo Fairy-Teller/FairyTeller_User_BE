@@ -79,6 +79,19 @@ public class BoardController {
 
                         List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
+                        // 좋아요 수
+                        List<LikeEntity> likes = boardEntity.getLikes();
+                        int likeCount = likes.size();
+
+                        // 유저별로 좋아요 여부 확인
+                        boolean liked = false;
+                        for (LikeEntity like : likes) {
+                            if (like.getUser().getId().equals(Integer.parseInt(userId))) {
+                                liked = true;
+                                break;
+                            }
+                        }
+
                         // Convert board entity to DTO
                         return BoardDto.builder()
                                 .boardId(boardEntity.getBoardId())
@@ -91,6 +104,8 @@ public class BoardController {
                                 .nickname(boardEntity.getAuthor().getNickname())
                                 .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())
                                 .comments(commentDtos != null ? commentDtos : new ArrayList<>())
+                                .likeCount(likeCount)
+                                .liked(liked)
                                 .build();
                     })
                     .collect(Collectors.toList());
@@ -129,6 +144,19 @@ public class BoardController {
                         Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), commentPageable);
                         List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
+                        // 좋아요 수
+                        List<LikeEntity> likes = boardEntity.getLikes();
+                        int likeCount = likes.size();
+
+                        // 유저별로 좋아요 여부 확인
+                        boolean liked = false;
+                        for (LikeEntity like : likes) {
+                            if (like.getUser().getId().equals(Integer.parseInt(userId))) {
+                                liked = true;
+                                break;
+                            }
+                        }
+
                         // Convert board entity to DTO
                         return BoardDto.builder()
                                 .boardId(boardEntity.getBoardId())
@@ -141,6 +169,8 @@ public class BoardController {
                                 .nickname(boardEntity.getAuthor().getNickname())
                                 .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())
                                 .comments(commentDtos != null ? commentDtos : new ArrayList<>())
+                                .likeCount(likeCount)
+                                .liked(liked)
                                 .build();
                     })
                     .collect(Collectors.toList());
