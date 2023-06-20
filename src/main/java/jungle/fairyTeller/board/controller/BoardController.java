@@ -2,6 +2,7 @@ package jungle.fairyTeller.board.controller;
 import com.amazonaws.services.kms.model.NotFoundException;
 import jungle.fairyTeller.board.entity.LikeEntity;
 import jungle.fairyTeller.board.repository.BoardRepository;
+import jungle.fairyTeller.board.service.LikeService;
 import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
 import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
 import org.hibernate.service.spi.ServiceException;
@@ -44,13 +45,9 @@ public class BoardController {
     @Autowired
     private BoardService boardService;
     @Autowired
-    private BookRepository bookRepository;
-    @Autowired
-    private BoardRepository boardRepository;
+    private LikeService likeService;
     @Autowired
     private CommentService commentService;
-    @Autowired
-    private UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<ResponseDto<BoardDto>> getAllBoards(
@@ -79,18 +76,8 @@ public class BoardController {
 
                         List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
-                        // 좋아요 수
-                        List<LikeEntity> likes = boardEntity.getLikes();
-                        int likeCount = likes.size();
-
-                        // 유저별로 좋아요 여부 확인
-                        boolean liked = false;
-                        for (LikeEntity like : likes) {
-                            if (like.getUser().getId().equals(Integer.parseInt(userId))) {
-                                liked = true;
-                                break;
-                            }
-                        }
+                        int likeCount = likeService.getLikeCount(boardEntity.getBoardId());
+                        boolean liked = likeService.isBoardLiked(boardEntity.getBoardId(), Integer.parseInt(userId));
 
                         // Convert board entity to DTO
                         return BoardDto.builder()
@@ -130,9 +117,14 @@ public class BoardController {
             @AuthenticationPrincipal String userId,
             @RequestBody BoardDto requestDto,
             @Qualifier("boardPageable") @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable boardPageable,
-            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable
+            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
     ) {
         try {
+            boardPageable = PageRequest.of(page, size, boardPageable.getSort());
+            final Pageable finalCommentPageable = PageRequest.of(page, size, commentPageable.getSort());
+
             BoardEntity savedBoardEntity = boardService.saveBoard(requestDto.getBookId(), userId, requestDto.getDescription());
             Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(boardPageable);
             List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
@@ -144,18 +136,8 @@ public class BoardController {
                         Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), commentPageable);
                         List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
 
-                        // 좋아요 수
-                        List<LikeEntity> likes = boardEntity.getLikes();
-                        int likeCount = likes.size();
-
-                        // 유저별로 좋아요 여부 확인
-                        boolean liked = false;
-                        for (LikeEntity like : likes) {
-                            if (like.getUser().getId().equals(Integer.parseInt(userId))) {
-                                liked = true;
-                                break;
-                            }
-                        }
+                        int likeCount = likeService.getLikeCount(boardEntity.getBoardId());
+                        boolean liked = likeService.isBoardLiked(boardEntity.getBoardId(), Integer.parseInt(userId));
 
                         // Convert board entity to DTO
                         return BoardDto.builder()
@@ -207,17 +189,10 @@ public class BoardController {
             // Retrieve comments for the board with pagination
             Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardId, pageable);
             List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
-            // 좋아요 수
-            List<LikeEntity> likes = boardEntity.getLikes();
-            int likeCount = likes.size();
-            // 유저별로 좋아요 여부 확인
-            boolean liked = false;
-            for (LikeEntity like : likes) {
-                if (like.getUser().getId().equals(Integer.parseInt(userId))) {
-                    liked = true;
-                    break;
-                }
-            }
+
+            int likeCount = likeService.getLikeCount(boardEntity.getBoardId());
+            boolean liked = likeService.isBoardLiked(boardEntity.getBoardId(), Integer.parseInt(userId));
+
              //Set editable value for each comment
             for (CommentDto commentDto : commentDtos) {
                 boolean isCommentEditable = commentDto.getUserId().equals(Integer.parseInt(userId));
