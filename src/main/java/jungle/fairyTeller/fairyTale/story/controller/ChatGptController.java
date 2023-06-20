@@ -34,7 +34,12 @@ public class ChatGptController {
     @PostMapping("/question")
     public HttpEntity<List<HashMap<String, Object>>> sendQuestion
             (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
-
+        if (requestDto.getParameter1() == null ||requestDto.getParameter2() == null ||
+        requestDto.getParameter3() == null || requestDto.getParameter4() == null
+    ||requestDto.getParameter5() == null) {
+            System.out.println("requestDto is null");
+            return ResponseEntity.badRequest().build();
+        }
         return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto));
     }
 
