@@ -67,4 +67,11 @@ public class LikeService {
         likeRepository.save(likeEntity);
     }
 
+    @Transactional(readOnly = true)
+    public int getLikeCount(Integer boardId) {
+        BoardEntity boardEntity = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
+
+        return likeRepository.countByBoard(boardEntity);
+    }
 }
