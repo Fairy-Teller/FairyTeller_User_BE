@@ -40,8 +40,7 @@ public class ChatGptController {
             System.out.println("requestDto is null");
             return ResponseEntity.badRequest().build();
         }
-       // return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto));
-        return chatGptService.askQuestion(requestDto);
+       return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto));
     }
 
     @PostMapping("/textToImage")
