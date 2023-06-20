@@ -136,13 +136,6 @@ public class ChatGptService {
             word5 = requestDto.getParameter5();
         }
 
-
-//        return "Please make a happy fairy tale for 2-5 years old with '"
-//        +requestDto.getParameter1()+"',"+"'"+requestDto.getParameter2()+"',"
-//        +"'"+requestDto.getParameter3()+"',"+"'"+requestDto.getParameter4()
-//        +",'"+requestDto.getParameter5()+"'"
-//        + "in English";
-
         return "Please make a happy fairy tale for 2-5 years old with '"
                 +word1+"',"+"'"+word2+"',"
                 +"'"+word3+"',"+"'"+word4+"'"
@@ -271,26 +264,53 @@ public class ChatGptService {
         mapping.put("동물원","zoo");
 
         QuestionRequestDto questionRequestDto = new QuestionRequestDto();
+        String kor= "ko";
+        String eng= "en";
 
         if(!requestDto.getParameter1().isEmpty()){
             String transWord1 = mapping.get(requestDto.getParameter1());
-            questionRequestDto.setParameter1(transWord1);
+            if(transWord1 != null) {
+                questionRequestDto.setParameter1(transWord1);
+            }else{
+                transWord1 = paPagoTranslationService.translate(requestDto.getParameter1(),kor,eng);
+                questionRequestDto.setParameter1(transWord1);
+            }
         }
         if(!requestDto.getParameter2().isEmpty()){
             String transWord2 = mapping.get(requestDto.getParameter2());
-            questionRequestDto.setParameter2(transWord2);
+            if(transWord2 != null) {
+                questionRequestDto.setParameter2(transWord2);
+            }else{
+                transWord2 = paPagoTranslationService.translate(requestDto.getParameter2(),kor,eng);
+                questionRequestDto.setParameter2(transWord2);
+            }
         }
         if(!requestDto.getParameter3().isEmpty()){
             String transWord3 = mapping.get(requestDto.getParameter3());
-            questionRequestDto.setParameter3(transWord3);
+            if(transWord3 != null) {
+                questionRequestDto.setParameter3(transWord3);
+            }else{
+                transWord3 = paPagoTranslationService.translate(requestDto.getParameter3(),kor,eng);
+                questionRequestDto.setParameter3(transWord3);
+            }
         }
         if(!requestDto.getParameter4().isEmpty()){
             String transWord4 = mapping.get(requestDto.getParameter4());
-            questionRequestDto.setParameter4(transWord4);
+            if(transWord4 != null) {
+                questionRequestDto.setParameter4(transWord4);
+            }else{
+                transWord4 = paPagoTranslationService.translate(requestDto.getParameter4(),kor,eng);
+                questionRequestDto.setParameter4(transWord4);
+            }
         }
         if(!requestDto.getParameter5().isEmpty()){
             String transWord5 = mapping.get(requestDto.getParameter5());
-            questionRequestDto.setParameter5(transWord5);
+            if(transWord5 != null) {
+                questionRequestDto.setParameter5(transWord5);
+            }else{
+                transWord5 = paPagoTranslationService.translate(requestDto.getParameter5(),kor,eng);
+                questionRequestDto.setParameter5(transWord5);
+            }
         }
         return questionRequestDto;
     }
