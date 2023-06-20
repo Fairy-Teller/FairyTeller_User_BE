@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface LikeRepository extends JpaRepository<LikeEntity, Integer> {
     boolean existsByBoardAndUser(BoardEntity board, UserEntity user);
     Optional<LikeEntity> findByBoardAndUser(BoardEntity board, UserEntity user);
+    int countByBoard(BoardEntity board);
 }
