@@ -82,15 +82,7 @@ public class BoardController {
                         // 좋아요 수
                         List<LikeEntity> likes = boardEntity.getLikes();
                         int likeCount = likes != null ? likes.size() : 0;
-
-                        // 유저별로 좋아요 여부 확인
-                        boolean liked = false;
-                        for (LikeEntity like : likes) {
-                            if (like.getUser().getId().equals(Integer.parseInt(userId))) {
-                                liked = true;
-                                break;
-                            }
-                        }
+                        boolean liked = isUserLiked(likes, userId);
 
                         // Convert board entity to DTO
                         return BoardDto.builder()
@@ -152,17 +144,7 @@ public class BoardController {
                         // 좋아요 수
                         List<LikeEntity> likes = boardEntity.getLikes();
                         int likeCount = likes != null ? likes.size() : 0;
-
-                        // 유저별로 좋아요 여부 확인
-                        boolean liked = false;
-                        if (likes != null) {
-                            for (LikeEntity like : likes) {
-                                if (like.getUser().getId().equals(Integer.parseInt(userId))) {
-                                    liked = true;
-                                    break;
-                                }
-                            }
-                        }
+                        boolean liked = isUserLiked(likes, userId);
 
                         // Convert board entity to DTO
                         return BoardDto.builder()
@@ -216,15 +198,9 @@ public class BoardController {
             List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
             // 좋아요 수
             List<LikeEntity> likes = boardEntity.getLikes();
-            int likeCount = likes.size();
-            // 유저별로 좋아요 여부 확인
-            boolean liked = false;
-            for (LikeEntity like : likes) {
-                if (like.getUser().getId().equals(Integer.parseInt(userId))) {
-                    liked = true;
-                    break;
-                }
-            }
+            int likeCount = likes != null ? likes.size() : 0;
+            boolean liked = isUserLiked(likes, userId);
+
              //Set editable value for each comment
             for (CommentDto commentDto : commentDtos) {
                 boolean isCommentEditable = commentDto.getUserId().equals(Integer.parseInt(userId));
@@ -283,5 +259,17 @@ public class BoardController {
             throw new ServiceException("Failed to delete the board");
         }
     }
+
+    private boolean isUserLiked(List<LikeEntity> likes, String userId) {
+        if (likes != null) {
+            for (LikeEntity like : likes) {
+                if (like.getUser().getId().equals(Integer.parseInt(userId))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
 }
