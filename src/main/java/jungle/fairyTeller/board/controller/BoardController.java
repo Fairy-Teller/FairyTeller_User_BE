@@ -81,7 +81,7 @@ public class BoardController {
 
                         // 좋아요 수
                         List<LikeEntity> likes = boardEntity.getLikes();
-                        int likeCount = likes.size();
+                        int likeCount = likes != null ? likes.size() : 0;
 
                         // 유저별로 좋아요 여부 확인
                         boolean liked = false;
@@ -130,9 +130,14 @@ public class BoardController {
             @AuthenticationPrincipal String userId,
             @RequestBody BoardDto requestDto,
             @Qualifier("boardPageable") @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable boardPageable,
-            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable
+            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
     ) {
         try {
+            boardPageable = PageRequest.of(page, size, boardPageable.getSort());
+            final Pageable finalCommentPageable = PageRequest.of(page, size, commentPageable.getSort());
+
             BoardEntity savedBoardEntity = boardService.saveBoard(requestDto.getBookId(), userId, requestDto.getDescription());
             Page<BoardEntity> sortedBoardPage = boardService.getAllBoardsPaged(boardPageable);
             List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
@@ -146,14 +151,16 @@ public class BoardController {
 
                         // 좋아요 수
                         List<LikeEntity> likes = boardEntity.getLikes();
-                        int likeCount = likes.size();
+                        int likeCount = likes != null ? likes.size() : 0;
 
                         // 유저별로 좋아요 여부 확인
                         boolean liked = false;
-                        for (LikeEntity like : likes) {
-                            if (like.getUser().getId().equals(Integer.parseInt(userId))) {
-                                liked = true;
-                                break;
+                        if (likes != null) {
+                            for (LikeEntity like : likes) {
+                                if (like.getUser().getId().equals(Integer.parseInt(userId))) {
+                                    liked = true;
+                                    break;
+                                }
                             }
                         }
 
