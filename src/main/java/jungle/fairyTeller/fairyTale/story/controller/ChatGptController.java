@@ -58,7 +58,7 @@ public class ChatGptController {
           //  summaryText = summaryText.replace("\n\n","");
           //  System.out.println("확인용:"+summaryText);
 //
-            String base64Image = createImgService.createImg("<lora:model1:1> " + transToText);
+            String base64Image = createImgService.createImg(transToText);
 
             HttpHeaders headers = new HttpHeaders();
             // headers.setContentType(MediaType.valueOf("image/jpeg"));
