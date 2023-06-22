@@ -56,6 +56,7 @@ public class ThumbnailService {
         byte[] originalImage;
         try {
             originalImage = saveImgService.convertBase64ToImage(base64Image);
+            log.info(">>>표지 이미지는 생성 완료<<<");
         } catch( Exception e) {
             originalImage = null;
         }
@@ -65,6 +66,7 @@ public class ThumbnailService {
         String author = userEntity.get().getNickname();
 
         byte[] coverImage = addObjectsToImage(originalImage, book.getTitle(), author);
+        log.info(">>>가공된 표지 이미지 생성 완료<<<");
 
         // 생성한 이미지를 s3에 저장한다.
         String thumbnailUrl = fileService.uploadFile(coverImage, book.getBookId() + "_thumbnail");
