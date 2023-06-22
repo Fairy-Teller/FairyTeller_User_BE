@@ -38,6 +38,7 @@ public class FileService {
         } else {
             filePath = uploadToLocal(file, fileName);
         }
+        log.info(">>>저장경로: "+filePath);
         return filePath;
     }
 
