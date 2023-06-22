@@ -8,5 +8,8 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class SummarizingRequestDto implements Serializable {
+    private int bookId;
+    private int pageNo;
+    private int loraNo;
     private String text;
 }

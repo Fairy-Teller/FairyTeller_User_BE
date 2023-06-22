@@ -72,4 +72,33 @@ public class ChatGptController {
         }
     }
 
+    @PostMapping("/textToImage/v2")
+    public ResponseEntity<Object> textToImageWithLora(@RequestBody SummarizingRequestDto requestDto,
+                                              @AuthenticationPrincipal String userId){
+        try {
+            if(requestDto == null || requestDto.getText() == null) {
+                throw new RuntimeException("requestDto is null.");
+            }
+            String transToText =translationService.translate(requestDto.getText(),"ko","en");
+            //요약 로직
+            // requestDto.setText(transToText);
+            //  ChatGptResponseDto gptResponseDto = chatGptService.askSummarize(requestDto);
+            //  String summaryText = gptResponseDto.getText();
+            //  summaryText = summaryText.replace("\n\n","");
+            //  System.out.println("확인용:"+summaryText);
+            transToText = createImgService.addLora(requestDto.getLoraNo(), transToText);
+            String base64Image = createImgService.createImg(transToText);
+
+            HttpHeaders headers = new HttpHeaders();
+            // headers.setContentType(MediaType.valueOf("image/jpeg"));
+
+            // byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+
+            return new ResponseEntity<>(base64Image, headers, HttpStatus.OK);
+        }catch (Exception e){
+            log.error("Failed to create image", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
