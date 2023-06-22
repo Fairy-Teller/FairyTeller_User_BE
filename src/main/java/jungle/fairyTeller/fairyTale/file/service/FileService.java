@@ -33,6 +33,7 @@ public class FileService {
         log.info(">>>uploadFile 호출");
         // 프로필에 따라 S3 또는 로컬 파일 시스템에 파일 업로드
         String activeProfiles = environment.getProperty("spring.profiles.active");
+        log.info(">>>profile = "+activeProfiles);
         String filePath;
         if (activeProfiles != null && activeProfiles.contains("dev")) {
             filePath = uploadToS3(file, fileName);
