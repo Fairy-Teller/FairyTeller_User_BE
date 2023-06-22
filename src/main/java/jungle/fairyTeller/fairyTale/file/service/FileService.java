@@ -61,7 +61,7 @@ public class FileService {
             log.error("Failed to upload file to S3: {}", e.getMessage());
             throw new RuntimeException("Failed to upload file to S3", e);
         } catch (Exception e) {
-            log.error("General error: {}", e.getMessage());
+            log.error("General error: {}", e);
             throw e;
         }
     }
