@@ -77,7 +77,6 @@ public class ThumbnailService {
 
         // 생성한 이미지를 s3에 저장한다.
         String thumbnailUrl = fileService.uploadFile(coverImage, book.getBookId()+ "_thumbnail.png");
-        log.info(">>>s3에 저장 성공<<<");
 
         // 저장한 풀 url을 리턴한다.
         return thumbnailUrl;
@@ -106,8 +105,6 @@ public class ThumbnailService {
                 watermark = loadLocalImage(localUrl+"/logo_bright.png");
             }
 
-            log.info(">>>watermark: " + watermark);
-
             // 새로운 이미지 생성
             newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
@@ -118,7 +115,7 @@ public class ThumbnailService {
             g2d.drawImage(bufferedImage, 0, 0, null);
 
             // 제목 설정
-            String fontName = "Arial";
+            String fontName = "Malgun Gothic";
             int fontSize = 30;
             Font font = new Font(fontName, Font.BOLD, fontSize);
             g2d.setFont(font);
