@@ -1,5 +1,9 @@
 package jungle.fairyTeller.fairyTale.Image.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import jungle.fairyTeller.fairyTale.file.service.FileService;
 import jungle.fairyTeller.user.entity.UserEntity;
@@ -41,6 +45,11 @@ public class ThumbnailService {
     private UserService userService;
 
     private final Environment environment;
+
+    private final AmazonS3 amazonS3;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     @Value("${cloud.aws.s3.bucket.url}")
     private String bucketUrl;
@@ -99,9 +108,9 @@ public class ThumbnailService {
             String activeProfiles = environment.getProperty("spring.profiles.active");
             BufferedImage watermark;
             if (activeProfiles != null && activeProfiles.contains("dev")) {
-                watermark = loadImage(bucketUrl+"/logo_bright.png");
+                watermark = loadS3Image("logo_bright.png");
             } else {
-                watermark = loadImage(localUrl+"/logo_bright.png");
+                watermark = loadLocalImage(localUrl+"/logo_bright.png");
             }
 
             log.info(">>>watermark: " + watermark);
@@ -161,7 +170,21 @@ public class ThumbnailService {
         }
     }
 
-    private BufferedImage loadImage(String imagePath) {
+    private BufferedImage loadS3Image(String fileName) {
+        try {
+            S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketUrl, fileName));
+            S3ObjectInputStream inputStream = s3object.getObjectContent();
+            BufferedImage img = ImageIO.read(inputStream);
+            if (img == null) {
+                log.error("Could not read watermark image at path: " + bucketUrl + "/"+ fileName);
+            }
+            return img;
+        } catch (Exception e) {
+            log.error("Error occurred while reading watermark image.", e);
+        }
+        return null;
+    }
+    private BufferedImage loadLocalImage(String imagePath) {
         try {
             BufferedImage img = ImageIO.read(new File(imagePath));
             if (img == null) {
