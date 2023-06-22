@@ -112,6 +112,7 @@ public class BookController {
 
     @PostMapping("/create/story")
     // 사용자가 줄거리를 확정하면, bookID를 생성하고 확정된 줄거리를 저장한다
+    // TTS도 이 때 생성된다
     public ResponseEntity<?> createStory(@AuthenticationPrincipal String userId, @RequestBody BookDTO dto) {
         try {
             BookEntity bookEntity = BookDTO.toEntity(dto);
@@ -128,9 +129,13 @@ public class BookController {
                 pageEntity.setFullStory(pageDTO.getFullStory());
                 pageEntity.setBook(savedBook);
 
+                // 2-1. tts를 생성한다
+                saveTtsAudio(savedBook, pageDTO, pageEntity);
+
                 pageService.createPage(pageEntity);
             }
 
+            // 3. bookDTO를 반환한다
             BookDTO savedBookDto = BookDTO.builder()
                     .bookId(savedBook.getBookId())
                     .author(savedBook.getAuthor())
@@ -221,9 +226,9 @@ public class BookController {
                     log.info(String.valueOf(pageDto.getPageNo()));
 
                     // 첫 페이지 thumbnailUrl 저장 로직
-                    if(pageDto.getPageNo() == 1){
-                        originalBook.setThumbnailUrl(imgUrl);
-                    }
+//                    if(pageDto.getPageNo() == 1){
+//                        originalBook.setThumbnailUrl(imgUrl);
+//                    }
 
                 } catch (Exception e) {
                     throw new RuntimeException("Error converting image: " + e.getMessage(), e);
@@ -232,7 +237,7 @@ public class BookController {
                 saveFinalBookImage(originalBook, pageDto, originalPage);
 
                 // 1-2. tts
-                saveTtsAudio(originalBook, pageDto, originalPage);
+                //saveTtsAudio(originalBook, pageDto, originalPage);
 
                 // 1-3. 이미지랑 오디오를 pages에 저장한다.
                 pageService.updatePage(originalPage);
