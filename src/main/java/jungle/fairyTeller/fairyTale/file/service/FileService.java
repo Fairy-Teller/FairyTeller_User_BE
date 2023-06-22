@@ -36,6 +36,7 @@ public class FileService {
         log.info(">>>profile = "+activeProfiles);
         String filePath;
         if (activeProfiles != null && activeProfiles.contains("dev")) {
+            log.info(">>>dev if 문에 걸렸다");
             filePath = uploadToS3(file, fileName);
             log.info("property - dev");
         } else {
