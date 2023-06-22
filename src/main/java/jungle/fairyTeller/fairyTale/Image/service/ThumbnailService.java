@@ -78,9 +78,15 @@ public class ThumbnailService {
     }
 
     private byte[] addObjectsToImage(byte[] image, String title, String author) {
+        BufferedImage newImage;
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(image);
             BufferedImage bufferedImage = ImageIO.read(bais);
+
+            if (bufferedImage == null) {
+                log.error("Could not read image data into a BufferedImage.");
+                return null;
+            }
 
             int width = bufferedImage.getWidth();
             int height = bufferedImage.getHeight();
@@ -94,7 +100,7 @@ public class ThumbnailService {
             }
 
             // 새로운 이미지 생성
-            BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
             // Graphics2D 객체 생성
             Graphics2D g2d = newImage.createGraphics();
@@ -136,17 +142,28 @@ public class ThumbnailService {
             // Graphics2D 자원 해제
             g2d.dispose();
 
+           // return convertImageToBytes(newImage);
+        } catch (Exception e) {
+            return null;
+        }
+
+        try {
             return convertImageToBytes(newImage);
         } catch (Exception e) {
+            log.error("Error occurred while converting image to bytes.", e);
             return null;
         }
     }
 
     private BufferedImage loadImage(String imagePath) {
         try {
-            return ImageIO.read(new File(imagePath));
+            BufferedImage img = ImageIO.read(new File(imagePath));
+            if (img == null) {
+                log.error("Could not read watermark image at path: " + imagePath);
+            }
+            return img;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error occurred while reading watermark image.", e);
         }
         return null;
     }
