@@ -211,7 +211,8 @@ public class BookController {
             originalBook.setTitle(bookDto.getTitle());
 
             // 0-1. 제목을 토대로 표지를 생성해서 저장한다.
-            originalBook.setThumbnailUrl(thumbnailService.createThumbnail(originalBook));
+            String thumbanailUrl = thumbnailService.createThumbnail(originalBook);
+            originalBook.setThumbnailUrl(thumbanailUrl);
 
             // 1. 각 페이지를 돌며 page 저장
             List<PageDTO> updatedPages = new ArrayList<>();
