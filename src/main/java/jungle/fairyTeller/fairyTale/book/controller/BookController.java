@@ -1,6 +1,7 @@
 package jungle.fairyTeller.fairyTale.book.controller;
 
 import jungle.fairyTeller.fairyTale.Image.service.SaveImgService;
+import jungle.fairyTeller.fairyTale.Image.service.ThumbnailService;
 import jungle.fairyTeller.fairyTale.audio.service.TtsService;
 import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
 import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
@@ -40,6 +41,8 @@ public class BookController {
     private TtsService ttsService;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private ThumbnailService thumbnailService;
 
     @PostMapping("/getBookById")
     public ResponseEntity<?> getBookByBookId(@RequestBody BookDTO bookDTO,@AuthenticationPrincipal String userId){
@@ -207,6 +210,9 @@ public class BookController {
             // 0. 최종 제목 저장
             originalBook.setTitle(bookDto.getTitle());
 
+            // 0-1. 제목을 토대로 표지를 생성해서 저장한다.
+            originalBook.setThumbnailUrl(thumbnailService.createThumbnail(originalBook));
+
             // 1. 각 페이지를 돌며 page 저장
             List<PageDTO> updatedPages = new ArrayList<>();
             for (PageDTO pageDto : bookDto.getPages()) {
@@ -225,24 +231,16 @@ public class BookController {
 
                     log.info(String.valueOf(pageDto.getPageNo()));
 
-                    // 첫 페이지 thumbnailUrl 저장 로직
-//                    if(pageDto.getPageNo() == 1){
-//                        originalBook.setThumbnailUrl(imgUrl);
-//                    }
-
                 } catch (Exception e) {
                     throw new RuntimeException("Error converting image: " + e.getMessage(), e);
                 }
               
                 saveFinalBookImage(originalBook, pageDto, originalPage);
 
-                // 1-2. tts
-                //saveTtsAudio(originalBook, pageDto, originalPage);
-
-                // 1-3. 이미지랑 오디오를 pages에 저장한다.
+                // 1-2. 이미지랑 오디오를 pages에 저장한다.
                 pageService.updatePage(originalPage);
 
-                // 1-4. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
+                // 1-3. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
                 PageDTO updatedPageDto = PageDTO.builder()
                         .pageNo(pageDto.getPageNo())
                         .fullStory(pageDto.getFullStory())

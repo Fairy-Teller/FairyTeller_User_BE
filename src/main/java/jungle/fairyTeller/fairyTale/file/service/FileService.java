@@ -66,7 +66,7 @@ public class FileService {
         File localFile = new File(localFilePath);
         try (FileOutputStream out = new FileOutputStream(localFile)) {
             out.write(file);
-            log.info("Audio content written to file " + localFilePath);
+            log.info("Content written to file " + localFilePath);
         } catch (IOException e) {
             log.error("Failed to upload file locally: {}", e.getMessage());
             throw new RuntimeException("Failed to upload file locally", e);
