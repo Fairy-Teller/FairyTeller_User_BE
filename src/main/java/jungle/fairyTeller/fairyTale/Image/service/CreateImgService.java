@@ -46,33 +46,5 @@ public class CreateImgService {
 
         return responseBody.getImages().get(0);
     }
-    public String addLora(int loraNo, String originalPrompt){
-        switch (loraNo){
-            case 1:
-                return "<lora:COOLKIDS_MERGE_V2.5:1>" + originalPrompt;
-            case 2:
-                return "<lora:doodle:1> " + originalPrompt;
-            case 3:
-                return "<lora:janemassey:1> " + originalPrompt;
-            case 4:
-                return "<lora:IrisCompietStyle:1> " + originalPrompt;
-            case 5:
-                return "<lora:my-jrpencil:1> " + originalPrompt;
-            case 6:
-                return "<lora:playfulwhimsy-v2:1> " + originalPrompt;
-            case 7:
-                return "<lora:shuicai_v1:1> " + originalPrompt;
-            case 8:
-                return "<lora:大坏狐狸的故事V1:1> " + originalPrompt;
-            case 9:
-                return "<lora:antonellafant:1> " + originalPrompt;
-            case 10:
-                return "<lora:bestiary_style:1> " + originalPrompt;
-            case 11:
-                return "<lora:Colored_Icons:1> " + originalPrompt;
-            default :
-                return originalPrompt;
-        }
-    }
 
 }
