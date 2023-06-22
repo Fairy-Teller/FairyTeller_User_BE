@@ -65,7 +65,6 @@ public class ThumbnailService {
         byte[] originalImage;
         try {
             originalImage = saveImgService.convertBase64ToImage(base64Image);
-            log.info(">>>표지 이미지는 생성 완료<<<");
         } catch( Exception e) {
             originalImage = null;
         }
@@ -75,8 +74,6 @@ public class ThumbnailService {
         String author = userEntity.get().getNickname();
 
         byte[] coverImage = addObjectsToImage(originalImage, book.getTitle(), author);
-        log.info(">>>가공된 표지 이미지 생성 완료<<<");
-        log.info(String.valueOf(coverImage));
 
         // 생성한 이미지를 s3에 저장한다.
         String thumbnailUrl = fileService.uploadFile(coverImage, book.getBookId()+ "_thumbnail.png");
@@ -89,8 +86,6 @@ public class ThumbnailService {
     private byte[] addObjectsToImage(byte[] image, String title, String author) {
         BufferedImage newImage;
 
-        log.info(">>>original image: " + image);
-
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(image);
             BufferedImage bufferedImage = ImageIO.read(bais);
@@ -99,8 +94,6 @@ public class ThumbnailService {
                 log.error("Could not read image data into a BufferedImage.");
                 return null;
             }
-
-            log.info(">>>buffered Image: " + bufferedImage);
 
             int width = bufferedImage.getWidth();
             int height = bufferedImage.getHeight();
@@ -172,7 +165,7 @@ public class ThumbnailService {
 
     private BufferedImage loadS3Image(String fileName) {
         try {
-            S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketUrl, fileName));
+            S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucket, fileName));
             S3ObjectInputStream inputStream = s3object.getObjectContent();
             BufferedImage img = ImageIO.read(inputStream);
             if (img == null) {
@@ -198,7 +191,6 @@ public class ThumbnailService {
     }
 
     private byte[] convertImageToBytes(BufferedImage image) {
-        log.info(">>>convertImageToBytes: "+image);
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, "png", baos);

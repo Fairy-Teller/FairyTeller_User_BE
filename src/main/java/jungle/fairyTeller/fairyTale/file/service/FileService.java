@@ -30,32 +30,24 @@ public class FileService {
     private final Environment environment;
 
     public String uploadFile(byte[] file, String fileName) {
-        log.info(">>>uploadFile 호출");
         // 프로필에 따라 S3 또는 로컬 파일 시스템에 파일 업로드
         String activeProfiles = environment.getProperty("spring.profiles.active");
-        log.info(">>>profile = "+activeProfiles);
         String filePath;
         if (activeProfiles != null && activeProfiles.contains("dev")) {
-            log.info(">>>dev if 문에 걸렸다");
             filePath = uploadToS3(file, fileName);
-            log.info("property - dev");
         } else {
             filePath = uploadToLocal(file, fileName);
         }
-        log.info(">>>저장경로: "+filePath);
         return filePath;
     }
 
     private String uploadToS3(byte[] file, String fileName) {
-        log.info("Entered uploadToS3 method");
         try {
             log.info(String.valueOf(file));
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.length);
-            log.info(">>>>put 전<<<<");
 
             amazonS3Client.putObject(bucket, fileName, new ByteArrayInputStream(file), metadata);
-            log.info(">>>put 후<<<<");
 
             return bucketUrl +"/" + fileName;
         } catch (AmazonS3Exception e) {
