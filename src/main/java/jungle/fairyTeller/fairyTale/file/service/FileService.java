@@ -47,6 +47,7 @@ public class FileService {
     }
 
     private String uploadToS3(byte[] file, String fileName) {
+        log.info("Entered uploadToS3 method");
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.length);
@@ -59,6 +60,9 @@ public class FileService {
         } catch (AmazonS3Exception e) {
             log.error("Failed to upload file to S3: {}", e.getMessage());
             throw new RuntimeException("Failed to upload file to S3", e);
+        } catch (Exception e) {
+            log.error("General error: {}", e.getMessage());
+            throw e;
         }
     }
 
