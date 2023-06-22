@@ -49,6 +49,7 @@ public class FileService {
     private String uploadToS3(byte[] file, String fileName) {
         log.info("Entered uploadToS3 method");
         try {
+            log.info(String.valueOf(file));
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.length);
             log.info(">>>>put 전<<<<");

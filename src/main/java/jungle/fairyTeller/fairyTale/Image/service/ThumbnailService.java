@@ -67,9 +67,10 @@ public class ThumbnailService {
 
         byte[] coverImage = addObjectsToImage(originalImage, book.getTitle(), author);
         log.info(">>>가공된 표지 이미지 생성 완료<<<");
+        log.info(String.valueOf(coverImage));
 
         // 생성한 이미지를 s3에 저장한다.
-        String thumbnailUrl = fileService.uploadFile(coverImage, book.getBookId().toString() + "_thumbnail.png");
+        String thumbnailUrl = fileService.uploadFile(coverImage, book.getBookId()+ "_thumbnail.png");
         log.info(">>>s3에 저장 성공<<<");
 
         // 저장한 풀 url을 리턴한다.
