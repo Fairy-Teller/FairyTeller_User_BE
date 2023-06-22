@@ -79,6 +79,9 @@ public class ThumbnailService {
 
     private byte[] addObjectsToImage(byte[] image, String title, String author) {
         BufferedImage newImage;
+
+        log.info(">>>original image: " + image);
+
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(image);
             BufferedImage bufferedImage = ImageIO.read(bais);
@@ -87,6 +90,8 @@ public class ThumbnailService {
                 log.error("Could not read image data into a BufferedImage.");
                 return null;
             }
+
+            log.info(">>>buffered Image: " + bufferedImage);
 
             int width = bufferedImage.getWidth();
             int height = bufferedImage.getHeight();
@@ -98,6 +103,8 @@ public class ThumbnailService {
             } else {
                 watermark = loadImage(localUrl+"/logo_bright.png");
             }
+
+            log.info(">>>watermark: " + watermark);
 
             // 새로운 이미지 생성
             newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -142,7 +149,6 @@ public class ThumbnailService {
             // Graphics2D 자원 해제
             g2d.dispose();
 
-           // return convertImageToBytes(newImage);
         } catch (Exception e) {
             return null;
         }
@@ -169,6 +175,7 @@ public class ThumbnailService {
     }
 
     private byte[] convertImageToBytes(BufferedImage image) {
+        log.info(">>>convertImageToBytes: "+image);
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, "png", baos);
