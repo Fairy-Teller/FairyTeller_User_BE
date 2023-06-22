@@ -49,8 +49,10 @@ public class FileService {
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.length);
+            log.info(">>>>put 전<<<<");
 
             amazonS3Client.putObject(bucket, fileName, new ByteArrayInputStream(file), metadata);
+            log.info(">>>put 후<<<<");
 
             return bucketUrl +"/" + fileName;
         } catch (AmazonS3Exception e) {
