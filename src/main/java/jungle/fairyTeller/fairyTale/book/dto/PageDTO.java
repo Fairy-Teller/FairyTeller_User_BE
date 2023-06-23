@@ -24,6 +24,8 @@ public class PageDTO {
     private String audioUrl;
     private String userAudioUrl;
 
+    private boolean isDark;
+
     public PageDTO(final PageEntity entity) {
         this.pageNo = entity.getPageNo().getPageNo();
         this.fullStory = entity.getFullStory();
@@ -31,6 +33,7 @@ public class PageDTO {
         this.finalImageUrl = entity.getFinalImageUrl();
         this.audioUrl = entity.getAudioUrl();
         this.userAudioUrl = entity.getUserAudioUrl();
+        this.isDark = true;
     }
 
     public static PageEntity toEntity(PageDTO dto) {
