@@ -7,14 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class FairyTellerApplicationTests {
-	@Autowired
-	CreateImgService createImgService;
 	@Test
 	void contextLoads() {
 	}
 
-	@Test
-	void ImageCreateTest(){
-		System.out.println(createImgService.createImg("hello~"));
-	}
 }
