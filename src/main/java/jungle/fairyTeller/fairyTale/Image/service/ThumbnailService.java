@@ -115,7 +115,7 @@ public class ThumbnailService {
             g2d.drawImage(bufferedImage, 0, 0, null);
 
             // 제목 설정
-            String fontName = "Malgun Gothic";
+            String fontName = "NanumGothic";
             int fontSize = 30;
             Font font = new Font(fontName, Font.BOLD, fontSize);
             g2d.setFont(font);
