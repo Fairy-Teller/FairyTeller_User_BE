@@ -97,14 +97,6 @@ public class ThumbnailService {
             int width = bufferedImage.getWidth();
             int height = bufferedImage.getHeight();
 
-            String activeProfiles = environment.getProperty("spring.profiles.active");
-            BufferedImage watermark;
-            if (activeProfiles != null && activeProfiles.contains("dev")) {
-                watermark = loadS3Image("logo_bright.png");
-            } else {
-                watermark = loadLocalImage(localUrl+"/logo_bright.png");
-            }
-
             // 새로운 이미지 생성
             newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
@@ -114,37 +106,50 @@ public class ThumbnailService {
             // 원본 이미지를 새 이미지로 그리기
             g2d.drawImage(bufferedImage, 0, 0, null);
 
-            // 제목 설정
-            String fontName = "NanumGothic";
-            int fontSize = 30;
-            Font font = new Font(fontName, Font.BOLD, fontSize);
-            g2d.setFont(font);
-            g2d.setColor(Color.WHITE);
+            BufferedImage watermark;
+            String activeProfiles = environment.getProperty("spring.profiles.active");
+            if (activeProfiles != null && activeProfiles.contains("dev")) {
+                // 제목 폰트 설정
+                String fontPath = "/usr/share/fonts/NanumGothic.ttf";
+                Font font = loadFontFromFile(fontPath);
+                font = font.deriveFont(Font.BOLD, 30f); // Set font size
+                g2d.setFont(font);
+                g2d.setColor(Color.WHITE);
 
-            // 제목을 이미지 중앙에 그리기
-            int titleWidth = g2d.getFontMetrics().stringWidth(title);
-            int title_x = (width - titleWidth) / 2;
-            int title_y = height / 3;
-            g2d.drawString(title, title_x, title_y);
+                // 제목을 이미지 중앙에 그리기
+                applyTitle(title, width, height, g2d);
 
-            // 저자 설정
-            fontSize = 24;
-            font = new Font(fontName, Font.BOLD, fontSize);
-            g2d.setFont(font);
+                // 저자 폰트 설정
+                font = font.deriveFont(Font.PLAIN, 24f);
+                g2d.setFont(font);
 
-            // 저자 그리기
-            int authorWidth = g2d.getFontMetrics().stringWidth(author);
-            int author_x = ((width - authorWidth) / 4 ) * 3;
-            int author_y = height / 2;
-            g2d.drawString(author, author_x, author_y);
+                // 저자 그리기
+                applyAuthor(author, width, height, g2d);
 
-            // 로고를 우하단에 표시하기
-            int watermarkWidth = watermark.getWidth();
-            int watermarkHeight = watermark.getHeight();
-            int watermarkX = width - watermarkWidth - 3;
-            int watermarkY = height - watermarkHeight - 3;
-            g2d.drawImage(watermark, watermarkX, watermarkY, null);
+                watermark = loadS3Image("logo_bright.png");
+                applyLogo(width, height, watermark, g2d);
+            } else {
+                // 제목 폰트 설정
+                String fontName = "NanumGothic";
+                int fontSize = 30;
+                Font font = new Font(fontName, Font.BOLD, fontSize);
+                g2d.setFont(font);
+                g2d.setColor(Color.WHITE);
 
+                // 제목을 이미지 중앙에 그리기
+                applyTitle(title, width, height, g2d);
+
+                // 저자 설정
+                font = font.deriveFont(Font.PLAIN, 24f);
+                g2d.setFont(font);
+
+                // 저자 그리기
+                applyAuthor(author, width, height, g2d);
+
+                watermark = loadLocalImage(localUrl+"/logo_bright.png");
+                applyLogo(width, height, watermark, g2d);
+
+            }
             // Graphics2D 자원 해제
             g2d.dispose();
 
@@ -158,6 +163,29 @@ public class ThumbnailService {
             log.error("Error occurred while converting image to bytes.", e);
             return null;
         }
+    }
+
+    private void applyLogo(int width, int height, BufferedImage watermark, Graphics2D g2d) {
+        // 로고를 우하단에 표시하기
+        int watermarkWidth = watermark.getWidth();
+        int watermarkHeight = watermark.getHeight();
+        int watermarkX = width - watermarkWidth - 3;
+        int watermarkY = height - watermarkHeight - 3;
+        g2d.drawImage(watermark, watermarkX, watermarkY, null);
+    }
+
+    private void applyAuthor(String author, int width, int height, Graphics2D g2d) {
+        int authorWidth = g2d.getFontMetrics().stringWidth(author);
+        int author_x = ((width - authorWidth) / 4 ) * 3;
+        int author_y = height / 2;
+        g2d.drawString(author, author_x, author_y);
+    }
+
+    private void applyTitle(String title, int width, int height, Graphics2D g2d) {
+        int titleWidth = g2d.getFontMetrics().stringWidth(title);
+        int title_x = (width - titleWidth) / 2;
+        int title_y = height / 3;
+        g2d.drawString(title, title_x, title_y);
     }
 
     private BufferedImage loadS3Image(String fileName) {
@@ -186,6 +214,17 @@ public class ThumbnailService {
         }
         return null;
     }
+
+    private Font loadFontFromFile(String fontPath) {
+        try {
+            // Returns a new Font using the specified file.
+            return Font.createFont(Font.TRUETYPE_FONT, new File(fontPath));
+        } catch (Exception e) {
+            log.error("Error occurred while loading font from file.", e);
+        }
+        return null;
+    }
+
 
     private byte[] convertImageToBytes(BufferedImage image) {
         try {
