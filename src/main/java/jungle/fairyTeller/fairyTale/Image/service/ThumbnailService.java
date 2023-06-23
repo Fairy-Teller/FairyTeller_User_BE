@@ -110,7 +110,7 @@ public class ThumbnailService {
             String activeProfiles = environment.getProperty("spring.profiles.active");
             if (activeProfiles != null && activeProfiles.contains("dev")) {
                 // 제목 폰트 설정
-                String fontPath = "/usr/share/fonts/NanumGothic.ttf";
+                String fontPath = "/usr/share/fonts/NanumGothicBold.ttf";
                 Font font = loadFontFromFile(fontPath);
                 font = font.deriveFont(Font.BOLD, 30f); // Set font size
                 g2d.setFont(font);
