@@ -54,6 +54,9 @@ public class BoardController {
             @AuthenticationPrincipal String userId,
             @Qualifier("boardPageable") @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable boardPageable,
             @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable,
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false, defaultValue = "") String author,
+            @RequestParam(required = false, defaultValue = "") String title,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
@@ -62,11 +65,21 @@ public class BoardController {
             boardPageable = PageRequest.of(page, size, boardPageable.getSort());
             final Pageable finalCommentPageable = PageRequest.of(page, size, commentPageable.getSort());
 
-            // Retrieve sorted board page
-            Page<BoardEntity> sortedBoardPage = boardService.getAllBoards(boardPageable);
+            // Search boards based on keyword, author, and title
+            Page<BoardEntity> searchedBoardPage;
 
+            if (!keyword.isEmpty()) {
+                searchedBoardPage = boardService.searchBoardsByKeyword(keyword, boardPageable);
+            } else if (!author.isEmpty()) {
+                searchedBoardPage = boardService.searchBoardsByAuthor(author, boardPageable);
+            } else if (!title.isEmpty()) {
+                searchedBoardPage = boardService.searchBoardsByTitle(title, boardPageable);
+            } else {
+                // If no search parameters are provided, retrieve all boards
+                searchedBoardPage = boardService.getAllBoards(boardPageable);
+            }
             // Convert board entities to DTOs
-            List<BoardDto> boardDtos = sortedBoardPage.getContent().stream()
+            List<BoardDto> boardDtos = searchedBoardPage.getContent().stream()
                     .map(boardEntity -> {
                         // Retrieve pages for each board
                         List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
@@ -101,8 +114,8 @@ public class BoardController {
             ResponseDto<BoardDto> responseDto = ResponseDto.<BoardDto>builder()
                     .error(null)
                     .data(boardDtos)
-                    .currentPage(sortedBoardPage.getNumber())
-                    .totalPages(sortedBoardPage.getTotalPages())
+                    .currentPage(searchedBoardPage.getNumber())
+                    .totalPages(searchedBoardPage.getTotalPages())
                     .build();
 
             return ResponseEntity.ok(responseDto);
@@ -251,5 +264,4 @@ public class BoardController {
             throw new ServiceException("Failed to delete the board");
         }
     }
-
 }
