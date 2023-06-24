@@ -104,4 +104,19 @@ public class BoardService {
         boardRepository.delete(boardEntity);
     }
 
+    @Transactional(readOnly = true)
+    public Page<BoardEntity> searchBoardsByKeyword(String keyword, Pageable pageable) {
+        return boardRepository.findByTitleContainingIgnoreCaseOrAuthor_NicknameContainingIgnoreCase(keyword, keyword, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BoardEntity> searchBoardsByAuthor(String author, Pageable pageable) {
+        return boardRepository.findByAuthor_NicknameContainingIgnoreCase(author, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BoardEntity> searchBoardsByTitle(String title, Pageable pageable) {
+        return boardRepository.findByTitleContainingIgnoreCase(title, pageable);
+    }
+
 }
