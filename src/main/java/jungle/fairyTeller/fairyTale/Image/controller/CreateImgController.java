@@ -33,7 +33,6 @@ public class CreateImgController {
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
             headers.setContentType(MediaType.valueOf("image/jpeg"));
             return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-
         } else {
             return ResponseEntity.badRequest().body("Invalid image format");
         }
