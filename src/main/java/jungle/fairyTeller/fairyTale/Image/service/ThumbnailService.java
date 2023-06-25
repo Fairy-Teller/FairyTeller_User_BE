@@ -59,7 +59,8 @@ public class ThumbnailService {
 
     public String createThumbnail(BookEntity book){
         // 표지 이미지를 생성한다.
-        String base64Data = createImgService.createImg(book.getTitle()); // base64 String 그 자체
+        String prompt = createImgService.addLora(1, book.getTitle());
+        String base64Data = createImgService.createImg(prompt); // base64 String 그 자체
         String base64Image = base64Data.replaceAll("^data:image/[a-zA-Z]+;base64,", "");
 
         byte[] originalImage;
