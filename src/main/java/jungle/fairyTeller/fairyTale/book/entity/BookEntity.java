@@ -31,6 +31,8 @@ public class BookEntity {
 
     private String thumbnailUrl;
 
+    private Integer theme;
+
     @OneToMany(mappedBy = "book")
     private List<PageEntity> pages = new ArrayList<>();
 
