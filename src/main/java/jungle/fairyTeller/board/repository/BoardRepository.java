@@ -12,4 +12,7 @@ import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
     Optional<BoardEntity> findByBoardId(Integer boardId);
+    Page<BoardEntity> findByTitleContainingIgnoreCaseOrAuthor_NicknameContainingIgnoreCase(String titleKeyword, String authorKeyword, Pageable pageable);
+    Page<BoardEntity> findByAuthor_NicknameContainingIgnoreCase(String author, Pageable pageable);
+    Page<BoardEntity> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 }

@@ -168,6 +168,11 @@ public class BookController {
                 saveOriginalBookImage(originalBook, pageDto, originalPage);
                 // 1-2. 이미지를 pages에 저장한다.
                 pageService.updatePage(originalPage);
+
+                // 1-3. 이미지 isDark 판별
+                byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getOriginalImageUrl());
+                boolean isDark = saveImgService.isImageDark(imageContent);
+
                 // 1-4. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
                 PageDTO updatedPageDto = PageDTO.builder()
                         .pageNo(pageDto.getPageNo())
@@ -175,6 +180,7 @@ public class BookController {
                         .originalImageUrl(originalPage.getOriginalImageUrl())
                         .finalImageUrl(originalPage.getFinalImageUrl())
                         .audioUrl(originalPage.getAudioUrl())
+                        .isDark(isDark)
                         .build();
                 updatedPages.add(updatedPageDto);
             }
@@ -232,10 +238,6 @@ public class BookController {
 
                     log.info(String.valueOf(pageDto.getPageNo()));
 
-                    // thumbnail 로직
-//                    if (pageDto.getPageNo() == 1) {
-//                        originalBook.setThumbnailUrl(imgUrl);
-//                    }
 
                 } catch (Exception e) {
                     throw new RuntimeException("Error converting image: " + e.getMessage(), e);
@@ -323,11 +325,6 @@ public class BookController {
 
             log.info(String.valueOf(pageDto.getPageNo()));
 
-            // 첫 페이지 thumbnailUrl 저장
-            if(pageDto.getPageNo() == 1){
-                originalBook.setThumbnailUrl(imgUrl);
-            }
-
         } catch (Exception e) {
             throw new RuntimeException("Error converting image: " + e.getMessage(), e);
         }
@@ -345,11 +342,6 @@ public class BookController {
             originalPage.setFinalImageUrl(imgUrl);
 
             log.info(String.valueOf(pageDto.getPageNo()));
-
-            // 첫 페이지 thumbnailUrl 저장
-            if(pageDto.getPageNo() == 1){
-                originalBook.setThumbnailUrl(imgUrl);
-            }
 
         } catch (Exception e) {
             throw new RuntimeException("Error converting image: " + e.getMessage(), e);
