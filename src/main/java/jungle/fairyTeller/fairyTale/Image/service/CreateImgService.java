@@ -81,7 +81,7 @@ public class CreateImgService {
     public String addLora(int loraNo, String originalPrompt){
         switch (loraNo){
             case 1:
-                return "<lora:COOLKIDS_MERGE_V2.5:1>" + originalPrompt;
+                return "<lora:COOLKIDS_MERGE_V2.5:1> " + originalPrompt;
             case 2:
                 return "<lora:doodle:1> " + originalPrompt;
             case 3:

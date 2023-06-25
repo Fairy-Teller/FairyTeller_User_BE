@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import jungle.fairyTeller.fairyTale.file.service.FileService;
+import jungle.fairyTeller.fairyTale.story.service.PaPagoTranslationService;
 import jungle.fairyTeller.user.entity.UserEntity;
 import jungle.fairyTeller.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,9 @@ import javax.imageio.ImageIO;
 @RequiredArgsConstructor
 public class ThumbnailService {
 
+
+    @Autowired
+    private PaPagoTranslationService paPagoTranslationService;
     @Autowired
     private CreateImgService createImgService;
 
@@ -59,7 +63,8 @@ public class ThumbnailService {
 
     public String createThumbnail(BookEntity book){
         // 표지 이미지를 생성한다.
-        String prompt = createImgService.addLora(1, book.getTitle());
+        String translated = paPagoTranslationService.translate(book.getTitle(),"ko","en");
+        String prompt = createImgService.addLora(1, translated);
         String base64Data = createImgService.createImg(prompt); // base64 String 그 자체
         String base64Image = base64Data.replaceAll("^data:image/[a-zA-Z]+;base64,", "");
 
