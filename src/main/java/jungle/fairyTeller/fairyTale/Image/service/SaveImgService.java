@@ -58,7 +58,7 @@ public class SaveImgService {
         }
 
         // Define a darkness threshold. It can be adjusted according to your needs.
-        int darkThreshold = 120;
+        int darkThreshold = 200;
         // Calculate the average color intensity.
         int averageColorIntensity = (red + green + blue) / 3;
         log.info("average color: " + averageColorIntensity);
