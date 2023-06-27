@@ -137,7 +137,7 @@ public class ThumbnailService {
             } else {
                 // 제목 폰트 설정
                 String fontName = "NanumGothic";
-                int fontSize = 30;
+                int fontSize = 40;
                 Font font = new Font(fontName, Font.BOLD, fontSize);
                 g2d.setFont(font);
                 g2d.setColor(Color.WHITE);
@@ -146,7 +146,7 @@ public class ThumbnailService {
                 applyTitle(title, width, height, g2d);
 
                 // 저자 설정
-                font = font.deriveFont(Font.PLAIN, 24f);
+                font = font.deriveFont(Font.PLAIN, 30f);
                 g2d.setFont(font);
 
                 // 저자 그리기
