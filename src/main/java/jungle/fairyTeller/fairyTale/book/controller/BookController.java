@@ -13,6 +13,7 @@ import jungle.fairyTeller.fairyTale.book.service.BookService;
 import jungle.fairyTeller.fairyTale.book.service.PageService;
 import jungle.fairyTeller.fairyTale.file.service.FileService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -142,6 +143,30 @@ public class BookController {
             BookDTO savedBookDto = BookDTO.builder()
                     .bookId(savedBook.getBookId())
                     .author(savedBook.getAuthor())
+                    .build();
+
+            return ResponseEntity.ok().body(savedBookDto);
+        } catch(Exception e) {
+            String error = e.getMessage();
+            ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/create/theme")
+    public ResponseEntity<?> saveTheme(@AuthenticationPrincipal String userId, @RequestBody BookDTO bookDto) {
+        try {
+            // 기존에 저장된 bookEntity 찾기
+            BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
+
+            // 이미지 테마를 업데이트한다
+            originalBook.setTheme(bookDto.getTheme());
+            bookService.updateTheme(originalBook);
+
+            BookDTO savedBookDto = BookDTO.builder()
+                    .bookId(originalBook.getBookId())
+                    .author(originalBook.getAuthor())
+                    .theme(originalBook.getTheme())
                     .build();
 
             return ResponseEntity.ok().body(savedBookDto);
