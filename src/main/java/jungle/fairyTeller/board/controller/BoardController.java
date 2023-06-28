@@ -273,6 +273,8 @@ public class BoardController {
                 oldCookie.setPath("/");
                 oldCookie.setMaxAge(60 * 60 * 24);
                 response.addCookie(oldCookie);
+            } else {
+                logger.info("It's already been viewed");
             }
         } else {
             boardService.increaseViewCount(id);
@@ -281,25 +283,6 @@ public class BoardController {
             newCookie.setMaxAge(60 * 60 * 24);
             response.addCookie(newCookie);
         }
-    }
-
-    private String getCookieValue(HttpServletRequest request, String cookieName) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(cookieName)) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
-    private void setCookie(HttpServletResponse response, String name, String value) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setMaxAge(86400); // 1 day (you can adjust the expiration time as needed)
-        cookie.setPath("/");
-        response.addCookie(cookie);
     }
 
     @DeleteMapping("/{boardId}")
