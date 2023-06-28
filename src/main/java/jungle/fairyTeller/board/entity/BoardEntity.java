@@ -40,4 +40,9 @@ public class BoardEntity {
     private String thumbnailUrl;
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
+    private int viewCount;
+
+    public void incrementViewCount() {
+        viewCount++;
+    }
 }
