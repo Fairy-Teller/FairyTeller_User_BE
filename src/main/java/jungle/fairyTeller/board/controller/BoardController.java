@@ -1,5 +1,4 @@
 package jungle.fairyTeller.board.controller;
-import jungle.fairyTeller.board.dao.RedisDao;
 import jungle.fairyTeller.board.service.LikeService;
 import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
 import org.hibernate.service.spi.ServiceException;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,16 +32,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 @Slf4j
 @RestController
 @RequestMapping("/board")
 public class BoardController {
     private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
-    @Autowired
-    private RedisDao redisDao;
     @Autowired
     private BoardService boardService;
     @Autowired
