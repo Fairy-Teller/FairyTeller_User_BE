@@ -57,7 +57,7 @@ public class CreateImgService {
     public String createImg(String prompt){
         RestTemplate restTemplate = new RestTemplate();
         System.out.println("프롬프트 출력 : "  + prompt);
-        String negative_prompt ="nsfw, (worst quality, low quality:1.4), text, signature, fat, (worst quality, low quality:1.4), text, signature, fat";
+        String negative_prompt ="nsfw, (worst quality, low quality:1.4), text, signature, fat";
         // POST 요청에 필요한 데이터를 객체에 담기
         ImgAIRequestDTO requestObject = new ImgAIRequestDTO(1,7,0,false,0,0,0,405,1,negative_prompt,prompt,false,0,1,0,0,"Euler a",-1,-1,-1,30,new ArrayList(),-1,0,false,720);
 
@@ -81,13 +81,13 @@ public class CreateImgService {
     public String addLora(int loraNo, String originalPrompt){
         switch (loraNo){
             case 1:
-                return "<lora:COOLKIDS_MERGE_V2.5:1>" + originalPrompt;
+                return "<lora:COOLKIDS_MERGE_V2.5:1> " + originalPrompt;
             case 2:
-                return "<lora:doodle:1> " + originalPrompt;
+                return "<lora:Colored_Icons:1> " + originalPrompt;
             case 3:
-                return "<lora:janemassey:1> " + originalPrompt;
+                return "<lora:doodle:1> " + originalPrompt;
             case 4:
-                return "<lora:IrisCompietStyle:1> " + originalPrompt;
+                return "<lora:大坏狐狸的故事V1:1> " + originalPrompt;
             case 5:
                 return "<lora:my-jrpencil:1> " + originalPrompt;
             case 6:
@@ -95,13 +95,13 @@ public class CreateImgService {
             case 7:
                 return "<lora:shuicai_v1:1> " + originalPrompt;
             case 8:
-                return "<lora:大坏狐狸的故事V1:1> " + originalPrompt;
+                return "<lora:IrisCompietStyle:1> " + originalPrompt;
             case 9:
                 return "<lora:antonellafant:1> " + originalPrompt;
             case 10:
                 return "<lora:bestiary_style:1> " + originalPrompt;
             case 11:
-                return "<lora:Colored_Icons:1> " + originalPrompt;
+                return "<lora:janemassey:1> " + originalPrompt;
             default :
                 return originalPrompt;
         }

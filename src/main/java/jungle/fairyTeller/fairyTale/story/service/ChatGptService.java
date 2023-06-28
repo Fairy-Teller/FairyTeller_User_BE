@@ -5,10 +5,9 @@ import jungle.fairyTeller.fairyTale.story.dto.chatGpt.ChatGptResponseDto;
 import jungle.fairyTeller.fairyTale.story.dto.chatGpt.QuestionRequestDto;
 import jungle.fairyTeller.config.ChatGptConfig;
 import jungle.fairyTeller.fairyTale.story.dto.SummarizingRequestDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
+@Slf4j
 @Service
 public class ChatGptService {
 
@@ -38,31 +37,35 @@ public class ChatGptService {
         return new HttpEntity<>(requestDto, headers);
     }
 
-    public HttpEntity<List<HashMap<String, Object>>> getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
+    public ResponseEntity<List<HashMap<String, Object>>> getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
 
-        String source = "en";
-        String target = "ko";
+        try{
+            String source = "en";
+            String target = "ko";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + chatGptConfig.getApiKey());
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + chatGptConfig.getApiKey());
 
-        HttpEntity<ChatGptRequestDto> requestEntity = new HttpEntity<>(chatGptRequestDtoHttpEntity.getBody(), headers);
+            HttpEntity<ChatGptRequestDto> requestEntity = new HttpEntity<>(chatGptRequestDtoHttpEntity.getBody(), headers);
 
-        //gpt 응답 받음
-        ChatGptResponseDto responseDto = restTemplate.postForEntity(
-                chatGptConfig.getUrl(),
-                requestEntity,
-                ChatGptResponseDto.class).getBody();
+            //gpt 응답 받음
+            ChatGptResponseDto responseDto = restTemplate.postForEntity(
+                    chatGptConfig.getUrl(),
+                    requestEntity,
+                    ChatGptResponseDto.class).getBody();
 
-        //이야기 번역(en->ko)
-        String tmp = clearString(responseDto.getText());
-        String translateToText = paPagoTranslationService.translate(tmp,source,target);
-        List<HashMap<String,Object>> divideParagraphs = divideIntoParagraphs(translateToText);
+            //이야기 번역(en->ko)
+            String tmp = clearString(responseDto.getText());
+            String translateToText = paPagoTranslationService.translate(tmp,source,target);
+            List<HashMap<String,Object>> divideParagraphs = divideIntoParagraphs(translateToText);
 
-        responseDto.setText(translateToText);
-        HttpEntity<List<HashMap<String, Object>>> httpdivideParagraphs = new HttpEntity<>(divideParagraphs);
-
-        return httpdivideParagraphs;
+            responseDto.setText(translateToText);
+            return new ResponseEntity<>(divideParagraphs, HttpStatus.OK);
+        }catch (Exception
+                e){
+            log.error("Failed to create story", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     public ChatGptResponseDto tmpGetResponseToSummarize(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
@@ -79,8 +82,8 @@ public class ChatGptService {
 
         return responseDto;
     }
-    public HttpEntity<List<HashMap<String, Object>>> askQuestion(QuestionRequestDto requestDto) {
-        String question = requestParsing(requestDto);
+    public ResponseEntity<List<HashMap<String, Object>>> askQuestion(QuestionRequestDto requestDto,int request) {
+        String question = requestParsing(requestDto,request);
         System.out.println("시나리오 작성:"+question);
         return this.getResponse(
                 this.buildHttpEntity(
@@ -112,7 +115,7 @@ public class ChatGptService {
         );
     }
 
-    public String requestParsing(QuestionRequestDto requestDto){
+    public String requestParsing(QuestionRequestDto requestDto, int reqeust){
 
         String word1= "";
         String word2= "";
@@ -136,11 +139,22 @@ public class ChatGptService {
             word5 = requestDto.getParameter5();
         }
 
-        return "Please make a happy fairy tale for 2-5 years old with '"
-                +word1+"',"+"'"+word2+"',"
-                +"'"+word3+"',"+"'"+word4+"'"
-                +",'"+word5+"'"
-                + "in English";
+        String requestPhrase = "";
+        if(reqeust == 1){
+            requestPhrase =  "Please make a English fairy tale for 2-5 years old with '"
+                    +word1+"',"+"'"+word2+"',"
+                    +"'"+word3+"',"+"'"+word4+"'"
+                    +",'"+word5+"'" +"in total 8 sentences";
+
+        }else{
+            requestPhrase = "Please make a English another fairy tale for 2-5 years old with '"
+                    +word1+"',"+"'"+word2+"',"
+                    +"'"+word3+"',"+"'"+word4+"'"
+                    +",'"+word5+"'"
+                    + "in total 8 sentences";
+        }
+
+        return requestPhrase;
     }
 
     public String requestParsingToSummarize(SummarizingRequestDto requestDto){

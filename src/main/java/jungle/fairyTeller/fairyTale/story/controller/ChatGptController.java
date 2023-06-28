@@ -32,15 +32,15 @@ public class ChatGptController {
         this.translationService = translationService;
     }
     @PostMapping("/question")
-    public HttpEntity<List<HashMap<String, Object>>> sendQuestion
+    public ResponseEntity<List<HashMap<String, Object>>> sendQuestion
             (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
-        if (requestDto.getParameter1() == null ||requestDto.getParameter2() == null ||
-        requestDto.getParameter3() == null || requestDto.getParameter4() == null
-    ||requestDto.getParameter5() == null) {
-            System.out.println("requestDto is null");
-            return ResponseEntity.badRequest().build();
-        }
-       return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto));
+       return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto),1);
+    }
+
+    @PostMapping("/question/recreate")
+    public ResponseEntity<List<HashMap<String, Object>>> recreateQuestion
+            (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
+        return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto),2);
     }
 
     @PostMapping("/textToImage")
@@ -80,20 +80,10 @@ public class ChatGptController {
                 throw new RuntimeException("requestDto is null.");
             }
             String transToText =translationService.translate(requestDto.getText(),"ko","en");
-            //요약 로직
-            // requestDto.setText(transToText);
-            //  ChatGptResponseDto gptResponseDto = chatGptService.askSummarize(requestDto);
-            //  String summaryText = gptResponseDto.getText();
-            //  summaryText = summaryText.replace("\n\n","");
-            //  System.out.println("확인용:"+summaryText);
             transToText = createImgService.addLora(requestDto.getLoraNo(), transToText);
             String base64Image = createImgService.createImg(transToText);
 
             HttpHeaders headers = new HttpHeaders();
-            // headers.setContentType(MediaType.valueOf("image/jpeg"));
-
-            // byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-
             return new ResponseEntity<>(base64Image, headers, HttpStatus.OK);
         }catch (Exception e){
             log.error("Failed to create image", e);

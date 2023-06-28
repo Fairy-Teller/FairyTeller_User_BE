@@ -33,6 +33,9 @@ import javax.imageio.ImageIO;
 @RequiredArgsConstructor
 public class ThumbnailService {
 
+
+    @Autowired
+    private PaPagoTranslationService paPagoTranslationService;
     @Autowired
     private CreateImgService createImgService;
 
@@ -65,6 +68,7 @@ public class ThumbnailService {
         // 표지 이미지를 생성한다 : 한글 제목 -> 번역 -> addLora -> createImg
         String translated = paPagoTranslationService.translate(book.getTitle(),"ko","en");
         String prompt = createImgService.addLora(book.getTheme(), translated);
+
         String base64Data = createImgService.createImg(prompt); // base64 String 그 자체
         String base64Image = base64Data.replaceAll("^data:image/[a-zA-Z]+;base64,", "");
 
@@ -137,7 +141,7 @@ public class ThumbnailService {
             } else {
                 // 제목 폰트 설정
                 String fontName = "NanumGothic";
-                int fontSize = 30;
+                int fontSize = 40;
                 Font font = new Font(fontName, Font.BOLD, fontSize);
                 g2d.setFont(font);
                 g2d.setColor(Color.WHITE);
@@ -146,7 +150,7 @@ public class ThumbnailService {
                 applyTitle(title, width, height, g2d);
 
                 // 저자 설정
-                font = font.deriveFont(Font.PLAIN, 24f);
+                font = font.deriveFont(Font.PLAIN, 30f);
                 g2d.setFont(font);
 
                 // 저자 그리기

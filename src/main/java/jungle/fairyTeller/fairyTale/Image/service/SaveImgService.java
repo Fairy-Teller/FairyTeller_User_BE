@@ -51,14 +51,13 @@ public class SaveImgService {
             red = red / pixelCount;
             green = green / pixelCount;
             blue = blue / pixelCount;
-
         } catch (IOException e) {
             log.error("Error occurred while reading image data.", e);
             return false;
         }
 
         // Define a darkness threshold. It can be adjusted according to your needs.
-        int darkThreshold = 120;
+        int darkThreshold = 200;
         // Calculate the average color intensity.
         int averageColorIntensity = (red + green + blue) / 3;
         log.info("average color: " + averageColorIntensity);
