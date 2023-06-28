@@ -119,4 +119,11 @@ public class BoardService {
         return boardRepository.findByTitleContainingIgnoreCase(title, pageable);
     }
 
+    @Transactional
+    public void incrementViewCount(Integer boardId) {
+        BoardEntity boardEntity = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
+
+        boardEntity.incrementViewCount();
+    }
 }

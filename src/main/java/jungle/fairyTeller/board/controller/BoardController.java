@@ -1,5 +1,6 @@
 package jungle.fairyTeller.board.controller;
 import com.amazonaws.services.kms.model.NotFoundException;
+import jungle.fairyTeller.board.dao.RedisDao;
 import jungle.fairyTeller.board.entity.LikeEntity;
 import jungle.fairyTeller.board.repository.BoardRepository;
 import jungle.fairyTeller.board.service.LikeService;
@@ -42,6 +43,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/board")
 public class BoardController {
     private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
+    @Autowired
+    private RedisDao redisDao;
     @Autowired
     private BoardService boardService;
     @Autowired
@@ -192,6 +195,15 @@ public class BoardController {
             @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         try {
+            // Increase view count using Redis
+            String key = "board:" + boardId + ":views";
+            boolean isNewView = redisDao.addValueToList(key, userId);
+
+            if (isNewView) {
+                // Increment view count if it's a new view
+                boardService.incrementViewCount(boardId);
+            }
+
             // Retrieve the board entity by boardId
             BoardEntity boardEntity = boardService.getBoardById(boardId);
             boolean isEditable = boardEntity.getAuthor().getId().equals(Integer.parseInt(userId));
