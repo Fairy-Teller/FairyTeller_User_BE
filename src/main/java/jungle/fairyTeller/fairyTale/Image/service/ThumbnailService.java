@@ -32,8 +32,6 @@ import javax.imageio.ImageIO;
 @Service
 @RequiredArgsConstructor
 public class ThumbnailService {
-
-
     @Autowired
     private PaPagoTranslationService paPagoTranslationService;
     @Autowired
@@ -47,9 +45,6 @@ public class ThumbnailService {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private PaPagoTranslationService paPagoTranslationService;
 
     private final Environment environment;
 
