@@ -141,17 +141,17 @@ public class ChatGptService {
 
         String requestPhrase = "";
         if(reqeust == 1){
-            requestPhrase =  "Please make a fairy tale for 2-5 years old with '"
+            requestPhrase =  "Please make a English fairy tale for 2-5 years old with '"
                     +word1+"',"+"'"+word2+"',"
                     +"'"+word3+"',"+"'"+word4+"'"
-                    +",'"+word5+"'"
-                    + "in English";
+                    +",'"+word5+"'" +"in total 8 sentences";
+
         }else{
-            requestPhrase = "Please make a another fairy tale for 2-5 years old with '"
+            requestPhrase = "Please make a English another fairy tale for 2-5 years old with '"
                     +word1+"',"+"'"+word2+"',"
                     +"'"+word3+"',"+"'"+word4+"'"
                     +",'"+word5+"'"
-                    + "in English";
+                    + "in total 8 sentences";
         }
 
         return requestPhrase;
