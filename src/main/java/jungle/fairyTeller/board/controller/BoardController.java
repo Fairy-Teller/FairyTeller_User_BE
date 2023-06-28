@@ -252,15 +252,18 @@ public class BoardController {
     }
 
     private void viewCountUp(Integer id, HttpServletRequest request, HttpServletResponse response) {
-
+        logger.info("Board id: {}", id);
         Cookie oldCookie = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("postView")) {
+                logger.info("Cookie Name: {}, Cookie Value: {}", cookie.getName(), cookie.getValue());
+                if (cookie.getName().equals("viewedBoards")) {
                     oldCookie = cookie;
                 }
             }
+        } else {
+            logger.info("No cookies found in the request");
         }
 
         if (oldCookie != null) {
@@ -273,7 +276,7 @@ public class BoardController {
             }
         } else {
             boardService.increaseViewCount(id);
-            Cookie newCookie = new Cookie("postView","[" + id + "]");
+            Cookie newCookie = new Cookie("viewedBoards","[" + id + "]");
             newCookie.setPath("/");
             newCookie.setMaxAge(60 * 60 * 24);
             response.addCookie(newCookie);
