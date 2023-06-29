@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -89,5 +90,46 @@ public class ChatGptController {
             log.error("Failed to create image", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    @PostMapping("/question/test/4")
+    public ResponseEntity<List<HashMap<String, Object>>> testQuestion1
+            (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
+        List<HashMap<String,Object>> responseList = new ArrayList<>();
+
+        for(int i=0;i<4;i++){
+            HashMap<String, Object> resultMap = new HashMap<>();
+            resultMap.put("paragraph",i);
+            responseList.add(resultMap);
+        }
+
+        return ResponseEntity.ok(responseList);
+    }
+
+    @PostMapping("/question/test/5")
+    public ResponseEntity<List<HashMap<String, Object>>> testQuestion2
+            (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
+        List<HashMap<String,Object>> responseList = new ArrayList<>();
+
+        for(int i=0;i<5;i++){
+            HashMap<String, Object> resultMap = new HashMap<>();
+            resultMap.put("paragraph",i);
+            responseList.add(resultMap);
+        }
+
+        return ResponseEntity.ok(responseList);
+    }
+
+    @PostMapping("/question/test/6")
+    public ResponseEntity<List<HashMap<String, Object>>> testQuestion3
+            (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
+        List<HashMap<String,Object>> responseList = new ArrayList<>();
+
+        for(int i=0;i<6;i++){
+            HashMap<String, Object> resultMap = new HashMap<>();
+            resultMap.put("paragraph",i);
+            responseList.add(resultMap);
+        }
+
+        return ResponseEntity.ok(responseList);
     }
 }
