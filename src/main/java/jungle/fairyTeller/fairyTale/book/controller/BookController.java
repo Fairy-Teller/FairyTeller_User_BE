@@ -55,6 +55,7 @@ public class BookController {
                 .bookId(bookEntity.getBookId())
                 .author(bookEntity.getAuthor())
                 .title(bookEntity.getTitle())
+                .thumbnailUrl(bookEntity.getThumbnailUrl())
                 .pages(pageDtos)
                 .build();
 
