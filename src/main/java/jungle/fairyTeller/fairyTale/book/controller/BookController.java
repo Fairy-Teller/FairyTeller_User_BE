@@ -13,14 +13,16 @@ import jungle.fairyTeller.fairyTale.book.service.BookService;
 import jungle.fairyTeller.fairyTale.book.service.PageService;
 import jungle.fairyTeller.fairyTale.file.service.FileService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -258,8 +260,13 @@ public class BookController {
                     String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
                     // 1-1-0. 이미지를 바이트 배열로 변환
                     byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
+
+                    // 이미지 사이즈 1280x720로 조정
+                    BufferedImage resizedImage = resizeImage(imageContent, 1280, 720);
+                    byte[] resizedImageContent = convertImageToBytes(resizedImage);
+
                     // 1-1-1. 이미지를 저장경로에 저장한다.
-                    String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
+                    String imgUrl = fileService.uploadFile(resizedImageContent, fileName + ".png");
                     // 1-1-2. imgUrl 변수에 경로를 담는다
                     originalPage.setFinalImageUrl(imgUrl);
 
@@ -374,6 +381,35 @@ public class BookController {
             throw new RuntimeException("Error converting image: " + e.getMessage(), e);
         }
     }
+
+    private BufferedImage resizeImage(byte[] imageContent, int targetWidth, int targetHeight) {
+        try {
+            ByteArrayInputStream bais = new ByteArrayInputStream(imageContent);
+            BufferedImage originalImage = ImageIO.read(bais);
+
+            Image resizedImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT);
+
+            BufferedImage bufferedResizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = bufferedResizedImage.createGraphics();
+            g2d.drawImage(resizedImage, 0, 0, null);
+            g2d.dispose();
+
+            return bufferedResizedImage;
+        } catch (Exception e) {
+            throw new RuntimeException("Error resizing image: " + e.getMessage(), e);
+        }
+    }
+
+    private byte[] convertImageToBytes(BufferedImage image) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting image to bytes: " + e.getMessage(), e);
+        }
+    }
+
 
 
 
