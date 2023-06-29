@@ -27,4 +27,5 @@ public class BoardDto {
     private Integer likeCount;
     private boolean liked;
     private boolean editable;
+    private Integer viewCount;
 }

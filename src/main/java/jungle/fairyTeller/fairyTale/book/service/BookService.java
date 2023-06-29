@@ -27,6 +27,16 @@ public class BookService {
         return bookRepository.findByBookId(entity.getBookId());
     }
 
+    public BookEntity updateTheme(final BookEntity entity) {
+        validate(entity);
+
+        bookRepository.save(entity);
+
+        log.info("Book Entity Id : {} theme is saved", entity.getBookId());
+
+        return bookRepository.findByBookId(entity.getBookId());
+    }
+
     // 존재하는 BookId에 동화 최종제목, 이미지, audio update 하는 로직
     public BookEntity updateTitleStoryAudio(final BookEntity entity) {
         validate(entity);

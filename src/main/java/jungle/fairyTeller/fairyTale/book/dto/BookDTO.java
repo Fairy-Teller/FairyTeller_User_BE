@@ -15,6 +15,8 @@ public class BookDTO {
     private Integer author;
     private String title;
     private String thumbnailUrl;
+
+    private Integer theme;
     private List<PageDTO> pages;
 
     public BookDTO(final BookEntity entity) {
@@ -22,6 +24,7 @@ public class BookDTO {
         this.author = entity.getAuthor();
         this.title = entity.getTitle();
         this.thumbnailUrl = entity.getThumbnailUrl();
+        this.theme = entity.getTheme();
         this.pages = entity.getPages()
                 .stream()
                 .map(PageDTO::new)
@@ -34,6 +37,7 @@ public class BookDTO {
                 .author(dto.getAuthor())
                 .title(dto.getTitle())
                 .thumbnailUrl(dto.getThumbnailUrl())
+                .theme(dto.getTheme())
                 .pages(dto.getPages()
                         .stream()
                         .map(PageDTO::toEntity)

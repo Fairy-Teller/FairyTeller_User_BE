@@ -16,11 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,8 +30,6 @@ import javax.imageio.ImageIO;
 @Service
 @RequiredArgsConstructor
 public class ThumbnailService {
-
-
     @Autowired
     private PaPagoTranslationService paPagoTranslationService;
     @Autowired
@@ -62,9 +58,10 @@ public class ThumbnailService {
     private String localUrl;
 
     public String createThumbnail(BookEntity book){
-        // 표지 이미지를 생성한다.
+        // 표지 이미지를 생성한다 : 한글 제목 -> 번역 -> addLora -> createImg
         String translated = paPagoTranslationService.translate(book.getTitle(),"ko","en");
-        String prompt = createImgService.addLora(1, translated);
+        String prompt = createImgService.addLora(book.getTheme(), translated);
+
         String base64Data = createImgService.createImg(prompt); // base64 String 그 자체
         String base64Image = base64Data.replaceAll("^data:image/[a-zA-Z]+;base64,", "");
 
@@ -100,8 +97,11 @@ public class ThumbnailService {
                 return null;
             }
 
-            int width = bufferedImage.getWidth();
-            int height = bufferedImage.getHeight();
+            int width = 1280;
+            int height = 720;
+
+            // 이미지 사이즈 조정 1280x720
+            BufferedImage resizedImage = resizeImage(bufferedImage, width, height);
 
             // 새로운 이미지 생성
             newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -110,7 +110,7 @@ public class ThumbnailService {
             Graphics2D g2d = newImage.createGraphics();
 
             // 원본 이미지를 새 이미지로 그리기
-            g2d.drawImage(bufferedImage, 0, 0, null);
+            g2d.drawImage(resizedImage, 0, 0, null);
 
             BufferedImage watermark;
             String activeProfiles = environment.getProperty("spring.profiles.active");
@@ -192,6 +192,17 @@ public class ThumbnailService {
         int title_x = (width - titleWidth) / 2;
         int title_y = height / 3;
         g2d.drawString(title, title_x, title_y);
+    }
+
+    private BufferedImage resizeImage(BufferedImage image, int targetWidth, int targetHeight) {
+        Image resizedImage = image.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT);
+
+        BufferedImage bufferedResizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = bufferedResizedImage.createGraphics();
+        g2d.drawImage(resizedImage, 0, 0, null);
+        g2d.dispose();
+
+        return bufferedResizedImage;
     }
 
     private BufferedImage loadS3Image(String fileName) {

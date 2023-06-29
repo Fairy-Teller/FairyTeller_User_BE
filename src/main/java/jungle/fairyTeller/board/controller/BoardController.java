@@ -1,10 +1,6 @@
 package jungle.fairyTeller.board.controller;
-import com.amazonaws.services.kms.model.NotFoundException;
-import jungle.fairyTeller.board.entity.LikeEntity;
-import jungle.fairyTeller.board.repository.BoardRepository;
 import jungle.fairyTeller.board.service.LikeService;
 import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
-import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
 import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +12,7 @@ import jungle.fairyTeller.board.entity.BoardEntity;
 import jungle.fairyTeller.board.entity.CommentEntity;
 import jungle.fairyTeller.board.service.BoardService;
 import jungle.fairyTeller.board.service.CommentService;
-import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
-import jungle.fairyTeller.fairyTale.book.repository.BookRepository;
-import jungle.fairyTeller.user.entity.UserEntity;
-import jungle.fairyTeller.user.repository.UserRepository;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,13 +20,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -189,12 +184,16 @@ public class BoardController {
     public ResponseEntity<ResponseDto<BoardDto>> getBoardById(
             @AuthenticationPrincipal String userId,
             @PathVariable Integer boardId,
-            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable pageable,
+            HttpServletRequest request,
+            HttpServletResponse response
     ) {
         try {
             // Retrieve the board entity by boardId
             BoardEntity boardEntity = boardService.getBoardById(boardId);
             boolean isEditable = boardEntity.getAuthor().getId().equals(Integer.parseInt(userId));
+
+            viewCountUp(boardId, request, response);
 
             // Retrieve pages for the board
             List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
@@ -227,6 +226,7 @@ public class BoardController {
                     .pages(pageDTOs)
                     .likeCount(likeCount)
                     .liked(liked)
+                    .viewCount(boardEntity.getViewCount())
                     .build();
 
             // Response DTO
@@ -241,6 +241,40 @@ public class BoardController {
         } catch (Exception e) {
             logger.error("Failed to retrieve the board", e);
             throw new ServiceException("Failed to retrieve the board");
+        }
+    }
+
+    private void viewCountUp(Integer id, HttpServletRequest request, HttpServletResponse response) {
+        logger.info("Board id: {}", id);
+        Cookie oldCookie = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                logger.info("Cookie Name: {}, Cookie Value: {}", cookie.getName(), cookie.getValue());
+                if (cookie.getName().equals("viewedBoards")) {
+                    oldCookie = cookie;
+                }
+            }
+        } else {
+            logger.info("No cookies found in the request");
+        }
+
+        if (oldCookie != null) {
+            if (!oldCookie.getValue().contains("[" + id.toString() + "]")) {
+                boardService.increaseViewCount(id);
+                oldCookie.setValue(oldCookie.getValue() + "_[" + id + "]");
+                oldCookie.setPath("/");
+                oldCookie.setMaxAge(60 * 60 * 24);
+                response.addCookie(oldCookie);
+            } else {
+                logger.info("It's already been viewed");
+            }
+        } else {
+            boardService.increaseViewCount(id);
+            Cookie newCookie = new Cookie("viewedBoards","[" + id + "]");
+            newCookie.setPath("/");
+            newCookie.setMaxAge(60 * 60 * 24);
+            response.addCookie(newCookie);
         }
     }
 
