@@ -8,12 +8,12 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-
 @Data
 @Document(collection = "pageObjects")
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageObjectEntity implements Serializable {
+
     @Id
     private PageId id;
 

@@ -2,6 +2,8 @@ package jungle.fairyTeller.fairyTale.book.controller;
 
 import jungle.fairyTeller.fairyTale.Image.service.SaveImgService;
 import jungle.fairyTeller.fairyTale.Image.service.ThumbnailService;
+import jungle.fairyTeller.fairyTale.book.dto.ObjectDTO;
+import jungle.fairyTeller.fairyTale.book.mapper.ObjectMapper;
 import jungle.fairyTeller.fairyTale.book.service.PageObjectService;
 import jungle.fairyTeller.fairyTale.audio.service.TtsService;
 import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
@@ -15,6 +17,7 @@ import jungle.fairyTeller.fairyTale.book.service.BookService;
 import jungle.fairyTeller.fairyTale.book.service.PageService;
 import jungle.fairyTeller.fairyTale.file.service.FileService;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -252,6 +255,7 @@ public class BookController {
 
             // 0-1. 제목을 토대로 표지를 생성해서 저장한다.
             String thumbanailUrl = thumbnailService.createThumbnail(originalBook);
+
             originalBook.setThumbnailUrl(thumbanailUrl);
 
             // 1. 각 페이지를 돌며 page 저장
@@ -405,6 +409,38 @@ public class BookController {
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @PostMapping("/find/temp")
+    public ResponseEntity<?> findObjects(@RequestBody BookDTO bookDto, @AuthenticationPrincipal
+                                                String userId){
+        //bookid로 bookEntity 가져오기 -> 어떻게 조회할지 고민
+        int bookId = bookDto.getBookId();
+        BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
+
+        List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+
+        for(PageDTO pageDTO : pageDTOS){
+            //해당 bookId와 pageNo로 mongoDB에서 가져오기
+            PageId id = new PageId(bookId,pageDTO.getPageNo());
+            List<PageObjectEntity> objects = pageObjectService.findById(id);
+
+            for(PageObjectEntity object : objects){
+
+                List<ObjectDTO> dto = ObjectMapper.convertToDTO(object);
+
+                pageDTO.setObjects(dto);
+            }
+        }
+        BookDTO dto = BookDTO.builder()
+                .bookId(originalBook.getBookId())
+                .author(originalBook.getAuthor())
+                .title(originalBook.getTitle())
+                .thumbnailUrl(originalBook.getThumbnailUrl())
+                .pages(pageDTOS)
+                .build();
+
+        return ResponseEntity.ok().body(dto);
     }
 
 

@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+
 
 @Slf4j
 @Service
@@ -22,5 +24,9 @@ public class PageObjectService {
         PageId pageId = pageObjectEntity.getId();
 
         log.info("Saved or updated PageObjectEntity with PageId {}", pageId.toString());
+    }
+
+    public List<PageObjectEntity> findById(PageId id) {
+        return pageObjectRepository.findById(id);
     }
 }
