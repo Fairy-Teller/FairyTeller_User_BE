@@ -91,6 +91,23 @@ public class ChatGptController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @PostMapping("/textToImage/test")
+    public ResponseEntity<Object> textToImageWithLoraTest(@RequestBody SummarizingRequestDto requestDto,
+                                                      @AuthenticationPrincipal String userId){
+        try {
+            if(requestDto == null || requestDto.getText() == null) {
+                throw new RuntimeException("requestDto is null.");
+            }
+            String base64Image = createImgService.createCatImg();
+
+            HttpHeaders headers = new HttpHeaders();
+            return new ResponseEntity<>(base64Image, headers, HttpStatus.OK);
+        }catch (Exception e){
+            log.error("Failed to create image", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     @PostMapping("/question/test/4")
     public ResponseEntity<List<HashMap<String, Object>>> testQuestion1
             (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){

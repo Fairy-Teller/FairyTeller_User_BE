@@ -39,20 +39,20 @@ public class CreateImgService {
     }
 
 
-//    public String createImg(String prompt){
-//        String fileName = "classpath:static/files/img.txt";
-//        Resource resource = resourceLoader.getResource(fileName);
-//        String result = "";
-//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                result += line;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return(result);
-//    }
+    public String createCatImg(){
+        String fileName = "classpath:static/files/img.txt";
+        Resource resource = resourceLoader.getResource(fileName);
+        String result = "";
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result += line;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return(result);
+    }
 
     public String createImg(String prompt){
         RestTemplate restTemplate = new RestTemplate();
