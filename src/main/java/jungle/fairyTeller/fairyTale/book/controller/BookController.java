@@ -2,6 +2,9 @@ package jungle.fairyTeller.fairyTale.book.controller;
 
 import jungle.fairyTeller.fairyTale.Image.service.SaveImgService;
 import jungle.fairyTeller.fairyTale.Image.service.ThumbnailService;
+import jungle.fairyTeller.fairyTale.book.dto.ObjectDTO;
+import jungle.fairyTeller.fairyTale.book.mapper.ObjectMapper;
+import jungle.fairyTeller.fairyTale.book.service.PageObjectService;
 import jungle.fairyTeller.fairyTale.audio.service.TtsService;
 import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
 import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
@@ -9,24 +12,25 @@ import jungle.fairyTeller.fairyTale.book.dto.ResponseDTO;
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
 import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
 import jungle.fairyTeller.fairyTale.book.entity.PageId;
+import jungle.fairyTeller.fairyTale.book.entity.PageObjectEntity;
 import jungle.fairyTeller.fairyTale.book.service.BookService;
 import jungle.fairyTeller.fairyTale.book.service.PageService;
 import jungle.fairyTeller.fairyTale.file.service.FileService;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +42,10 @@ public class BookController {
     private BookService bookService;
     @Autowired
     private PageService pageService;
+
+    @Autowired
+    private PageObjectService pageObjectService;
+
     @Autowired
     private SaveImgService saveImgService;
     @Autowired
@@ -247,6 +255,7 @@ public class BookController {
 
             // 0-1. 제목을 토대로 표지를 생성해서 저장한다.
             String thumbanailUrl = thumbnailService.createThumbnail(originalBook);
+
             originalBook.setThumbnailUrl(thumbanailUrl);
 
             // 1. 각 페이지를 돌며 page 저장
@@ -312,6 +321,128 @@ public class BookController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @PostMapping("/create/temp")
+    public ResponseEntity<?> saveTempPosition(@AuthenticationPrincipal String userId, @RequestBody BookDTO bookDto) {
+        try {
+            // 기존에 저장된 bookEntity 찾기
+            BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
+
+            // 0. 최종 제목 저장
+            originalBook.setTitle(bookDto.getTitle());
+
+            // 0-1. 제목을 토대로 표지를 생성해서 저장한다.
+            String thumbanailUrl = thumbnailService.createThumbnail(originalBook);
+            originalBook.setThumbnailUrl(thumbanailUrl);
+
+            // 1. 각 페이지를 돌며 page 저장
+            List<PageDTO> updatedPages = new ArrayList<>();
+            for (PageDTO pageDto : bookDto.getPages()) {
+                // 1-0. 해당하는 page를 찾아온다
+                PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
+
+                // 1-1. 이미지
+                try {
+                    String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
+                    // 1-1-0. 이미지를 바이트 배열로 변환
+                    byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
+                    // 1-1-1. 이미지를 저장경로에 저장한다.
+                    String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
+                    // 1-1-2. imgUrl 변수에 경로를 담는다
+                    originalPage.setFinalImageUrl(imgUrl);
+
+                    log.info(String.valueOf(pageDto.getPageNo()));
+
+
+                } catch (Exception e) {
+                    throw new RuntimeException("Error converting image: " + e.getMessage(), e);
+                }
+
+                saveFinalBookImage(originalBook, pageDto, originalPage);
+
+                // 1-2. 이미지랑 오디오를 pages에 저장한다.
+                pageService.updatePage(originalPage);
+
+                // save fabric.js objects to MongoDB
+                PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
+
+                List<Map<String, Object>> objectMaps = pageDto.getObjects().stream().map(objectDTO -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("type", objectDTO.getType());
+                    map.put("left", objectDTO.getLeft());
+                    map.put("top", objectDTO.getTop());
+                    map.put("width", objectDTO.getWidth());
+                    map.put("height", objectDTO.getHeight());
+                    map.put("radius", objectDTO.getRadius());
+                    return map;
+                }).collect(Collectors.toList());
+
+                PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objectMaps);
+                pageObjectService.saveObjects(pageObjectEntity);
+
+                // 1-3. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
+                PageDTO updatedPageDto = PageDTO.builder()
+                        .pageNo(pageDto.getPageNo())
+                        .fullStory(pageDto.getFullStory())
+                        .originalImageUrl(originalPage.getOriginalImageUrl())
+                        .finalImageUrl(originalPage.getFinalImageUrl())
+                        .audioUrl(originalPage.getAudioUrl())
+                        .build();
+                updatedPages.add(updatedPageDto);
+            }
+
+            // 3. bookEntity를 db에 저장한다
+            bookService.updateTitleStoryAudio(originalBook);
+
+            // 4. bookDTO를 반환한다
+            BookDTO savedBookDto = BookDTO.builder()
+                    .bookId(originalBook.getBookId())
+                    .author(originalBook.getAuthor())
+                    .title(originalBook.getTitle())
+                    .thumbnailUrl(originalBook.getThumbnailUrl())
+                    .pages(updatedPages)
+                    .build();
+
+            return ResponseEntity.ok().body(savedBookDto);
+        } catch(Exception e) {
+            String error = e.getMessage();
+            ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/find/temp")
+    public ResponseEntity<?> findObjects(@RequestBody BookDTO bookDto, @AuthenticationPrincipal
+                                                String userId){
+        //bookid로 bookEntity 가져오기 -> 어떻게 조회할지 고민
+        int bookId = bookDto.getBookId();
+        BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
+
+        List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+
+        for(PageDTO pageDTO : pageDTOS){
+            //해당 bookId와 pageNo로 mongoDB에서 가져오기
+            PageId id = new PageId(bookId,pageDTO.getPageNo());
+            List<PageObjectEntity> objects = pageObjectService.findById(id);
+
+            for(PageObjectEntity object : objects){
+
+                List<ObjectDTO> dto = ObjectMapper.convertToDTO(object);
+
+                pageDTO.setObjects(dto);
+            }
+        }
+        BookDTO dto = BookDTO.builder()
+                .bookId(originalBook.getBookId())
+                .author(originalBook.getAuthor())
+                .title(originalBook.getTitle())
+                .thumbnailUrl(originalBook.getThumbnailUrl())
+                .pages(pageDTOS)
+                .build();
+
+        return ResponseEntity.ok().body(dto);
+    }
+
 
     private List<PageDTO> getPageDTOS(BookEntity bookEntity) {
         List<PageEntity> pageEntities = pageService.retrieveByBookId(bookEntity.getBookId());

@@ -61,7 +61,6 @@ public class ThumbnailService {
         // 표지 이미지를 생성한다 : 한글 제목 -> 번역 -> addLora -> createImg
         String translated = paPagoTranslationService.translate(book.getTitle(),"ko","en");
         String prompt = createImgService.addLora(book.getTheme(), translated);
-
         String base64Data = createImgService.createImg(prompt); // base64 String 그 자체
         String base64Image = base64Data.replaceAll("^data:image/[a-zA-Z]+;base64,", "");
 

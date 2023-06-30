@@ -26,6 +26,8 @@ public class PageDTO {
 
     private boolean isDark;
 
+    private List<ObjectDTO> objects;
+
     public PageDTO(final PageEntity entity) {
         this.pageNo = entity.getPageNo().getPageNo();
         this.fullStory = entity.getFullStory();
