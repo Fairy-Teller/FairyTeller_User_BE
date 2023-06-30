@@ -363,44 +363,53 @@ public class BookController {
     @GetMapping("/find/newestTemp")
     public ResponseEntity<?> findNewestTemporaryStorage(@AuthenticationPrincipal String userId){
 
-        //1.userId가 만든 books 중 edit_final = false이면서 가장 최신 날짜를 조회한다.
-        int id = Integer.parseInt(userId);
-        int tmpStorageCount = bookService.countByAuthorAndEditFinal(id);
+        try {
+            //1.userId가 만든 books 중 edit_final = false이면서 가장 최신 날짜를 조회한다.
+            int id = Integer.parseInt(userId);
+            int tmpStorageCount = bookService.countByAuthorAndEditFinal(id);
 
-        if(tmpStorageCount == 0){
-            Map<String,Boolean> map = new HashMap<>();
-            map.put("isExist",false);
-            return ResponseEntity.ok(map);
-        }
+            log.info("check for temporary storage id: {}",id);
 
-        BookEntity bookEntity = bookService.getLatestBookByAuthor(id);
+            if(tmpStorageCount == 0){
+//                Map<String,Boolean> map = new HashMap<>();
+//                map.put("isExist",false);
+                return ResponseEntity.ok(null);
+            }
+            BookEntity bookEntity = bookService.getLatestBookByAuthor(id);
 
-        if(!bookEntity.isImageFinal()){
-            // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
-             List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
+            if(!bookEntity.isImageFinal()){
+                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
+                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
 
-             BookDTO dto = BookDTO.builder()
-                     .bookId(bookEntity.getBookId())
-                     .author(bookEntity.getAuthor())
-                     .title(bookEntity.getTitle())
-                     .thumbnailUrl(bookEntity.getThumbnailUrl())
-                     .pages(pageDTOS)
-                     .build();
-            return ResponseEntity.ok().body(dto);
-        }else{
-            // 2-2. image_final true 인 경우 => editor 로 넘어감, mongoDB 조회 O
-            //현재 진행할 지 모르겠음!
+                BookDTO dto = BookDTO.builder()
+                        .bookId(bookEntity.getBookId())
+                        .author(bookEntity.getAuthor())
+                        .title(bookEntity.getTitle())
+                        .thumbnailUrl(bookEntity.getThumbnailUrl())
+                        .theme(bookEntity.getTheme())
+                        .pages(pageDTOS)
+                        .build();
+                return ResponseEntity.ok().body(dto);
+            }else{
+                // 2-2. image_final true 인 경우 => editor 로 넘어감, mongoDB 조회 O
+                //현재 진행할 지 모르겠음!
 
-            List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
+                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
 
-            BookDTO dto = BookDTO.builder()
-                    .bookId(bookEntity.getBookId())
-                    .author(bookEntity.getAuthor())
-                    .title(bookEntity.getTitle())
-                    .thumbnailUrl(bookEntity.getThumbnailUrl())
-                    .pages(pageDTOS)
-                    .build();
-            return ResponseEntity.ok().body(dto);
+                BookDTO dto = BookDTO.builder()
+                        .bookId(bookEntity.getBookId())
+                        .author(bookEntity.getAuthor())
+                        .title(bookEntity.getTitle())
+                        .thumbnailUrl(bookEntity.getThumbnailUrl())
+                        .theme(bookEntity.getTheme())
+                        .pages(pageDTOS)
+                        .build();
+                return ResponseEntity.ok().body(dto);
+            }
+        }catch(Exception e){
+            String error = e.getMessage();
+            ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
