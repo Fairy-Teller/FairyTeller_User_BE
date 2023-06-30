@@ -56,7 +56,7 @@ public class BoardController {
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
         try {
-            // Update pageable objects with dynamic page and size values
+             // Update pageable objects with dynamic page and size values
             boardPageable = PageRequest.of(page, size, boardPageable.getSort());
             final Pageable finalCommentPageable = PageRequest.of(page, size, commentPageable.getSort());
 
