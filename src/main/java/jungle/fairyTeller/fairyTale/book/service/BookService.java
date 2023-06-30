@@ -85,4 +85,12 @@ public class BookService {
     public BookEntity getBookByBookId(Integer bookId){
         return bookRepository.findByBookId(bookId);
     }
+
+    public int countByAuthorAndEditFinal(Integer authorId){
+        return bookRepository.countByAuthorAndEditFinal(authorId);
+    }
+
+    public BookEntity getLatestBookByAuthor(Integer authorId) {
+        return bookRepository.findFirstByAuthorAndEditFinalOrderByLastModifiedDateDesc(authorId, false);
+    }
 }
