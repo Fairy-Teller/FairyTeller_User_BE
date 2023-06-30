@@ -37,9 +37,11 @@ public class BookEntity {
 
     private boolean editFinal = false;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "book")
     private List<PageEntity> pages = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "book")
     private List<BoardEntity> boards = new ArrayList<>();
 
@@ -49,4 +51,10 @@ public class BookEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastModifiedDate;
 
+    public boolean isImageFinal() {
+        return imageFinal;
+    }
+    public boolean isEditFinal() {
+        return editFinal;
+    }
 }
