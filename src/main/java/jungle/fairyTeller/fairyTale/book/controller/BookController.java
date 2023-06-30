@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.print.Book;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
@@ -242,6 +243,32 @@ public class BookController {
         }
     }
 
+    @PostMapping("/create/imageAll")
+    public ResponseEntity<?> selectedAllImg(@AuthenticationPrincipal String userId, @RequestBody BookDTO bookDto) {
+        BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
+
+        originalBook.setImageFinal(true);
+        originalBook.setTitle("임시저장_"+originalBook.getBookId());
+
+        // 첫번째 이미지를 thumbnail url로 저장한다
+        PageEntity firstPage = pageService.retrieveByPageId(new PageId(originalBook.getBookId(), 1));
+        originalBook.setThumbnailUrl(firstPage.getOriginalImageUrl());
+
+        originalBook.setLastModifiedDate(new Date());
+
+        bookService.updateTitleStoryAudio(originalBook);
+
+        BookDTO savedBookDto = BookDTO.builder()
+                .bookId(originalBook.getBookId())
+                .author(originalBook.getAuthor())
+                .title(originalBook.getTitle())
+                .thumbnailUrl(originalBook.getThumbnailUrl())
+                .build();
+
+        return ResponseEntity.ok().body(savedBookDto);
+
+    }
+
 
     @PostMapping("/create/final")
     // 최종 책 제목, 이미지, 오디오 파일을 저장한다
@@ -301,6 +328,10 @@ public class BookController {
                         .build();
                 updatedPages.add(updatedPageDto);
             }
+
+            // 최종 edit 상태 true로 저장
+            originalBook.setEditFinal(true);
+            originalBook.setLastModifiedDate(new Date());
 
             // 3. bookEntity를 db에 저장한다
             bookService.updateTitleStoryAudio(originalBook);
