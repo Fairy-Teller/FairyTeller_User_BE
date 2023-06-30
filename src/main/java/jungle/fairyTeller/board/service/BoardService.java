@@ -19,6 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -125,5 +131,26 @@ public class BoardService {
                 .orElseThrow(() -> new ServiceException("Board not found with id: " + boardId));
 
         boardEntity.incrementViewCount();
+    }
+
+    @Transactional(readOnly = true)
+    public List<BoardEntity> getPopularBoardsOfTheWeek(int limit) {
+        // Calculate the start and end dates of the current week (from Monday to Sunday)
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        // Convert LocalDate to Date
+        Date startDate = Date.from(startOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfWeek.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
+
+        // Retrieve popular boards within the current week based on the length of the likes list and heartCount
+        List<BoardEntity> popularBoards = boardRepository.findPopularBoardsByHeartCount(startDate, endDate, limit);
+
+        if (popularBoards.size() > limit) {
+            popularBoards = popularBoards.subList(0, limit); // Trim the list to the specified limit
+        }
+
+        return popularBoards;
     }
 }
