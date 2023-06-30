@@ -1,6 +1,9 @@
 package jungle.fairyTeller.board.controller;
 
 import jungle.fairyTeller.board.dto.LikeDto;
+import jungle.fairyTeller.board.entity.BoardEntity;
+import jungle.fairyTeller.board.repository.BoardRepository;
+import jungle.fairyTeller.board.service.BoardService;
 import jungle.fairyTeller.board.service.LikeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class LikeController {
     @Autowired
     private LikeService likeService;
+    @Autowired
+    private BoardService boardService;
+    @Autowired
+    private BoardRepository boardRepository;
 
     @PostMapping("/{boardId}/like")
     public ResponseEntity<LikeDto> likeBoard(
@@ -28,14 +35,15 @@ public class LikeController {
         if (isLiked) {
             // 좋아요를 취소
             likeService.unlikeBoard(boardId, Integer.parseInt(userId));
-            //return ResponseEntity.ok("좋아요를 취소했습니다.");
         } else {
             // 좋아요
             likeService.likeBoard(boardId, Integer.parseInt(userId));
-            //return ResponseEntity.ok("게시물을 좋아합니다.");
         }
         // 좋아요 횟수와 좋아요 여부를 조회하여 LikeDto 객체로 반환
-        int likeCount = likeService.getLikeCount(boardId);
+        BoardEntity boardEntity = boardService.getBoardById(boardId);
+        int likeCount = likeService.getLikeCount(boardEntity.getBoardId());
+        boardEntity.setHeartCount(likeCount);
+        boardRepository.save(boardEntity);
         boolean liked = likeService.isBoardLiked(boardId, Integer.parseInt(userId));
         LikeDto likeDto = new LikeDto(likeCount, liked);
         return ResponseEntity.ok(likeDto);
