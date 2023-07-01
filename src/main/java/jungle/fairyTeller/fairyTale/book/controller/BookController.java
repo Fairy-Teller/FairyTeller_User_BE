@@ -383,6 +383,7 @@ public class BookController {
 
                 BookDTO dto = BookDTO.builder()
                         .bookId(bookEntity.getBookId())
+                        .imageFinal(bookEntity.isImageFinal())
                         .author(bookEntity.getAuthor())
                         .title(bookEntity.getTitle())
                         .thumbnailUrl(bookEntity.getThumbnailUrl())
@@ -398,6 +399,7 @@ public class BookController {
 
                 BookDTO dto = BookDTO.builder()
                         .bookId(bookEntity.getBookId())
+                        .imageFinal(bookEntity.isImageFinal())
                         .author(bookEntity.getAuthor())
                         .title(bookEntity.getTitle())
                         .thumbnailUrl(bookEntity.getThumbnailUrl())
