@@ -506,37 +506,44 @@ public class BookController {
         }
     }
 
-//    @PostMapping("/find/temp")
-//    public ResponseEntity<?> findObjects(@RequestBody BookDTO bookDto, @AuthenticationPrincipal
-//                                                String userId){
-//
-//        int bookId = bookDto.getBookId();
-//        BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
-//
-//        List<PageDTO> pageDTOS = getPageDTOS(originalBook);
-//
-//        for(PageDTO pageDTO : pageDTOS){
-//            //해당 bookId와 pageNo로 mongoDB에서 가져오기
-//            PageId id = new PageId(bookId,pageDTO.getPageNo());
-//            List<PageObjectEntity> objects = pageObjectService.findById(id);
-//
-//            for(PageObjectEntity object : objects){
-//
-//                List<ObjectDTO> dto = ObjectMapper.convertToDTO(object);
-//
-//                pageDTO.setObjects(dto);
-//            }
-//        }
-//        BookDTO dto = BookDTO.builder()
-//                .bookId(originalBook.getBookId())
-//                .author(originalBook.getAuthor())
-//                .title(originalBook.getTitle())
-//                .thumbnailUrl(originalBook.getThumbnailUrl())
-//                .pages(pageDTOS)
-//                .build();
-//
-//        return ResponseEntity.ok().body(dto);
-//    }
+    @PostMapping("/find/temp")
+    public ResponseEntity<?> findObjects(@RequestBody BookDTO bookDto, @AuthenticationPrincipal
+                                                String userId){
+        try{
+            int bookId = bookDto.getBookId();
+            BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
+
+            List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+
+            for(PageDTO pageDTO : pageDTOS){
+                //해당 bookId와 pageNo로 mongoDB에서 가져오기
+                PageId id = new PageId(bookId,pageDTO.getPageNo());
+                List<PageObjectEntity> objects = pageObjectService.findById(id);
+
+                for(PageObjectEntity object : objects){
+
+                    List<Object> dto = object.getObjects();
+
+                    pageDTO.setObjects(dto);
+                }
+            }
+            BookDTO dto = BookDTO.builder()
+                    .bookId(originalBook.getBookId())
+                    .author(originalBook.getAuthor())
+                    .title(originalBook.getTitle())
+                    .theme(originalBook.getTheme())
+                    .pages(pageDTOS)
+                    .imageFinal(originalBook.isImageFinal())
+                    .build();
+
+            return ResponseEntity.ok().body(dto);
+
+        }catch (Exception e){
+            String error = e.getMessage();
+            ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 
 
     private List<PageDTO> getPageDTOS(BookEntity bookEntity) {
