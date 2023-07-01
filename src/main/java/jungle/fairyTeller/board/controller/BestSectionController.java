@@ -14,10 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -98,18 +95,29 @@ public class BestSectionController {
         try {
             List<BoardEntity> allBoards = boardService.getAllBoardsOfTheWeek();
 
+            List<BoardEntity> filteredBoards = allBoards.stream()
+                    .filter(board -> board.getHeartCount() >= 1)
+                    .collect(Collectors.toList());
+
             // Calculate heart counts for each author
             Map<UserEntity, Integer> authorHeartCounts = new HashMap<>();
-            for (BoardEntity board : allBoards) {
+            Map<UserEntity, Date> authorLatestBoardDates = new HashMap<>();
+            for (BoardEntity board : filteredBoards) {
                 UserEntity author = board.getAuthor();
                 int heartCount = authorHeartCounts.getOrDefault(author, 0);
                 heartCount += board.getHeartCount();
                 authorHeartCounts.put(author, heartCount);
+
+                Date latestBoardDate = authorLatestBoardDates.getOrDefault(author, new Date(0));
+                if (board.getCreatedDatetime().after(latestBoardDate)) {
+                    authorLatestBoardDates.put(author, board.getCreatedDatetime());
+                }
             }
 
             // Sort authors based on heart counts
             List<UserEntity> popularAuthors = authorHeartCounts.entrySet().stream()
-                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .sorted(Map.Entry.<UserEntity, Integer>comparingByValue(Comparator.reverseOrder())
+                            .thenComparing(author -> authorLatestBoardDates.get(author.getKey()), Comparator.reverseOrder()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
 
