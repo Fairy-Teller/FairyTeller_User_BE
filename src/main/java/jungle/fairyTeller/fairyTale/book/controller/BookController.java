@@ -79,7 +79,24 @@ public class BookController {
 
         return ResponseEntity.ok().body(dto);
     }
+    @PostMapping("/getBookById/temp")
+    public ResponseEntity<?> getTempBookByBookId(@RequestBody BookDTO bookDTO,@AuthenticationPrincipal String userId) {
+        BookEntity bookEntity = bookService.getBookByBookId(bookDTO.getBookId());
 
+        List<PageDTO> pageDtos = getPageDTOS(bookEntity);
+
+        BookDTO dto = BookDTO.builder()
+                .bookId(bookEntity.getBookId())
+                .imageFinal(bookEntity.isImageFinal())
+                .author(bookEntity.getAuthor())
+                .title(bookEntity.getTitle())
+                .thumbnailUrl(bookEntity.getThumbnailUrl())
+                .theme(bookEntity.getTheme())
+                .pages(pageDtos)
+                .build();
+
+        return ResponseEntity.ok().body(dto);
+    }
     @GetMapping("/{bookId}")
     public ResponseEntity<ResponseDTO<BookDTO>> getBookById(@PathVariable Integer bookId,
                                                             @AuthenticationPrincipal String userId)
