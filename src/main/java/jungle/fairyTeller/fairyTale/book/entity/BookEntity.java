@@ -33,6 +33,10 @@ public class BookEntity {
 
     private Integer theme;
 
+    private boolean imageFinal = false;
+
+    private boolean editFinal = false;
+
     @OneToMany(mappedBy = "book")
     private List<PageEntity> pages = new ArrayList<>();
 
@@ -41,5 +45,8 @@ public class BookEntity {
 
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastModifiedDate;
 
 }
