@@ -90,7 +90,7 @@ public class BookService {
         return bookRepository.countByAuthorAndEditFinal(authorId);
     }
 
-    public BookEntity getLatestBookByAuthor(Integer authorId) {
-        return bookRepository.findFirstByAuthorAndEditFinalOrderByLastModifiedDateDesc(authorId, false);
+    public List<BookEntity> getLatestBookByAuthor(Integer authorId) {
+        return bookRepository.findByAuthorAndEditFinalOrderByLastModifiedDateDesc(authorId, false);
     }
 }

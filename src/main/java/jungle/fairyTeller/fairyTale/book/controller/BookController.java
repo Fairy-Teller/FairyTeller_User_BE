@@ -396,12 +396,17 @@ public class BookController {
             if(tmpStorageCount == 0){
                 return ResponseEntity.ok(null);
             }
-            BookEntity bookEntity = bookService.getLatestBookByAuthor(id);
+            List<BookEntity> lists = bookService.getLatestBookByAuthor(id);
+            List<Map<String,String>> books = new ArrayList<>();
+            for(BookEntity book : lists){
+                Map<String,String> map  = new HashMap<>();
+                map.put("bookId", String.valueOf(book.getBookId()));
+                map.put("title",book.getTitle());
+                map.put("thumbnailUrl",book.getThumbnailUrl());
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("bookId", bookEntity.getBookId());
-
-            return ResponseEntity.ok(response);
+                books.add(map);
+            }
+                return ResponseEntity.ok().body(books);
 
 //            if(!bookEntity.isImageFinal()){
 //                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
