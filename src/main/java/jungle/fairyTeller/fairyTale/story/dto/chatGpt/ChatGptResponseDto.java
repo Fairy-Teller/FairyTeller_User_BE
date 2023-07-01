@@ -23,4 +23,5 @@ public class ChatGptResponseDto implements Serializable {
             this.text = choices.get(0).getText();
         }
     }
+
 }

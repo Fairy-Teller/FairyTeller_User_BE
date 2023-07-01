@@ -1,5 +1,6 @@
 package jungle.fairyTeller.fairyTale.story.service;
 
+import com.google.cloud.texttospeech.v1.SynthesizeSpeechRequest;
 import jungle.fairyTeller.fairyTale.story.dto.chatGpt.ChatGptRequestDto;
 import jungle.fairyTeller.fairyTale.story.dto.chatGpt.ChatGptResponseDto;
 import jungle.fairyTeller.fairyTale.story.dto.chatGpt.QuestionRequestDto;
@@ -12,10 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+
 @Slf4j
 @Service
 public class ChatGptService {
@@ -37,7 +36,7 @@ public class ChatGptService {
         return new HttpEntity<>(requestDto, headers);
     }
 
-    public ResponseEntity<List<HashMap<String, Object>>> getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
+    public ResponseEntity<String> getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
 
         try{
             String source = "en";
@@ -55,12 +54,13 @@ public class ChatGptService {
                     ChatGptResponseDto.class).getBody();
 
             //이야기 번역(en->ko)
-            String tmp = clearString(responseDto.getText());
-            String translateToText = paPagoTranslationService.translate(tmp,source,target);
-            List<HashMap<String,Object>> divideParagraphs = divideIntoParagraphs(translateToText);
+          //  String tmp = clearString(responseDto.getText());
+           // String translateToText = paPagoTranslationService.translate(tmp,source,target);
+           // List<HashMap<String,Object>> divideParagraphs = divideIntoParagraphs(translateToText);
 
-            responseDto.setText(translateToText);
-            return new ResponseEntity<>(divideParagraphs, HttpStatus.OK);
+           // responseDto.setText(translateToText);
+            System.out.println(responseDto.getText());
+            return new ResponseEntity<>(responseDto.getText(), HttpStatus.OK);
         }catch (Exception
                 e){
             log.error("Failed to create story", e);
@@ -82,14 +82,21 @@ public class ChatGptService {
 
         return responseDto;
     }
-    public ResponseEntity<List<HashMap<String, Object>>> askQuestion(QuestionRequestDto requestDto,int request) {
+    public ResponseEntity<String> askQuestion(QuestionRequestDto requestDto,int request) {
         String question = requestParsing(requestDto,request);
         System.out.println("시나리오 작성:"+question);
+
+        List<Map<String, String>> messageList = new ArrayList<>();
+        Map<String,String> map = new HashMap<>();
+        map.put("role","user");
+        map.put("content",question);
+        messageList.add(map);
+
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
                                 chatGptConfig.getModel(),
-                                question,
+                                messageList,
                                 chatGptConfig.getMaxToken(),
                                 chatGptConfig.getTemperature(),
                                 chatGptConfig.getTopP()
@@ -98,22 +105,21 @@ public class ChatGptService {
         );
     }
 
-    public ChatGptResponseDto askSummarize(SummarizingRequestDto requestDto){
-        String question = requestParsingToSummarize(requestDto);
-        //System.out.println("한 줄 요약:"+requestDto.getText());
-        //String question = "'"+requestDto.getText()+"'"+"Please summarize a line in English";
-        return this.tmpGetResponseToSummarize(
-                this.buildHttpEntity(
-                        new ChatGptRequestDto(
-                                chatGptConfig.getModel(),
-                                question,
-                                chatGptConfig.getMaxToken(),
-                                chatGptConfig.getTemperature(),
-                                chatGptConfig.getTopP()
-                        )
-                )
-        );
-    }
+//    public ChatGptResponseDto askSummarize(SummarizingRequestDto requestDto){
+//        String question = requestParsingToSummarize(requestDto);
+//
+//        return this.tmpGetResponseToSummarize(
+//                this.buildHttpEntity(
+//                        new ChatGptRequestDto(
+//                                chatGptConfig.getModel(),
+//                                question,
+//                                chatGptConfig.getMaxToken(),
+//                                chatGptConfig.getTemperature(),
+//                                chatGptConfig.getTopP()
+//                        )
+//                )
+//        );
+//    }
 
     public String requestParsing(QuestionRequestDto requestDto, int reqeust){
 
@@ -188,9 +194,6 @@ public class ChatGptService {
         List<HashMap<String,Object>> paragraphs = new ArrayList<>();
         String[] sentences = text.split("\\.\\s*"); // 마침표를 기준으로 문장 분리
         int paragraphSize = (int) Math.round((double) sentences.length / 5); // 5개의 문단으로 분할
-
-        System.out.println(sentences.length);
-        System.out.println(paragraphSize);
 
         int cnt = 0;
         for (int i = 0; i < sentences.length; i += paragraphSize) {
