@@ -371,9 +371,9 @@ public class BookController {
             log.info("check for temporary storage id: {}",id);
 
             if(tmpStorageCount == 0){
-                Map<String,Boolean> map = new HashMap<>();
-                map.put("isExist",false);
-                return ResponseEntity.ok(map);
+//                Map<String,Boolean> map = new HashMap<>();
+//                map.put("isExist",false);
+                return ResponseEntity.ok(null);
             }
             BookEntity bookEntity = bookService.getLatestBookByAuthor(id);
 

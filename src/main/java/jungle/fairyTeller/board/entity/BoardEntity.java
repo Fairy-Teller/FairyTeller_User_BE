@@ -41,6 +41,7 @@ public class BoardEntity {
     @CreationTimestamp
     private Date createdDatetime; // LocalDateTime
     private int viewCount;
+    private int heartCount;
 
     public void incrementViewCount() {
         viewCount++;
