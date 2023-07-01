@@ -467,7 +467,6 @@ public class BookController {
 
                     log.info(String.valueOf(pageDto.getPageNo()));
 
-
                 } catch (Exception e) {
                     throw new RuntimeException("Error converting image: " + e.getMessage(), e);
                 }
@@ -499,16 +498,7 @@ public class BookController {
             // 3. bookEntity를 db에 저장한다
             bookService.updateTitleStoryAudio(originalBook);
 
-            // 4. bookDTO를 반환한다
-            BookDTO savedBookDto = BookDTO.builder()
-                    .bookId(originalBook.getBookId())
-                    .author(originalBook.getAuthor())
-                    .title(originalBook.getTitle())
-                    .thumbnailUrl(originalBook.getThumbnailUrl())
-                    .pages(updatedPages)
-                    .build();
-
-            return ResponseEntity.ok().body(savedBookDto);
+            return ResponseEntity.ok().body(null);
         } catch(Exception e) {
             String error = e.getMessage();
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
