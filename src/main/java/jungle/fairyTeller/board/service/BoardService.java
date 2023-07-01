@@ -26,6 +26,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -146,6 +147,10 @@ public class BoardService {
 
         // Retrieve popular boards within the current week based on the length of the likes list and heartCount
         List<BoardEntity> popularBoards = boardRepository.findPopularBoardsByHeartCount(startDate, endDate, limit);
+
+        popularBoards = popularBoards.stream()
+                .filter(boardEntity -> likeRepository.countByBoard(boardEntity) > 0)
+                .collect(Collectors.toList());
 
         if (popularBoards.size() > limit) {
             popularBoards = popularBoards.subList(0, limit); // Trim the list to the specified limit
