@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -21,6 +22,7 @@ public class PageEntity {
     @EmbeddedId
     private PageId pageNo;
 
+    @JsonIgnore
     @MapsId("bookId")
     @ManyToOne
     @JoinColumn(name = "BOOK_ID")

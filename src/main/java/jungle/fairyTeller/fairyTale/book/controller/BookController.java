@@ -20,16 +20,23 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.Book;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.security.Principal;
+import java.security.Security;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,7 +79,24 @@ public class BookController {
 
         return ResponseEntity.ok().body(dto);
     }
+    @PostMapping("/getBookById/temp")
+    public ResponseEntity<?> getTempBookByBookId(@RequestBody BookDTO bookDTO,@AuthenticationPrincipal String userId) {
+        BookEntity bookEntity = bookService.getBookByBookId(bookDTO.getBookId());
 
+        List<PageDTO> pageDtos = getPageDTOS(bookEntity);
+
+        BookDTO dto = BookDTO.builder()
+                .bookId(bookEntity.getBookId())
+                .imageFinal(bookEntity.isImageFinal())
+                .author(bookEntity.getAuthor())
+                .title(bookEntity.getTitle())
+                .thumbnailUrl(bookEntity.getThumbnailUrl())
+                .theme(bookEntity.getTheme())
+                .pages(pageDtos)
+                .build();
+
+        return ResponseEntity.ok().body(dto);
+    }
     @GetMapping("/{bookId}")
     public ResponseEntity<ResponseDTO<BookDTO>> getBookById(@PathVariable Integer bookId,
                                                             @AuthenticationPrincipal String userId)
@@ -134,6 +158,7 @@ public class BookController {
         try {
             BookEntity bookEntity = BookDTO.toEntity(dto);
             bookEntity.setAuthor(Integer.parseInt(userId));
+            bookEntity.setLastModifiedDate(new Date());
 
             // 1. book db에 책을 저장해서 bookId를 채번한다
             BookEntity savedBook = bookService.createBookId(bookEntity);
@@ -266,7 +291,6 @@ public class BookController {
                 .build();
 
         return ResponseEntity.ok().body(savedBookDto);
-
     }
 
 
@@ -352,6 +376,62 @@ public class BookController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @GetMapping("/find/newestTemp")
+    public ResponseEntity<?> findNewestTemporaryStorage(@AuthenticationPrincipal String userId){
+
+        try {
+            //1.userId가 만든 books 중 edit_final = false이면서 가장 최신 날짜를 조회한다.
+            int id = Integer.parseInt(userId);
+            int tmpStorageCount = bookService.countByAuthorAndEditFinal(id);
+
+            log.info("check for temporary storage id: {}",id);
+
+            if(tmpStorageCount == 0){
+//                Map<String,Boolean> map = new HashMap<>();
+//                map.put("isExist",false);
+                return ResponseEntity.ok(null);
+            }
+            BookEntity bookEntity = bookService.getLatestBookByAuthor(id);
+
+            if(!bookEntity.isImageFinal()){
+                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
+                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
+
+                BookDTO dto = BookDTO.builder()
+                        .bookId(bookEntity.getBookId())
+                        .imageFinal(bookEntity.isImageFinal())
+                        .author(bookEntity.getAuthor())
+                        .title(bookEntity.getTitle())
+                        .thumbnailUrl(bookEntity.getThumbnailUrl())
+                        .theme(bookEntity.getTheme())
+                        .pages(pageDTOS)
+                        .build();
+                return ResponseEntity.ok().body(dto);
+            }else{
+                // 2-2. image_final true 인 경우 => editor 로 넘어감, mongoDB 조회 O
+                //현재 진행할 지 모르겠음!
+
+                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
+
+                BookDTO dto = BookDTO.builder()
+                        .bookId(bookEntity.getBookId())
+                        .imageFinal(bookEntity.isImageFinal())
+                        .author(bookEntity.getAuthor())
+                        .title(bookEntity.getTitle())
+                        .thumbnailUrl(bookEntity.getThumbnailUrl())
+                        .theme(bookEntity.getTheme())
+                        .pages(pageDTOS)
+                        .build();
+                return ResponseEntity.ok().body(dto);
+            }
+        }catch(Exception e){
+            String error = e.getMessage();
+            ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
 
     @PostMapping("/create/temp")
     public ResponseEntity<?> saveTempPosition(@AuthenticationPrincipal String userId, @RequestBody BookDTO bookDto) {
