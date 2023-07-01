@@ -4,17 +4,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @NoArgsConstructor
+@Setter
 public class ChatGptRequestDto implements Serializable {
 
     private String model;
-//    private String prompt;
     @JsonProperty("max_tokens")
     private Integer maxTokens;
     private Double temperature;
@@ -23,16 +25,6 @@ public class ChatGptRequestDto implements Serializable {
 
     private List<Map<String,String>> messages;
 
-//    @Builder
-//    public ChatGptRequestDto(String model, String prompt,
-//                             Integer maxTokens, Double temperature,
-//                             Double topP) {
-//        this.model = model;
-//        this.prompt = prompt;
-//        this.maxTokens = maxTokens;
-//        this.temperature = temperature;
-//        this.topP = topP;
-//    }
     @Builder
     public ChatGptRequestDto(String model,List<Map<String,String>> messages,
                              Integer maxTokens, Double temperature,
@@ -43,5 +35,4 @@ public class ChatGptRequestDto implements Serializable {
     this.temperature = temperature;
     this.topP = topP;
 }
-
 }

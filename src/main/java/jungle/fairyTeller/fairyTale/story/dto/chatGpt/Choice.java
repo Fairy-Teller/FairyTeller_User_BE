@@ -13,11 +13,21 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 public class Choice implements Serializable {
-    private String text;
 
-    @Builder
-    @JsonCreator
-    public Choice(@JsonProperty("text") String text) {
-        this.text = text;
+    private Message message;
+        public Choice(Message message) {
+        this.message = message;
     }
+
+//    private String text;
+//    private Integer index;
+//    @JsonProperty("finish_reason")
+//    private String finishReason;
+
+//    public Choice(String text, Integer index, String finishReason,Message message) {
+//        this.text = text;
+//        this.index = index;
+//        this.finishReason = finishReason;
+//        this.message = message;
+//    }
 }

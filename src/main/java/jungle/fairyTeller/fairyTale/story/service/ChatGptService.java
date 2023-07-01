@@ -1,9 +1,7 @@
 package jungle.fairyTeller.fairyTale.story.service;
 
 import com.google.cloud.texttospeech.v1.SynthesizeSpeechRequest;
-import jungle.fairyTeller.fairyTale.story.dto.chatGpt.ChatGptRequestDto;
-import jungle.fairyTeller.fairyTale.story.dto.chatGpt.ChatGptResponseDto;
-import jungle.fairyTeller.fairyTale.story.dto.chatGpt.QuestionRequestDto;
+import jungle.fairyTeller.fairyTale.story.dto.chatGpt.*;
 import jungle.fairyTeller.config.ChatGptConfig;
 import jungle.fairyTeller.fairyTale.story.dto.SummarizingRequestDto;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +26,6 @@ public class ChatGptService {
     }
     @Autowired
     public PaPagoTranslationService paPagoTranslationService;
-
     public HttpEntity<ChatGptRequestDto> buildHttpEntity(ChatGptRequestDto requestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(chatGptConfig.getMediaType()));
@@ -36,7 +33,21 @@ public class ChatGptService {
         return new HttpEntity<>(requestDto, headers);
     }
 
-    public ResponseEntity<String> getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
+//    public ChatGptResponseDto getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.set("Authorization", "Bearer " + chatGptConfig.getApiKey());
+//
+//            HttpEntity<ChatGptRequestDto> requestEntity = new HttpEntity<>(chatGptRequestDtoHttpEntity.getBody(), headers);
+//        ResponseEntity<ChatGptResponseDto> responseEntity = restTemplate.postForEntity(
+//                chatGptConfig.getUrl(),
+//                requestEntity,
+//                ChatGptResponseDto.class);
+//
+//        return responseEntity.getBody();
+//    }
+
+    //
+    public ResponseEntity<List<HashMap<String, Object>>> getResponse(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
 
         try{
             String source = "en";
@@ -54,19 +65,43 @@ public class ChatGptService {
                     ChatGptResponseDto.class).getBody();
 
             //이야기 번역(en->ko)
-          //  String tmp = clearString(responseDto.getText());
-           // String translateToText = paPagoTranslationService.translate(tmp,source,target);
-           // List<HashMap<String,Object>> divideParagraphs = divideIntoParagraphs(translateToText);
+            String tmp = clearString(responseDto.getText());
+            String translateToText = paPagoTranslationService.translate(tmp,source,target);
+            List<HashMap<String,Object>> divideParagraphs = divideIntoParagraphs(translateToText);
 
-           // responseDto.setText(translateToText);
-            System.out.println(responseDto.getText());
-            return new ResponseEntity<>(responseDto.getText(), HttpStatus.OK);
+            responseDto.setText(translateToText);
+            return new ResponseEntity<>(divideParagraphs, HttpStatus.OK);
         }catch (Exception
                 e){
             log.error("Failed to create story", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    public ResponseEntity<List<HashMap<String, Object>>> askQuestion(QuestionRequestDto requestDto,int request) {
+        String question = requestParsing(requestDto,request);
+        System.out.println(question);
+
+                List<Map<String,String>> messages = new ArrayList<>();
+        Map<String,String> map = new HashMap<>();
+
+        map.put("role","user");
+        map.put("content",question);
+        messages.add(map);
+        return this.getResponse(
+                this.buildHttpEntity(
+                        new ChatGptRequestDto(
+                                chatGptConfig.getModel(),
+                                messages,
+                                chatGptConfig.getMaxToken(),
+                                chatGptConfig.getTemperature(),
+                                chatGptConfig.getTopP()
+                        )
+                )
+        );
+    }
+
+
 
     public ChatGptResponseDto tmpGetResponseToSummarize(HttpEntity<ChatGptRequestDto> chatGptRequestDtoHttpEntity) {
 
@@ -82,28 +117,30 @@ public class ChatGptService {
 
         return responseDto;
     }
-    public ResponseEntity<String> askQuestion(QuestionRequestDto requestDto,int request) {
-        String question = requestParsing(requestDto,request);
-        System.out.println("시나리오 작성:"+question);
-
-        List<Map<String, String>> messageList = new ArrayList<>();
-        Map<String,String> map = new HashMap<>();
-        map.put("role","user");
-        map.put("content",question);
-        messageList.add(map);
-
-        return this.getResponse(
-                this.buildHttpEntity(
-                        new ChatGptRequestDto(
-                                chatGptConfig.getModel(),
-                                messageList,
-                                chatGptConfig.getMaxToken(),
-                                chatGptConfig.getTemperature(),
-                                chatGptConfig.getTopP()
-                        )
-                )
-        );
-    }
+//    public ResponseEntity<String> askQuestion(QuestionRequestDto requestDto,int request) {
+//        String question = requestParsing(requestDto,request);
+//        System.out.println("시나리오 작성:"+question);
+//
+//        List<Map<String,String>> messages = new ArrayList<>();
+//        Map<String,String> map = new HashMap<>();
+//        map.put("role","user");
+//        map.put("content",question);
+//        messages.add(map);
+//
+//        System.out.println(messages);
+//
+//        return this.getResponse(
+//                this.buildHttpEntity(
+//                        new ChatGptRequestDto(
+//                                chatGptConfig.getModel(),
+//                                messages,
+//                                chatGptConfig.getMaxToken(),
+//                                chatGptConfig.getTemperature(),
+//                                chatGptConfig.getTopP()
+//                        )
+//                )
+//        );
+//    }
 
 //    public ChatGptResponseDto askSummarize(SummarizingRequestDto requestDto){
 //        String question = requestParsingToSummarize(requestDto);
