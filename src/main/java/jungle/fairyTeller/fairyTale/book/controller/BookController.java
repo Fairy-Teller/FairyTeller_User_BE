@@ -79,7 +79,24 @@ public class BookController {
 
         return ResponseEntity.ok().body(dto);
     }
+    @PostMapping("/getBookById/temp")
+    public ResponseEntity<?> getTempBookByBookId(@RequestBody BookDTO bookDTO,@AuthenticationPrincipal String userId) {
+        BookEntity bookEntity = bookService.getBookByBookId(bookDTO.getBookId());
 
+        List<PageDTO> pageDtos = getPageDTOS(bookEntity);
+
+        BookDTO dto = BookDTO.builder()
+                .bookId(bookEntity.getBookId())
+                .imageFinal(bookEntity.isImageFinal())
+                .author(bookEntity.getAuthor())
+                .title(bookEntity.getTitle())
+                .thumbnailUrl(bookEntity.getThumbnailUrl())
+                .theme(bookEntity.getTheme())
+                .pages(pageDtos)
+                .build();
+
+        return ResponseEntity.ok().body(dto);
+    }
     @GetMapping("/{bookId}")
     public ResponseEntity<ResponseDTO<BookDTO>> getBookById(@PathVariable Integer bookId,
                                                             @AuthenticationPrincipal String userId)
@@ -155,7 +172,13 @@ public class BookController {
                 pageEntity.setBook(savedBook);
 
                 // 2-1. tts를 생성한다
-                saveTtsAudio(savedBook, pageDTO, pageEntity);
+                new Thread(() -> {
+                    // TTS 호출 메소드 실행
+                    saveTtsAudio(savedBook, pageDTO, pageEntity);
+                    pageService.createPage(pageEntity);
+                }).start();
+
+//                saveTtsAudio(savedBook, pageDTO, pageEntity);
 
                 pageService.createPage(pageEntity);
             }
@@ -371,41 +394,58 @@ public class BookController {
             log.info("check for temporary storage id: {}",id);
 
             if(tmpStorageCount == 0){
-//                Map<String,Boolean> map = new HashMap<>();
-//                map.put("isExist",false);
                 return ResponseEntity.ok(null);
             }
-            BookEntity bookEntity = bookService.getLatestBookByAuthor(id);
+            List<BookEntity> lists = bookService.getLatestBookByAuthor(id);
+            List<Map<String,String>> books = new ArrayList<>();
+            for(BookEntity book : lists){
+                Map<String,String> map  = new HashMap<>();
+                map.put("bookId", String.valueOf(book.getBookId()));
+                map.put("title",book.getTitle());
+                map.put("thumbnailUrl",book.getThumbnailUrl());
 
-            if(!bookEntity.isImageFinal()){
-                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
-                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
-
-                BookDTO dto = BookDTO.builder()
-                        .bookId(bookEntity.getBookId())
-                        .author(bookEntity.getAuthor())
-                        .title(bookEntity.getTitle())
-                        .thumbnailUrl(bookEntity.getThumbnailUrl())
-                        .theme(bookEntity.getTheme())
-                        .pages(pageDTOS)
-                        .build();
-                return ResponseEntity.ok().body(dto);
-            }else{
-                // 2-2. image_final true 인 경우 => editor 로 넘어감, mongoDB 조회 O
-                //현재 진행할 지 모르겠음!
-
-                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
-
-                BookDTO dto = BookDTO.builder()
-                        .bookId(bookEntity.getBookId())
-                        .author(bookEntity.getAuthor())
-                        .title(bookEntity.getTitle())
-                        .thumbnailUrl(bookEntity.getThumbnailUrl())
-                        .theme(bookEntity.getTheme())
-                        .pages(pageDTOS)
-                        .build();
-                return ResponseEntity.ok().body(dto);
+                books.add(map);
             }
+                return ResponseEntity.ok().body(books);
+
+//            if(!bookEntity.isImageFinal()){
+//                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
+//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
+//
+//                BookDTO dto = BookDTO.builder()
+//                        .bookId(bookEntity.getBookId())
+//                        .imageFinal(bookEntity.isImageFinal())
+//                        .author(bookEntity.getAuthor())
+//                        .title(bookEntity.getTitle())
+//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
+//                        .theme(bookEntity.getTheme())
+//                        .pages(pageDTOS)
+//                        .build();
+//                return ResponseEntity.ok().body(dto);
+//            }else{
+//                // 2-2. image_final true 인 경우 => editor 로 넘어감, mongoDB 조회 O
+//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
+//
+//                for(PageDTO pageDTO : pageDTOS){
+//                    //해당 bookId와 pageNo로 mongoDB에서 가져오기
+//                    PageId pageId = new PageId(bookEntity.getBookId(),pageDTO.getPageNo());
+//                    List<PageObjectEntity> objects = pageObjectService.findById(pageId);
+//                    for(PageObjectEntity object : objects){
+//                        pageDTO.setObjects(object.getObjects());
+//                    }
+//                }
+//
+//                BookDTO dto = BookDTO.builder()
+//                        .bookId(bookEntity.getBookId())
+//                        .imageFinal(bookEntity.isImageFinal())
+//                        .author(bookEntity.getAuthor())
+//                        .title(bookEntity.getTitle())
+//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
+//                        .theme(bookEntity.getTheme())
+//                        .pages(pageDTOS)
+//                        .build();
+//                return ResponseEntity.ok().body(dto);
+//            }
         }catch(Exception e){
             String error = e.getMessage();
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
@@ -419,13 +459,6 @@ public class BookController {
         try {
             // 기존에 저장된 bookEntity 찾기
             BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
-
-            // 0. 최종 제목 저장
-            originalBook.setTitle(bookDto.getTitle());
-
-            // 0-1. 제목을 토대로 표지를 생성해서 저장한다.
-            String thumbanailUrl = thumbnailService.createThumbnail(originalBook);
-            originalBook.setThumbnailUrl(thumbanailUrl);
 
             // 1. 각 페이지를 돌며 page 저장
             List<PageDTO> updatedPages = new ArrayList<>();
@@ -445,7 +478,6 @@ public class BookController {
 
                     log.info(String.valueOf(pageDto.getPageNo()));
 
-
                 } catch (Exception e) {
                     throw new RuntimeException("Error converting image: " + e.getMessage(), e);
                 }
@@ -458,18 +490,9 @@ public class BookController {
                 // save fabric.js objects to MongoDB
                 PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
 
-                List<Map<String, Object>> objectMaps = pageDto.getObjects().stream().map(objectDTO -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("type", objectDTO.getType());
-                    map.put("left", objectDTO.getLeft());
-                    map.put("top", objectDTO.getTop());
-                    map.put("width", objectDTO.getWidth());
-                    map.put("height", objectDTO.getHeight());
-                    map.put("radius", objectDTO.getRadius());
-                    return map;
-                }).collect(Collectors.toList());
+                List<Object> objects = new ArrayList<>(pageDto.getObjects());
 
-                PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objectMaps);
+                PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
                 pageObjectService.saveObjects(pageObjectEntity);
 
                 // 1-3. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
@@ -486,16 +509,7 @@ public class BookController {
             // 3. bookEntity를 db에 저장한다
             bookService.updateTitleStoryAudio(originalBook);
 
-            // 4. bookDTO를 반환한다
-            BookDTO savedBookDto = BookDTO.builder()
-                    .bookId(originalBook.getBookId())
-                    .author(originalBook.getAuthor())
-                    .title(originalBook.getTitle())
-                    .thumbnailUrl(originalBook.getThumbnailUrl())
-                    .pages(updatedPages)
-                    .build();
-
-            return ResponseEntity.ok().body(savedBookDto);
+            return ResponseEntity.ok().body(null);
         } catch(Exception e) {
             String error = e.getMessage();
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
@@ -506,33 +520,40 @@ public class BookController {
     @PostMapping("/find/temp")
     public ResponseEntity<?> findObjects(@RequestBody BookDTO bookDto, @AuthenticationPrincipal
                                                 String userId){
-        //bookid로 bookEntity 가져오기 -> 어떻게 조회할지 고민
-        int bookId = bookDto.getBookId();
-        BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
+        try{
+            int bookId = bookDto.getBookId();
+            BookEntity originalBook = bookService.retrieveByBookId(bookDto.getBookId());
 
-        List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+            List<PageDTO> pageDTOS = getPageDTOS(originalBook);
 
-        for(PageDTO pageDTO : pageDTOS){
-            //해당 bookId와 pageNo로 mongoDB에서 가져오기
-            PageId id = new PageId(bookId,pageDTO.getPageNo());
-            List<PageObjectEntity> objects = pageObjectService.findById(id);
+            for(PageDTO pageDTO : pageDTOS){
+                //해당 bookId와 pageNo로 mongoDB에서 가져오기
+                PageId id = new PageId(bookId,pageDTO.getPageNo());
+                List<PageObjectEntity> objects = pageObjectService.findById(id);
 
-            for(PageObjectEntity object : objects){
+                for(PageObjectEntity object : objects){
 
-                List<ObjectDTO> dto = ObjectMapper.convertToDTO(object);
+                    List<Object> dto = object.getObjects();
 
-                pageDTO.setObjects(dto);
+                    pageDTO.setObjects(dto);
+                }
             }
-        }
-        BookDTO dto = BookDTO.builder()
-                .bookId(originalBook.getBookId())
-                .author(originalBook.getAuthor())
-                .title(originalBook.getTitle())
-                .thumbnailUrl(originalBook.getThumbnailUrl())
-                .pages(pageDTOS)
-                .build();
+            BookDTO dto = BookDTO.builder()
+                    .bookId(originalBook.getBookId())
+                    .author(originalBook.getAuthor())
+                    .title(originalBook.getTitle())
+                    .theme(originalBook.getTheme())
+                    .pages(pageDTOS)
+                    .imageFinal(originalBook.isImageFinal())
+                    .build();
 
-        return ResponseEntity.ok().body(dto);
+            return ResponseEntity.ok().body(dto);
+
+        }catch (Exception e){
+            String error = e.getMessage();
+            ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
 
