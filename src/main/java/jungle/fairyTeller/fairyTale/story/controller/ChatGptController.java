@@ -33,16 +33,16 @@ public class ChatGptController {
         this.translationService = translationService;
     }
     @PostMapping("/question")
-    public ResponseEntity<List<HashMap<String, Object>>> sendQuestion
+    public ResponseEntity<String> sendQuestion
             (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
        return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto),1);
     }
 
-    @PostMapping("/question/recreate")
-    public ResponseEntity<List<HashMap<String, Object>>> recreateQuestion
-            (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
-        return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto),2);
-    }
+//    @PostMapping("/question/recreate")
+//    public ResponseEntity<List<HashMap<String, Object>>> recreateQuestion
+//            (@RequestBody QuestionRequestDto requestDto,@AuthenticationPrincipal String userId){
+//        return chatGptService.askQuestion(chatGptService.koreanEnglishMapping(requestDto),2);
+//    }
 
     @PostMapping("/textToImage")
     public ResponseEntity<Object> textToImage(@RequestBody SummarizingRequestDto requestDto,
