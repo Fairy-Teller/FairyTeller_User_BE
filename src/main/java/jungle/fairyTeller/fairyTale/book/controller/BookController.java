@@ -172,7 +172,13 @@ public class BookController {
                 pageEntity.setBook(savedBook);
 
                 // 2-1. tts를 생성한다
-                saveTtsAudio(savedBook, pageDTO, pageEntity);
+                new Thread(() -> {
+                    // TTS 호출 메소드 실행
+                    saveTtsAudio(savedBook, pageDTO, pageEntity);
+                    pageService.createPage(pageEntity);
+                }).start();
+
+//                saveTtsAudio(savedBook, pageDTO, pageEntity);
 
                 pageService.createPage(pageEntity);
             }
