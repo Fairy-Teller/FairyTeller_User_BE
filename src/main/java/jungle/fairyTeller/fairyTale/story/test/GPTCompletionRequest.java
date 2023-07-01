@@ -14,14 +14,14 @@ public class GPTCompletionRequest {
 
     private String prompt;
 
-    private Integer maxToken;
+    private Integer maxTokens;
 
 
     public static CompletionRequest of(GPTCompletionRequest restRequest) {
         return CompletionRequest.builder()
                 .model(restRequest.getModel())
                 .prompt(restRequest.getPrompt())
-                .maxTokens(restRequest.getMaxToken())
+                .maxTokens(restRequest.getMaxTokens())
                 .build();
     }
 }
