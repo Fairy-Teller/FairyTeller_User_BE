@@ -158,4 +158,15 @@ public class BoardService {
 
         return popularBoards;
     }
+
+    public List<BoardEntity> getAllBoardsOfTheWeek() {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        Date startDate = Date.from(startOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfWeek.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
+
+        return boardRepository.getBoardsBetweenDates(startDate, endDate);
+    }
 }
