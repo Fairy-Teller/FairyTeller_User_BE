@@ -19,6 +19,8 @@ public class BookDTO {
     private Integer theme;
     private List<PageDTO> pages;
 
+    private Boolean imageFinal;
+
     public BookDTO(final BookEntity entity) {
         this.bookId = entity.getBookId();
         this.author = entity.getAuthor();
