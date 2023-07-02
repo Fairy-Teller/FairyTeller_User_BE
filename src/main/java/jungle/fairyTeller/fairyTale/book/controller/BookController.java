@@ -85,6 +85,19 @@ public class BookController {
 
         List<PageDTO> pageDtos = getPageDTOS(bookEntity);
 
+        for(PageDTO pageDTO : pageDtos){
+            //해당 bookId와 pageNo로 mongoDB에서 가져오기
+            PageId id = new PageId(bookDTO.getBookId(),pageDTO.getPageNo());
+            List<PageObjectEntity> objects = pageObjectService.findById(id);
+
+            for(PageObjectEntity object : objects){
+
+                Object dto = object.getObjects();
+
+                pageDTO.setObjects(dto);
+            }
+        }
+
         BookDTO dto = BookDTO.builder()
                 .bookId(bookEntity.getBookId())
                 .imageFinal(bookEntity.isImageFinal())
