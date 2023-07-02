@@ -57,7 +57,7 @@ public class MyPageController {
         }
     }
 
-    @GetMapping("/mypage/me")
+    @GetMapping("/me")
     public boolean isSocialLogin(@AuthenticationPrincipal String userId) {
         Optional<UserEntity> user = userService.getUserById(Integer.parseInt(userId));
         return user.isPresent() && user.get().getAuthorize() != null;
