@@ -346,14 +346,11 @@ public class BookController {
             for (PageDTO pageDto : bookDto.getPages()) {
                 // 1-0. 해당하는 page를 찾아온다
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
-                System.out.println("for문 안 try 밖");
                 // 1-1. 이미지
                 try {
                     String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
                     // 1-1-0. 이미지를 바이트 배열로 변환
                     byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
-                    System.out.println("imageContent");
-
                     // 이미지 사이즈 1280x720로 조정
                     BufferedImage resizedImage = resizeImage(imageContent, 1280, 720);
                     byte[] resizedImageContent = convertImageToBytes(resizedImage);
@@ -364,8 +361,6 @@ public class BookController {
                     originalPage.setFinalImageUrl(imgUrl);
 
                     log.info(String.valueOf(pageDto.getPageNo()));
-
-                    System.out.println("imageContent");
                 } catch (Exception e) {
                     throw new RuntimeException("Error converting image: " + e.getMessage(), e);
                 }
