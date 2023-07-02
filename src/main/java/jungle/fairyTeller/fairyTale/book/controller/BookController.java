@@ -523,30 +523,13 @@ public class BookController {
                 // 1-0. 해당하는 page를 찾아온다
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
 
-                // save fabric.js objects to MongoDB
-
                 PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
 
-                Object objects = pageDto.getObjects();
-
-                PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
-                pageObjectService.saveObjects(pageObjectEntity);
-
-
-                // 1-3. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
-                PageDTO updatedPageDto = PageDTO.builder()
-                        .pageNo(pageDto.getPageNo())
-                        .fullStory(pageDto.getFullStory())
-                        .originalImageUrl(originalPage.getOriginalImageUrl())
-                        .finalImageUrl(originalPage.getFinalImageUrl())
-                        .audioUrl(originalPage.getAudioUrl())
-                        .build();
-                updatedPages.add(updatedPageDto);
+                //save  or update fabric.js objects to MongoDB
+                    Object objects = pageDto.getObjects();
+                    PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
+                    pageObjectService.saveObjects(pageObjectEntity);
             }
-
-            // 3. bookEntity를 db에 저장한다
-            bookService.updateTitleStoryAudio(originalBook);
-
             return ResponseEntity.ok().body(null);
         } catch(Exception e) {
             String error = e.getMessage();
