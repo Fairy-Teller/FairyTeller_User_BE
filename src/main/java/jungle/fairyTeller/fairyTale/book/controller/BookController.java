@@ -449,60 +449,6 @@ public class BookController {
                 books.add(map);
             }
             return ResponseEntity.ok().body(books);
-//            if(!bookEntity.isImageFinal()){
-//                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
-//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
-//
-//                BookDTO dto = BookDTO.builder()
-//                        .bookId(bookEntity.getBookId())
-//                        .imageFinal(bookEntity.isImageFinal())
-//                        .author(bookEntity.getAuthor())
-//                        .title(bookEntity.getTitle())
-//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
-//                        .theme(bookEntity.getTheme())
-//                        .pages(pageDTOS)
-//                        .build();
-//                return ResponseEntity.ok().body(dto);
-//            }
-
-//            if(!bookEntity.isImageFinal()){
-//                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
-//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
-//
-//                BookDTO dto = BookDTO.builder()
-//                        .bookId(bookEntity.getBookId())
-//                        .imageFinal(bookEntity.isImageFinal())
-//                        .author(bookEntity.getAuthor())
-//                        .title(bookEntity.getTitle())
-//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
-//                        .theme(bookEntity.getTheme())
-//                        .pages(pageDTOS)
-//                        .build();
-//                return ResponseEntity.ok().body(dto);
-//            }else{
-//                // 2-2. image_final true 인 경우 => editor 로 넘어감, mongoDB 조회 O
-//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
-//
-//                for(PageDTO pageDTO : pageDTOS){
-//                    //해당 bookId와 pageNo로 mongoDB에서 가져오기
-//                    PageId pageId = new PageId(bookEntity.getBookId(),pageDTO.getPageNo());
-//                    List<PageObjectEntity> objects = pageObjectService.findById(pageId);
-//                    for(PageObjectEntity object : objects){
-//                        pageDTO.setObjects(object.getObjects());
-//                    }
-//                }
-//
-//                BookDTO dto = BookDTO.builder()
-//                        .bookId(bookEntity.getBookId())
-//                        .imageFinal(bookEntity.isImageFinal())
-//                        .author(bookEntity.getAuthor())
-//                        .title(bookEntity.getTitle())
-//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
-//                        .theme(bookEntity.getTheme())
-//                        .pages(pageDTOS)
-//                        .build();
-//                return ResponseEntity.ok().body(dto);
-//            }
         }catch(Exception e){
             String error = e.getMessage();
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
@@ -535,6 +481,29 @@ public class BookController {
             String error = e.getMessage();
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
             return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/delete/temp")
+    public ResponseEntity<?> deleteTempBooks(@RequestBody BookDTO bookDTO, @AuthenticationPrincipal String userId){
+        try{
+            int bookId = bookDTO.getBookId();
+            BookEntity originalBook = bookService.retrieveByBookId(bookId);
+            //1. mongo DB delete
+            List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+            for(PageDTO pageDTO : pageDTOS){
+                PageId pageId = new PageId(bookId,pageDTO.getPageNo());
+                pageObjectService.deleteById(pageId);
+            }
+            //2-1, pages delete
+            pageService.deletePagesByBookId(bookId);
+            //2-2. mysql DB book delete
+            bookService.deleteById(bookId);
+
+            return ResponseEntity.ok().body(null);
+        }catch (Exception e){
+            String error = e.getMessage();
+            return ResponseEntity.badRequest().body(error);
         }
     }
 

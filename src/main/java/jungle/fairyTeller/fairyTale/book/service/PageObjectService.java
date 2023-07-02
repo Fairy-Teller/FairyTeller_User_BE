@@ -32,12 +32,8 @@ public class PageObjectService {
     public List<PageObjectEntity> findById(PageId id) {
         return pageObjectRepository.findById(id);
     }
-
-    public boolean checkEntityExists(PageId id) {
-        return pageObjectRepository.existsById(id);
+    public void deleteById(PageId id) {
+        pageObjectRepository.deleteById(id);
     }
 
-    public void updateEntity(PageObjectEntity pageObjectEntity) {
-            mongoTemplate.save(pageObjectEntity.getObjects()); // 업데이트 수행
-    }
 }

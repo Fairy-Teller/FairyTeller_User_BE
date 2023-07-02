@@ -101,4 +101,7 @@ public class BookService {
     public List<BookEntity> getLatestBookByAuthor(Integer authorId) {
         return bookRepository.findByAuthorAndEditFinalOrderByLastModifiedDateDesc(authorId, false);
     }
+    public void deleteById(Integer bookId){
+        bookRepository.deleteById(bookId);
+    }
 }
