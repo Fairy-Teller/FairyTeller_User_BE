@@ -397,16 +397,42 @@ public class BookController {
                 return ResponseEntity.ok(null);
             }
             List<BookEntity> lists = bookService.getLatestBookByAuthor(id);
-            List<Map<String,String>> books = new ArrayList<>();
-            for(BookEntity book : lists){
-                Map<String,String> map  = new HashMap<>();
+            List<Map<String, String>> books = new ArrayList<>();
+
+            for (BookEntity book : lists) {
+                Map<String, String> map = new HashMap<>();
+                List<PageDTO> pageDTOS = getPageDTOS(book);
+
+                // 페이지 내용을 저장할 리스트
+                List<String> pageContents = new ArrayList<>();
+
+                for (PageDTO page : pageDTOS) {
+                    pageContents.add(page.getFullStory());
+                }
+
+                map.put("pages", pageContents.toString());
                 map.put("bookId", String.valueOf(book.getBookId()));
-                map.put("title",book.getTitle());
-                map.put("thumbnailUrl",book.getThumbnailUrl());
+                map.put("lastModifiedDate", book.getLastModifiedDate() != null ? book.getLastModifiedDate().toString() : "null");
 
                 books.add(map);
+                System.out.println(map);
             }
-                return ResponseEntity.ok().body(books);
+            return ResponseEntity.ok().body(books);
+//            if(!bookEntity.isImageFinal()){
+//                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
+//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
+//
+//                BookDTO dto = BookDTO.builder()
+//                        .bookId(bookEntity.getBookId())
+//                        .imageFinal(bookEntity.isImageFinal())
+//                        .author(bookEntity.getAuthor())
+//                        .title(bookEntity.getTitle())
+//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
+//                        .theme(bookEntity.getTheme())
+//                        .pages(pageDTOS)
+//                        .build();
+//                return ResponseEntity.ok().body(dto);
+//            }
 
 //            if(!bookEntity.isImageFinal()){
 //                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
