@@ -17,5 +17,5 @@ public class PageObjectEntity implements Serializable {
     @Id
     private PageId id;
 
-    private List<Object> objects;
+    private Object objects;
 }
