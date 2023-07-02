@@ -30,4 +30,5 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     @Query("SELECT COUNT(b) FROM BookEntity b WHERE b.author = :authorId AND b.editFinal = false ORDER BY b.lastModifiedDate DESC")
     int countByAuthorAndEditFinal(@Param("authorId")Integer authorId);
     List<BookEntity> findByAuthorAndEditFinalOrderByLastModifiedDateDesc(Integer authorId, boolean editFinal);
+
 }

@@ -71,6 +71,14 @@ public class BookService {
         return bookRepository.findByBookId(bookId);
     }
 
+    public List<BookEntity> retrieveTemp(final Integer userId) {
+        return bookRepository.findByAuthorAndEditFinalOrderByLastModifiedDateDesc(userId, false);
+    }
+
+    public List<BookEntity> retrieveFinal(final Integer userId) {
+        return bookRepository.findByAuthorAndEditFinalOrderByLastModifiedDateDesc(userId, true);
+    }
+
     private void validate(final BookEntity entity) {
         if(entity == null) {
             log.warn("Entity cannot be null");

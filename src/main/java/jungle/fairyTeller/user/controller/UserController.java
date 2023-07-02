@@ -65,11 +65,7 @@ public class UserController {
         return userService.isNicknameAvailable(nickname);
     }
 
-    @GetMapping("/mypage/me")
-    public boolean isSocialLogin(@AuthenticationPrincipal String userId) {
-        Optional<UserEntity> user = userService.getUserById(Integer.parseInt(userId));
-        return user.isPresent() && user.get().getAuthorize() != null;
-    }
+
 
 
     @PostMapping("/auth/signin")

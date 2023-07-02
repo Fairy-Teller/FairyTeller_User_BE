@@ -124,9 +124,9 @@ public class BookController {
         }
     }
 
-    @GetMapping("/mine")
-    public ResponseEntity<?> getBooksByUserId(@AuthenticationPrincipal String userId) {
-        List<BookEntity> books = bookService.retrieve(Integer.parseInt(userId));
+    @GetMapping("/mine/temp")
+    public ResponseEntity<?> getTempBooksByUserId(@AuthenticationPrincipal String userId) {
+        List<BookEntity> books = bookService.retrieveTemp(Integer.parseInt(userId));
 
         List<BookDTO> dtos = books.stream().map(BookDTO::new).collect(Collectors.toList());
 
@@ -134,6 +134,19 @@ public class BookController {
 
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/mine/final")
+    public ResponseEntity<?> getFinalBooksByUserId(@AuthenticationPrincipal String userId) {
+        List<BookEntity> books = bookService.retrieveFinal(Integer.parseInt(userId));
+
+        List<BookDTO> dtos = books.stream().map(BookDTO::new).collect(Collectors.toList());
+
+        ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().data(dtos).build();
+
+        return ResponseEntity.ok().body(response);
+    }
+
+
 
     @GetMapping("/my-newest")
     public ResponseEntity<?> getNewestBookByUserId(@AuthenticationPrincipal String userId) {

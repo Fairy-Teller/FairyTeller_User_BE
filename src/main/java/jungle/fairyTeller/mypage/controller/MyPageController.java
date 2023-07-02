@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -58,6 +55,12 @@ public class MyPageController {
             ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
+    }
+
+    @GetMapping("/mypage/me")
+    public boolean isSocialLogin(@AuthenticationPrincipal String userId) {
+        Optional<UserEntity> user = userService.getUserById(Integer.parseInt(userId));
+        return user.isPresent() && user.get().getAuthorize() != null;
     }
 
 }
