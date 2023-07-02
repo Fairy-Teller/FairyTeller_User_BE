@@ -488,18 +488,23 @@ public class BookController {
     public ResponseEntity<?> deleteTempBooks(@RequestBody BookDTO bookDTO, @AuthenticationPrincipal String userId){
         try{
             int bookId = bookDTO.getBookId();
-            BookEntity originalBook = bookService.retrieveByBookId(bookId);
-            //1. mongo DB delete
-            List<PageDTO> pageDTOS = getPageDTOS(originalBook);
-            for(PageDTO pageDTO : pageDTOS){
-                PageId pageId = new PageId(bookId,pageDTO.getPageNo());
-                pageObjectService.deleteById(pageId);
-            }
-            //2-1, pages delete
-            pageService.deletePagesByBookId(bookId);
-            //2-2. mysql DB book delete
-            bookService.deleteById(bookId);
+            boolean flag = bookService.checkBookExists(bookId);
+            if(flag){
+                BookEntity originalBook = bookService.retrieveByBookId(bookId);
+                //1. mongo DB delete
+                List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+                for(PageDTO pageDTO : pageDTOS){
+                    PageId pageId = new PageId(bookId,pageDTO.getPageNo());
+                    pageObjectService.deleteById(pageId);
+                }
+                //2-1, pages delete
+                pageService.deletePagesByBookId(bookId);
+                //2-2. mysql DB book delete
+                bookService.deleteById(bookId);
 
+                log.info("임시 저장된 book:{}삭제",bookId);
+            }
+            log.info("bookId :{},not exists",bookId);
             return ResponseEntity.ok().body(null);
         }catch (Exception e){
             String error = e.getMessage();
