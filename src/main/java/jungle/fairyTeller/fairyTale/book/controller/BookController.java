@@ -497,32 +497,11 @@ public class BookController {
                 // 1-0. 해당하는 page를 찾아온다
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
 
-                // 1-1. 이미지
-//                try {
-//                    String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
-//                    // 1-1-0. 이미지를 바이트 배열로 변환
-//                    byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
-//                    // 1-1-1. 이미지를 저장경로에 저장한다.
-//                    String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
-//                    // 1-1-2. imgUrl 변수에 경로를 담는다
-//                    originalPage.setFinalImageUrl(imgUrl);
-//
-//                    log.info(String.valueOf(pageDto.getPageNo()));
-//
-//                } catch (Exception e) {
-//                    throw new RuntimeException("Error converting image: " + e.getMessage(), e);
-//                }
-//
-//                saveFinalBookImage(originalBook, pageDto, originalPage);
-//
-//                // 1-2. 이미지랑 오디오를 pages에 저장한다.
-//                pageService.updatePage(originalPage);
-
                 // save fabric.js objects to MongoDB
                 if(pageDto.getObjects() != null){
                     PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
 
-                    List<Object> objects = new ArrayList<>(pageDto.getObjects());
+                    Object objects = pageDto.getObjects();
 
                     PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
                     pageObjectService.saveObjects(pageObjectEntity);
@@ -566,7 +545,7 @@ public class BookController {
 
                 for(PageObjectEntity object : objects){
 
-                    List<Object> dto = object.getObjects();
+                    Object dto = object.getObjects();
 
                     pageDTO.setObjects(dto);
                 }
