@@ -55,11 +55,11 @@ public class BoardController {
             @RequestParam(required = false, defaultValue = "") String title
     ) {
         try {
-            if(sort.equals("likes")) {
+            if (sort.equals("likes")) {
                 sort = "heartCount";
             }
             Sort sortObj = Sort.by(Sort.Direction.fromString(direction), sort);
-            if(sort.equals("heartCount")) {
+            if (sort.equals("heartCount")) {
                 sortObj = sortObj.and(Sort.by(Sort.Direction.DESC, "createdDatetime"));
             }
             Pageable boardPageable = PageRequest.of(page, size, sortObj);
@@ -76,7 +76,18 @@ public class BoardController {
                 searchedBoardPage = boardService.getAllBoards(boardPageable);
             }
 
-            List<BoardContentDto> boardDtos = searchedBoardPage.getContent().stream()
+            if (searchedBoardPage == null || searchedBoardPage.isEmpty()) {
+                // 데이터가 없는 경우에 대한 처리 로직 추가
+                return ResponseEntity.notFound().build();
+            }
+
+            List<BoardEntity> boardEntities = searchedBoardPage.getContent();
+            if (boardEntities == null) {
+                // 데이터를 가져오지 못한 경우에 대한 처리 로직 추가
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+
+            List<BoardContentDto> boardDtos = boardEntities.stream()
                     .map(boardEntity -> BoardContentDto.builder()
                             .boardId(boardEntity.getBoardId())
                             .bookId(boardEntity.getBook().getBookId())
@@ -121,6 +132,7 @@ public class BoardController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();
+            // 예외에 대한 적절한 응답 반환 로직 추가
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
