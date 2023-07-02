@@ -8,13 +8,15 @@ import jungle.fairyTeller.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Slf4j
 @RestController
-@RequestMapping("/auth")
 public class UserController {
 
     @Autowired
@@ -25,7 +27,7 @@ public class UserController {
 
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    @PostMapping("/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
         try {
             if(userDTO == null || userDTO.getPassword() == null) {
@@ -53,17 +55,24 @@ public class UserController {
         }
     }
 
-    @GetMapping("/signup/check-userid")
+    @GetMapping("/auth/signup/check-userid")
     public boolean checkUserIdAvailability(@RequestParam(value = "userid") String userid) {
         return userService.isUserIdAvailable(userid);
     }
 
-    @GetMapping("/signup/check-nickname")
+    @GetMapping("/auth/signup/check-nickname")
     public boolean checkNicknameAvailability(@RequestParam(value = "nickname") String nickname) {
         return userService.isNicknameAvailable(nickname);
     }
 
-    @PostMapping("/signin")
+    @GetMapping("/mypage/me")
+    public boolean isSocialLogin(@AuthenticationPrincipal String userId) {
+        Optional<UserEntity> user = userService.getUserById(Integer.parseInt(userId));
+        return user.isPresent() && user.get().getAuthorize() != null;
+    }
+
+
+    @PostMapping("/auth/signin")
     public ResponseEntity<?> authenticate(@RequestBody UserDTO userDTO) {
         UserEntity user = userService.getByCredentials(
                 userDTO.getUserid(), userDTO.getPassword(), passwordEncoder
