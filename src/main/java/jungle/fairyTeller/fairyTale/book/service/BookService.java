@@ -104,4 +104,8 @@ public class BookService {
     public void deleteById(Integer bookId){
         bookRepository.deleteById(bookId);
     }
+    public boolean checkBookExists(Integer bookId) {
+        return bookRepository.existsByBookId(bookId);
+    }
+
 }

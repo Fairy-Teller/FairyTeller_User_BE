@@ -32,4 +32,5 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     int countByAuthorAndEditFinal(@Param("authorId")Integer authorId);
     List<BookEntity> findByAuthorAndEditFinalOrderByLastModifiedDateDesc(Integer authorId, boolean editFinal);
     void deleteById(@NotNull Integer bookId);
+    boolean existsByBookId(Integer bookId);
 }
