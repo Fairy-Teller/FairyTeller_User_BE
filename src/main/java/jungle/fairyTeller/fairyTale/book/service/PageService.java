@@ -53,4 +53,7 @@ public class PageService {
             throw new RuntimeException("Entity cannot be null");
         }
     }
+    public void deletePagesByBookId(Integer bookId) {
+        pageRepository.deleteByBookId(bookId);
+    }
 }
