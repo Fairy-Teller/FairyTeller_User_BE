@@ -313,7 +313,7 @@ public class BoardController {
         } else {
             boardService.increaseViewCount(id);
             Cookie newCookie = new Cookie("viewedBoards","[" + id + "]");
-            newCookie.setDomain(".fairy-teller.shop");
+            newCookie.setDomain("fairy-teller.shop");
             newCookie.setSecure(true);
             newCookie.setHttpOnly(true);
             newCookie.setPath("/");
