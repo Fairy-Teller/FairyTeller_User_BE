@@ -11,11 +11,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+
 @Slf4j
 @Service
 public class ChatGptService {
@@ -85,11 +82,19 @@ public class ChatGptService {
     public ResponseEntity<List<HashMap<String, Object>>> askQuestion(QuestionRequestDto requestDto,int request) {
         String question = requestParsing(requestDto,request);
         System.out.println("시나리오 작성:"+question);
+
+        List<Map<String,String>> messages = new ArrayList<>();
+        Map<String,String> map = new HashMap<>();
+
+        map.put("role","user");
+        map.put("content",question);
+        messages.add(map);
+
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
                                 chatGptConfig.getModel(),
-                                question,
+                                messages,
                                 chatGptConfig.getMaxToken(),
                                 chatGptConfig.getTemperature(),
                                 chatGptConfig.getTopP()
@@ -102,11 +107,18 @@ public class ChatGptService {
         String question = requestParsingToSummarize(requestDto);
         //System.out.println("한 줄 요약:"+requestDto.getText());
         //String question = "'"+requestDto.getText()+"'"+"Please summarize a line in English";
+        List<Map<String,String>> messages = new ArrayList<>();
+        Map<String,String> map = new HashMap<>();
+
+        map.put("role","user");
+        map.put("content",question);
+        messages.add(map);
+
         return this.tmpGetResponseToSummarize(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
                                 chatGptConfig.getModel(),
-                                question,
+                                messages,
                                 chatGptConfig.getMaxToken(),
                                 chatGptConfig.getTemperature(),
                                 chatGptConfig.getTopP()
@@ -144,14 +156,14 @@ public class ChatGptService {
             requestPhrase =  "Please make a English fairy tale for 2-5 years old with '"
                     +word1+"',"+"'"+word2+"',"
                     +"'"+word3+"',"+"'"+word4+"'"
-                    +",'"+word5+"'" +"in total 8 sentences";
+                    +",'"+word5+"'" +"in total 10 sentences";
 
         }else{
             requestPhrase = "Please make a English another fairy tale for 2-5 years old with '"
                     +word1+"',"+"'"+word2+"',"
                     +"'"+word3+"',"+"'"+word4+"'"
                     +",'"+word5+"'"
-                    + "in total 8 sentences";
+                    + "in total 10 sentences";
         }
 
         return requestPhrase;
@@ -187,31 +199,16 @@ public class ChatGptService {
     public List<HashMap<String,Object>> divideIntoParagraphs(String text) {
         List<HashMap<String,Object>> paragraphs = new ArrayList<>();
         String[] sentences = text.split("\\.\\s*"); // 마침표를 기준으로 문장 분리
-        int paragraphSize = (int) Math.round((double) sentences.length / 5); // 5개의 문단으로 분할
+        int paragraphSize = (int) Math.ceil((double) sentences.length / 5); // 5개의 문단으로 분할
 
-        System.out.println(sentences.length);
-        System.out.println(paragraphSize);
-
-        int cnt = 0;
         for (int i = 0; i < sentences.length; i += paragraphSize) {
-            System.out.println("cnt:"+cnt);
-            cnt++;
-            int endIndex = 0;
-            if(cnt == 5){
-                endIndex = sentences.length;
-            }
-            else{
-                endIndex = Math.min(i + paragraphSize, sentences.length);
-            }
+            int endIndex = Math.min(i + paragraphSize, sentences.length);
             String[] paragraphSentences = Arrays.copyOfRange(sentences, i, endIndex);
 
             HashMap<String,Object> divideParagraph = new HashMap<>();
             String paragraph = String.join(".\n", paragraphSentences) + "."; // 문장을 다시 문단으로 결합
             divideParagraph.put("paragraph",paragraph);
             paragraphs.add(divideParagraph);
-        }
-        if(paragraphs.size() == 6){
-            paragraphs.remove(5);
         }
         return paragraphs;
     }
