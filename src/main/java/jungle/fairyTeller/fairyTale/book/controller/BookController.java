@@ -346,12 +346,13 @@ public class BookController {
             for (PageDTO pageDto : bookDto.getPages()) {
                 // 1-0. 해당하는 page를 찾아온다
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
-
+                System.out.println("for문 안 try 밖");
                 // 1-1. 이미지
                 try {
                     String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
                     // 1-1-0. 이미지를 바이트 배열로 변환
                     byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
+                    System.out.println("imageContent");
 
                     // 이미지 사이즈 1280x720로 조정
                     BufferedImage resizedImage = resizeImage(imageContent, 1280, 720);
@@ -364,7 +365,7 @@ public class BookController {
 
                     log.info(String.valueOf(pageDto.getPageNo()));
 
-
+                    System.out.println("imageContent");
                 } catch (Exception e) {
                     throw new RuntimeException("Error converting image: " + e.getMessage(), e);
                 }
@@ -392,7 +393,14 @@ public class BookController {
             // 3. bookEntity를 db에 저장한다
             bookService.updateTitleStoryAudio(originalBook);
 
-            // 4. bookDTO를 반환한다
+            // 4.mongoDB에 저장된 ojbect를 삭제한다.
+            List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+            for(PageDTO pageDTO : pageDTOS){
+                PageId pageId = new PageId(originalBook.getBookId(),pageDTO.getPageNo());
+                pageObjectService.deleteById(pageId);
+            }
+
+            // 5. bookDTO를 반환한다
             BookDTO savedBookDto = BookDTO.builder()
                     .bookId(originalBook.getBookId())
                     .author(originalBook.getAuthor())
