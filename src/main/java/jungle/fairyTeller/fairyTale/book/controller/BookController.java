@@ -416,11 +416,17 @@ public class BookController {
                 Map<String, String> map = new HashMap<>();
                 List<PageDTO> pageDTOS = getPageDTOS(book);
 
-                // 페이지 내용을 저장할 리스트
-                List<String> pageContents = new ArrayList<>();
+                // 페이지 내용을 저장할 문자열
+                StringBuilder pageContents = new StringBuilder();
 
-                for (PageDTO page : pageDTOS) {
-                    pageContents.add(page.getFullStory());
+                for (int i = 0; i < pageDTOS.size(); i++) {
+                    PageDTO page = pageDTOS.get(i);
+                    pageContents.append(page.getFullStory());
+
+                    // 마지막 페이지가 아닌 경우에는 쉼표로 구분하여 추가합니다.
+                    if (i < pageDTOS.size() - 1) {
+                        pageContents.append(", ");
+                    }
                 }
 
                 map.put("pages", pageContents.toString());
@@ -428,7 +434,6 @@ public class BookController {
                 map.put("lastModifiedDate", book.getLastModifiedDate() != null ? book.getLastModifiedDate().toString() : "null");
 
                 books.add(map);
-                System.out.println(map);
             }
             return ResponseEntity.ok().body(books);
 //            if(!bookEntity.isImageFinal()){
@@ -506,33 +511,35 @@ public class BookController {
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
 
                 // 1-1. 이미지
-                try {
-                    String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
-                    // 1-1-0. 이미지를 바이트 배열로 변환
-                    byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
-                    // 1-1-1. 이미지를 저장경로에 저장한다.
-                    String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
-                    // 1-1-2. imgUrl 변수에 경로를 담는다
-                    originalPage.setFinalImageUrl(imgUrl);
-
-                    log.info(String.valueOf(pageDto.getPageNo()));
-
-                } catch (Exception e) {
-                    throw new RuntimeException("Error converting image: " + e.getMessage(), e);
-                }
-
-                saveFinalBookImage(originalBook, pageDto, originalPage);
-
-                // 1-2. 이미지랑 오디오를 pages에 저장한다.
-                pageService.updatePage(originalPage);
+//                try {
+//                    String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
+//                    // 1-1-0. 이미지를 바이트 배열로 변환
+//                    byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
+//                    // 1-1-1. 이미지를 저장경로에 저장한다.
+//                    String imgUrl = fileService.uploadFile(imageContent, fileName + ".png");
+//                    // 1-1-2. imgUrl 변수에 경로를 담는다
+//                    originalPage.setFinalImageUrl(imgUrl);
+//
+//                    log.info(String.valueOf(pageDto.getPageNo()));
+//
+//                } catch (Exception e) {
+//                    throw new RuntimeException("Error converting image: " + e.getMessage(), e);
+//                }
+//
+//                saveFinalBookImage(originalBook, pageDto, originalPage);
+//
+//                // 1-2. 이미지랑 오디오를 pages에 저장한다.
+//                pageService.updatePage(originalPage);
 
                 // save fabric.js objects to MongoDB
-                PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
+                if(pageDto.getObjects() != null){
+                    PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
 
-                List<Object> objects = new ArrayList<>(pageDto.getObjects());
+                    List<Object> objects = new ArrayList<>(pageDto.getObjects());
 
-                PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
-                pageObjectService.saveObjects(pageObjectEntity);
+                    PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
+                    pageObjectService.saveObjects(pageObjectEntity);
+                }
 
                 // 1-3. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
                 PageDTO updatedPageDto = PageDTO.builder()
