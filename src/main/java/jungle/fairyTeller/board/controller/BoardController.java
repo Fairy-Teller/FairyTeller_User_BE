@@ -220,6 +220,7 @@ public class BoardController {
         }
     }
 
+    @CrossOrigin(origins = "https://www.fairy-teller.shop")
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardDto>> getBoardById(
             @AuthenticationPrincipal String userId,
@@ -312,8 +313,12 @@ public class BoardController {
         } else {
             boardService.increaseViewCount(id);
             Cookie newCookie = new Cookie("viewedBoards","[" + id + "]");
+            newCookie.setDomain(".fairy-teller.shop");
+            newCookie.setSecure(true);
+            newCookie.setHttpOnly(true);
             newCookie.setPath("/");
             newCookie.setMaxAge(60 * 60 * 24);
+            newCookie.setComment("SameSite=Strict");
             response.addCookie(newCookie);
         }
     }
