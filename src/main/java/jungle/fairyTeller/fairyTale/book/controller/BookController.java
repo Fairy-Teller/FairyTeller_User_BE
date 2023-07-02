@@ -524,34 +524,12 @@ public class BookController {
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
 
                 PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
-                //2. mongoDB에서 bookid와 page? 를 찾는다
-                boolean flag = pageObjectService.checkEntityExists(pageId);
-                if(flag){
-                    //2-1. 있으면 update => 수정
-                    Object objects = pageDto.getObjects();
-                    PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
-                    pageObjectService.updateEntity(pageObjectEntity);
-                }else{
-                    //2-2. 없으면 save abric.js objects to MongoDB
+
+                //save  or update fabric.js objects to MongoDB
                     Object objects = pageDto.getObjects();
                     PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
                     pageObjectService.saveObjects(pageObjectEntity);
-                }
-
-                // 1-3. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
-                PageDTO updatedPageDto = PageDTO.builder()
-                        .pageNo(pageDto.getPageNo())
-                        .fullStory(pageDto.getFullStory())
-                        .originalImageUrl(originalPage.getOriginalImageUrl())
-                        .finalImageUrl(originalPage.getFinalImageUrl())
-                        .audioUrl(originalPage.getAudioUrl())
-                        .build();
-                updatedPages.add(updatedPageDto);
             }
-
-            // 3. bookEntity를 db에 저장한다
-            bookService.updateTitleStoryAudio(originalBook);
-
             return ResponseEntity.ok().body(null);
         } catch(Exception e) {
             String error = e.getMessage();

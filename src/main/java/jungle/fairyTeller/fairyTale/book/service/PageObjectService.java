@@ -38,7 +38,6 @@ public class PageObjectService {
     }
 
     public void updateEntity(PageObjectEntity pageObjectEntity) {
-            pageObjectEntity.setId(pageObjectEntity.getId()); // 업데이트할 엔티티에 ID 설정
             mongoTemplate.save(pageObjectEntity.getObjects()); // 업데이트 수행
     }
 }
