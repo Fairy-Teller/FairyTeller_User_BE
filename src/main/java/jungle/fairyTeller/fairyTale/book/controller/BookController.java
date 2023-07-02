@@ -403,11 +403,17 @@ public class BookController {
                 Map<String, String> map = new HashMap<>();
                 List<PageDTO> pageDTOS = getPageDTOS(book);
 
-                // 페이지 내용을 저장할 리스트
-                List<String> pageContents = new ArrayList<>();
+                // 페이지 내용을 저장할 문자열
+                StringBuilder pageContents = new StringBuilder();
 
-                for (PageDTO page : pageDTOS) {
-                    pageContents.add(page.getFullStory());
+                for (int i = 0; i < pageDTOS.size(); i++) {
+                    PageDTO page = pageDTOS.get(i);
+                    pageContents.append(page.getFullStory());
+
+                    // 마지막 페이지가 아닌 경우에는 쉼표로 구분하여 추가합니다.
+                    if (i < pageDTOS.size() - 1) {
+                        pageContents.append(", ");
+                    }
                 }
 
                 map.put("pages", pageContents.toString());
@@ -415,7 +421,6 @@ public class BookController {
                 map.put("lastModifiedDate", book.getLastModifiedDate() != null ? book.getLastModifiedDate().toString() : "null");
 
                 books.add(map);
-                System.out.println(map);
             }
             return ResponseEntity.ok().body(books);
 //            if(!bookEntity.isImageFinal()){
