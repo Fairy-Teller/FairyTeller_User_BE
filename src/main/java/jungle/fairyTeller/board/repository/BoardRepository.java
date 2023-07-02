@@ -18,4 +18,6 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
     Page<BoardEntity> findByTitleContainingIgnoreCase(String title, Pageable pageable);
     @Query("SELECT b FROM BoardEntity b WHERE b.createdDatetime BETWEEN ?1 AND ?2 ORDER BY b.heartCount DESC, b.createdDatetime DESC")
     List<BoardEntity> findPopularBoardsByHeartCount(Date startDate, Date endDate, int limit);
+    @Query("SELECT b FROM BoardEntity b WHERE b.createdDatetime BETWEEN :startDate AND :endDate")
+    List<BoardEntity> getBoardsBetweenDates(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 }
