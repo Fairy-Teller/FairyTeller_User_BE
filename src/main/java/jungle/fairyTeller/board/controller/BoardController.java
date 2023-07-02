@@ -1,13 +1,11 @@
 package jungle.fairyTeller.board.controller;
+import jungle.fairyTeller.board.dto.*;
 import jungle.fairyTeller.board.service.LikeService;
 import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
 import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jungle.fairyTeller.board.dto.BoardDto;
-import jungle.fairyTeller.board.dto.CommentDto;
-import jungle.fairyTeller.board.dto.ResponseDto;
 import jungle.fairyTeller.board.entity.BoardEntity;
 import jungle.fairyTeller.board.entity.CommentEntity;
 import jungle.fairyTeller.board.service.BoardService;
@@ -20,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
-import jungle.fairyTeller.board.dto.BoardMainDto;
 
 @Slf4j
 @RestController
@@ -46,22 +44,26 @@ public class BoardController {
     private CommentService commentService;
 
     @GetMapping
-    public ResponseEntity<BoardMainDto<BoardDto>> getAllBoards(
+    public ResponseEntity<BoardMainDto<BoardContentDto>> getAllBoards(
             @AuthenticationPrincipal String userId,
-            @Qualifier("boardPageable") @PageableDefault(size = 8, sort = "boardId", direction = Sort.Direction.DESC) Pageable boardPageable,
-            @Qualifier("commentPageable") @PageableDefault(size = 10, sort = "commentId", direction = Sort.Direction.ASC) Pageable commentPageable,
+            @RequestParam(required = false, defaultValue = "boardId") String sort,
+            @RequestParam(required = false, defaultValue = "DESC") String direction,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "8") int size,
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "") String author,
-            @RequestParam(required = false, defaultValue = "") String title,
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "10") int size
+            @RequestParam(required = false, defaultValue = "") String title
     ) {
         try {
-             // Update pageable objects with dynamic page and size values
-            boardPageable = PageRequest.of(page, size, boardPageable.getSort());
-            final Pageable finalCommentPageable = PageRequest.of(page, size, commentPageable.getSort());
+            if(sort.equals("likes")) {
+                sort = "heartCount";
+            }
+            Sort sortObj = Sort.by(Sort.Direction.fromString(direction), sort);
+            if(sort.equals("heartCount")) {
+                sortObj = sortObj.and(Sort.by(Sort.Direction.DESC, "createdDatetime"));
+            }
+            Pageable boardPageable = PageRequest.of(page, size, sortObj);
 
-            // Search boards based on keyword, author, and title
             Page<BoardEntity> searchedBoardPage;
 
             if (!keyword.isEmpty()) {
@@ -71,78 +73,58 @@ public class BoardController {
             } else if (!title.isEmpty()) {
                 searchedBoardPage = boardService.searchBoardsByTitle(title, boardPageable);
             } else {
-                // If no search parameters are provided, retrieve all boards
                 searchedBoardPage = boardService.getAllBoards(boardPageable);
             }
 
-            // Convert board entities to DTOs
-            List<BoardDto> boardDtos = searchedBoardPage.getContent().stream()
-                    .map(boardEntity -> {
-                        // Retrieve pages for each board
-                        List<PageDTO> pageDTOs = PageDTO.fromEntityList(boardEntity.getBook().getPages());
-
-                        // Retrieve comments for each board with pagination
-                        Page<CommentEntity> commentPage = commentService.getCommentsByBoardIdPaged(boardEntity.getBoardId(), finalCommentPageable);
-
-                        List<CommentDto> commentDtos = CommentDto.fromEntityList(commentPage.getContent());
-
-                        int likeCount = likeService.getLikeCount(boardEntity.getBoardId());
-                        boolean liked = likeService.isBoardLiked(boardEntity.getBoardId(), Integer.parseInt(userId));
-
-                        // Convert board entity to DTO
-                        return BoardDto.builder()
-                                .boardId(boardEntity.getBoardId())
-                                .bookId(boardEntity.getBook().getBookId())
-                                .title(boardEntity.getTitle())
-                                .description(boardEntity.getDescription())
-                                .thumbnailUrl(boardEntity.getThumbnailUrl())
-                                .createdDatetime(boardEntity.getCreatedDatetime())
-                                .authorId(boardEntity.getAuthor().getId())
-                                .nickname(boardEntity.getAuthor().getNickname())
-                                .pages(pageDTOs != null ? pageDTOs : new ArrayList<>())
-                                .comments(commentDtos != null ? commentDtos : new ArrayList<>())
-                                .likeCount(likeCount)
-                                .liked(liked)
-                                .build();
-                    })
+            List<BoardContentDto> boardDtos = searchedBoardPage.getContent().stream()
+                    .map(boardEntity -> BoardContentDto.builder()
+                            .boardId(boardEntity.getBoardId())
+                            .bookId(boardEntity.getBook().getBookId())
+                            .title(boardEntity.getTitle())
+                            .thumbnailUrl(boardEntity.getThumbnailUrl())
+                            .createdDatetime(boardEntity.getCreatedDatetime())
+                            .authorId(boardEntity.getAuthor().getId())
+                            .nickname(boardEntity.getAuthor().getNickname())
+                            .likeCount(boardEntity.getHeartCount())
+                            .liked(likeService.isBoardLiked(boardEntity.getBoardId(), Integer.parseInt(userId)))
+                            .editable(userId.equals(boardEntity.getAuthor().getId().toString()))
+                            .viewCount(boardEntity.getViewCount())
+                            .build())
                     .collect(Collectors.toList());
 
-            // Fetch popular boards of the week
-            List<BoardEntity> popularBoards = boardService.getPopularBoardsOfTheWeek(3); // Change the limit as needed
+            List<BoardEntity> popularBoards = boardService.getPopularBoardsOfTheWeek(3);
 
-            // Convert popular board entities to DTOs
-            List<BoardDto> popularBoardDtos = popularBoards.stream()
-                    .map(boardEntity -> {
-                        // Convert board entity to DTO
-                        return BoardDto.builder()
-                                .boardId(boardEntity.getBoardId())
-                                .bookId(boardEntity.getBook().getBookId())
-                                .title(boardEntity.getTitle())
-                                .thumbnailUrl(boardEntity.getThumbnailUrl())
-                                .createdDatetime(boardEntity.getCreatedDatetime())
-                                .authorId(boardEntity.getAuthor().getId())
-                                .nickname(boardEntity.getAuthor().getNickname())
-                                .likeCount(likeService.getLikeCount(boardEntity.getBoardId()))
-                                .liked(likeService.isBoardLiked(boardEntity.getBoardId(), Integer.parseInt(userId)))
-                                .build();
-                    })
+            List<BoardContentDto> popularBoardDtos = popularBoards.stream()
+                    .map(boardEntity -> BoardContentDto.builder()
+                            .boardId(boardEntity.getBoardId())
+                            .bookId(boardEntity.getBook().getBookId())
+                            .title(boardEntity.getTitle())
+                            .thumbnailUrl(boardEntity.getThumbnailUrl())
+                            .createdDatetime(boardEntity.getCreatedDatetime())
+                            .authorId(boardEntity.getAuthor().getId())
+                            .nickname(boardEntity.getAuthor().getNickname())
+                            .likeCount(boardEntity.getHeartCount())
+                            .liked(likeService.isBoardLiked(boardEntity.getBoardId(), Integer.parseInt(userId)))
+                            .editable(userId.equals(boardEntity.getAuthor().getId().toString()))
+                            .viewCount(boardEntity.getViewCount())
+                            .build())
                     .collect(Collectors.toList());
 
-            // Response DTO
-            BoardMainDto<BoardDto> responseDto = BoardMainDto.<BoardDto>builder()
-                    .error(null)
-                    .popularBoards(popularBoardDtos)
-                    .data(boardDtos)
-                    .currentPage(searchedBoardPage.getNumber())
-                    .totalPages(searchedBoardPage.getTotalPages())
-                    .build();
+            BoardMainDto<BoardContentDto> result = new BoardMainDto<>(
+                    null,
+                    popularBoardDtos,
+                    boardDtos,
+                    searchedBoardPage.getNumber(),
+                    searchedBoardPage.getTotalPages()
+            );
 
-            return ResponseEntity.ok(responseDto);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
-            log.error("Failed to retrieve the boards", e);
-            throw new ServiceException("Failed to retrieve the boards");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @PostMapping("/save")
     public ResponseEntity<BoardMainDto<BoardDto>> saveBoard(
