@@ -498,14 +498,14 @@ public class BookController {
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
 
                 // save fabric.js objects to MongoDB
-                if(pageDto.getObjects() != null){
-                    PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
 
-                    Object objects = pageDto.getObjects();
+                PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
 
-                    PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
-                    pageObjectService.saveObjects(pageObjectEntity);
-                }
+                Object objects = pageDto.getObjects();
+
+                PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
+                pageObjectService.saveObjects(pageObjectEntity);
+
 
                 // 1-3. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
                 PageDTO updatedPageDto = PageDTO.builder()
