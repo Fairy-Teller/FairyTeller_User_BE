@@ -476,7 +476,7 @@ public class BookController {
 
                 //save  or update fabric.js objects to MongoDB
                     Object objects = pageDto.getObjects();
-                    PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
+                    PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects,new Date());
                     pageObjectService.saveObjects(pageObjectEntity);
             }
             return ResponseEntity.ok().body(null);

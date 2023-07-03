@@ -15,4 +15,5 @@ public class PageId implements Serializable {
 
     private Integer bookId;
     private Integer pageNo;
+
 }
