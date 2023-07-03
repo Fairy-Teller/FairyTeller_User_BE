@@ -139,9 +139,18 @@ public class BoardService {
         log.info("현재 서울 날짜와 시간: {}", now);
         LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        // Convert LocalDate to Date
-        Date startDate = Date.from(startOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date endDate = Date.from(endOfWeek.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
+
+        // 시작일자와 종료일자를 KST로 표현하기 위해 ZoneId를 "Asia/Seoul"로 설정하여 ZonedDateTime으로 변환
+        ZonedDateTime startDateTime = startOfWeek.atStartOfDay(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime endDateTime = endOfWeek.atTime(LocalTime.MAX).atZone(ZoneId.of("Asia/Seoul"));
+
+        // ZonedDateTime을 LocalDateTime으로 변환
+        LocalDateTime startLocalDateTime = startDateTime.toLocalDateTime();
+        LocalDateTime endLocalDateTime = endDateTime.toLocalDateTime();
+
+        // LocalDateTime을 Date로 변환
+        Date startDate = Date.from(startLocalDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant());
+        Date endDate = Date.from(endLocalDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant());
         log.info("getPopularBoardsOfTheWeek 시작일자: {}", startDate);
         log.info("getPopularBoardsOfTheWeek 종료일자: {}", endDate);
 
@@ -171,8 +180,18 @@ public class BoardService {
         log.info("현재 서울 날짜와 시간: {}", now);
         LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        Date startDate = Date.from(startOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date endDate = Date.from(endOfWeek.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
+
+        // 시작일자와 종료일자를 KST로 표현하기 위해 ZoneId를 "Asia/Seoul"로 설정하여 ZonedDateTime으로 변환
+        ZonedDateTime startDateTime = startOfWeek.atStartOfDay(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime endDateTime = endOfWeek.atTime(LocalTime.MAX).atZone(ZoneId.of("Asia/Seoul"));
+
+        // ZonedDateTime을 LocalDateTime으로 변환
+        LocalDateTime startLocalDateTime = startDateTime.toLocalDateTime();
+        LocalDateTime endLocalDateTime = endDateTime.toLocalDateTime();
+
+        // LocalDateTime을 Date로 변환
+        Date startDate = Date.from(startLocalDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant());
+        Date endDate = Date.from(endLocalDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant());
         log.info("getAllBoardsOfTheWeek 시작일자: {}", startDate);
         log.info("getAllBoardsOfTheWeek 종료일자: {}", endDate);
         return boardRepository.getBoardsBetweenDates(startDate, endDate);
