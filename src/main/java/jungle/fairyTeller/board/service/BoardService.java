@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
@@ -133,17 +130,20 @@ public class BoardService {
 
         boardEntity.incrementViewCount();
     }
-
     @Transactional(readOnly = true)
     public List<BoardEntity> getPopularBoardsOfTheWeek(int limit) {
         // Calculate the start and end dates of the current week (from Monday to Sunday)
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        log.info("현재 서울 날짜: {}", today);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        log.info("현재 서울 날짜와 시간: {}", now);
         LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-
         // Convert LocalDate to Date
         Date startDate = Date.from(startOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(endOfWeek.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
+        log.info("getPopularBoardsOfTheWeek 시작일자: {}", startDate);
+        log.info("getPopularBoardsOfTheWeek 종료일자: {}", endDate);
 
         // Retrieve popular boards within the current week based on the length of the likes list and heartCount
         List<BoardEntity> popularBoards = boardRepository.findPopularBoardsByHeartCount(startDate, endDate, limit);
@@ -155,18 +155,26 @@ public class BoardService {
         if (popularBoards.size() > limit) {
             popularBoards = popularBoards.subList(0, limit); // Trim the list to the specified limit
         }
-
+        for (BoardEntity board : popularBoards) {
+            Date createdDate = board.getCreatedDatetime();
+            Instant instant = createdDate.toInstant();
+            ZonedDateTime zonedDateTime = instant.atZone(ZoneId.of("Asia/Seoul"));
+            log.info("createdDatetime: {}", zonedDateTime);
+        }
         return popularBoards;
     }
 
     public List<BoardEntity> getAllBoardsOfTheWeek() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        log.info("현재 서울 날짜: {}", today);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        log.info("현재 서울 날짜와 시간: {}", now);
         LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-
         Date startDate = Date.from(startOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(endOfWeek.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
-
+        log.info("getAllBoardsOfTheWeek 시작일자: {}", startDate);
+        log.info("getAllBoardsOfTheWeek 종료일자: {}", endDate);
         return boardRepository.getBoardsBetweenDates(startDate, endDate);
     }
 }
