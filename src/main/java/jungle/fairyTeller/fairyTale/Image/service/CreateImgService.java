@@ -79,7 +79,10 @@ public class CreateImgService {
 
         return responseBody.getImages().get(0);
     }
+
+
     public String createImgToImg(String prompt, String img){
+//        ImageProcessor imageProcessor = new ImageProcessor();
         RestTemplate restTemplate = new RestTemplate();
         System.out.println("프롬프트 출력 : "  + prompt);
         String negative_prompt ="nsfw, (worst quality, low quality:1.4), text, signature, fat";
@@ -88,7 +91,7 @@ public class CreateImgService {
 
         // POST 요청에 필요한 데이터를 객체에 담기
         ImgToImgAIRequestDTO requestObject = new ImgToImgAIRequestDTO(512, 512, init_img, prompt, negative_prompt);
-        System.out.println("0. 출력 잘되나?");
+
         // 요청 헤더 설정 (선택적)
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -96,12 +99,13 @@ public class CreateImgService {
 //         headers.set("HeaderName", "HeaderValue");
         // 요청 객체 생성
         HttpEntity< ImgToImgAIRequestDTO> requestEntity = new HttpEntity<>(requestObject, headers);
-        System.out.println("1. 출력 잘되나?");
+
         // POST 요청 보내기
         ResponseEntity<CreateImgResponseDTO> response = restTemplate.postForEntity(aiServerUrl + "/sdapi/v1/img2img", requestEntity, CreateImgResponseDTO.class);
-        System.out.println("출력 잘되나?");
+
         // 응답 받기
         CreateImgResponseDTO responseBody = response.getBody();
+//        imageProcessor.removeBackgroundAndReturnBase64(responseBody.getImages().get(0))
 
         return responseBody.getImages().get(0);
     }
