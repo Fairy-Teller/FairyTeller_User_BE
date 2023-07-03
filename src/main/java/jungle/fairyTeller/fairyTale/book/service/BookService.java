@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 @Slf4j
 @Service
@@ -101,8 +102,9 @@ public class BookService {
     public List<BookEntity> getLatestBookByAuthor(Integer authorId) {
         return bookRepository.findByAuthorAndEditFinalOrderByLastModifiedDateDesc(authorId, false);
     }
+    @Transactional
     public void deleteById(Integer bookId){
-        bookRepository.deleteById(bookId);
+        bookRepository.deleteByBookId(bookId);
     }
     public boolean checkBookExists(Integer bookId) {
         return bookRepository.existsByBookId(bookId);

@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -31,6 +32,8 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     @Query("SELECT COUNT(b) FROM BookEntity b WHERE b.author = :authorId AND b.editFinal = false ORDER BY b.lastModifiedDate DESC")
     int countByAuthorAndEditFinal(@Param("authorId")Integer authorId);
     List<BookEntity> findByAuthorAndEditFinalOrderByLastModifiedDateDesc(Integer authorId, boolean editFinal);
-    void deleteById(@NotNull Integer bookId);
     boolean existsByBookId(Integer bookId);
+    @Modifying
+    @Query("DELETE FROM BookEntity b WHERE b.bookId = :bookId")
+    void deleteByBookId(@Param("bookId")Integer bookId);
 }

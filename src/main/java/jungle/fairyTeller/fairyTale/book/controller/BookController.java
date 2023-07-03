@@ -507,7 +507,9 @@ public class BookController {
 
                 log.info("임시 저장된 book:{}삭제",bookId);
             }
-            log.info("bookId :{},not exists",bookId);
+            else{
+                log.info("bookId :{},not exists",bookId);
+            }
             return ResponseEntity.ok().body(null);
         }catch (Exception e){
             String error = e.getMessage();
