@@ -2,6 +2,7 @@ package jungle.fairyTeller.fairyTale.Image.service;
 
 import jungle.fairyTeller.fairyTale.Image.dto.ImgAIRequestDTO;
 import jungle.fairyTeller.fairyTale.Image.dto.CreateImgResponseDTO;
+import jungle.fairyTeller.fairyTale.Image.dto.ImgToImgAIRequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 @Slf4j
@@ -72,6 +74,32 @@ public class CreateImgService {
         // POST 요청 보내기
         ResponseEntity<CreateImgResponseDTO> response = restTemplate.postForEntity(aiServerUrl + "/sdapi/v1/txt2img", requestEntity, CreateImgResponseDTO.class);
 
+        // 응답 받기
+        CreateImgResponseDTO responseBody = response.getBody();
+
+        return responseBody.getImages().get(0);
+    }
+    public String createImgToImg(String prompt, String img){
+        RestTemplate restTemplate = new RestTemplate();
+        System.out.println("프롬프트 출력 : "  + prompt);
+        String negative_prompt ="nsfw, (worst quality, low quality:1.4), text, signature, fat";
+        ArrayList<String> init_img = new ArrayList<>();
+        init_img.add(img);
+
+        // POST 요청에 필요한 데이터를 객체에 담기
+        ImgToImgAIRequestDTO requestObject = new ImgToImgAIRequestDTO(512, 512, init_img, prompt, negative_prompt);
+        System.out.println("0. 출력 잘되나?");
+        // 요청 헤더 설정 (선택적)
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        // 헤더에 필요한 정보 추가
+//         headers.set("HeaderName", "HeaderValue");
+        // 요청 객체 생성
+        HttpEntity< ImgToImgAIRequestDTO> requestEntity = new HttpEntity<>(requestObject, headers);
+        System.out.println("1. 출력 잘되나?");
+        // POST 요청 보내기
+        ResponseEntity<CreateImgResponseDTO> response = restTemplate.postForEntity(aiServerUrl + "/sdapi/v1/img2img", requestEntity, CreateImgResponseDTO.class);
+        System.out.println("출력 잘되나?");
         // 응답 받기
         CreateImgResponseDTO responseBody = response.getBody();
 
