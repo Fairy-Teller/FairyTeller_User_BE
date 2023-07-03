@@ -114,6 +114,10 @@ public class ThumbnailService {
             BufferedImage watermark;
             String activeProfiles = environment.getProperty("spring.profiles.active");
             if (activeProfiles != null && activeProfiles.contains("dev")) {
+                
+                // 반투명한 검정색 네모 추가
+                addTransparentRectangle(width, height, g2d);
+                
                 // 제목 폰트 설정
                 String fontPath = "/usr/share/fonts/NanumGothicBold.ttf";
                 Font font = loadFontFromFile(fontPath);
@@ -121,10 +125,6 @@ public class ThumbnailService {
                 g2d.setFont(font);
                 g2d.setColor(Color.WHITE);
 
-                
-                // 반투명한 검정색 네모 추가
-                addTransparentRectangle(width, height, g2d);
-                
                 // 제목을 이미지 중앙에 그리기
                 applyTitle(title, width, height, g2d);
 
@@ -138,6 +138,10 @@ public class ThumbnailService {
                 watermark = loadS3Image("logo_bright.png");
                 applyLogo(width, height, watermark, g2d);
             } else {
+                
+                // 반투명한 검정색 네모 추가
+                addTransparentRectangle(width, height, g2d);
+                
                 // 제목 폰트 설정
                 String fontName = "NanumGothic";
                 int fontSize = 40;
@@ -145,8 +149,6 @@ public class ThumbnailService {
                 g2d.setFont(font);
                 g2d.setColor(Color.WHITE);
 
-                // 반투명한 검정색 네모 추가
-                addTransparentRectangle(width, height, g2d);
                 
                 // 제목을 이미지 중앙에 그리기
                 applyTitle(title, width, height, g2d);
@@ -204,15 +206,15 @@ public class ThumbnailService {
 
     private void applyAuthor(String author, int width, int height, Graphics2D g2d) {
         int authorWidth = g2d.getFontMetrics().stringWidth(author);
-        int author_x = ((width - authorWidth) / 4 ) * 3;
-        int author_y = height / 2;
+        int author_x = (width - authorWidth) / 2 ;
+        int author_y = height / 4;
         g2d.drawString(author, author_x, author_y);
     }
 
     private void applyTitle(String title, int width, int height, Graphics2D g2d) {
         int titleWidth = g2d.getFontMetrics().stringWidth(title);
         int title_x = (width - titleWidth) / 2;
-        int title_y = height / 3;
+        int title_y = height / 2;
         g2d.drawString(title, title_x, title_y);
     }
 
