@@ -1,6 +1,7 @@
 package jungle.fairyTeller.fairyTale.book.repository;
 
 import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,5 +31,6 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     @Query("SELECT COUNT(b) FROM BookEntity b WHERE b.author = :authorId AND b.editFinal = false ORDER BY b.lastModifiedDate DESC")
     int countByAuthorAndEditFinal(@Param("authorId")Integer authorId);
     List<BookEntity> findByAuthorAndEditFinalOrderByLastModifiedDateDesc(Integer authorId, boolean editFinal);
-
+    void deleteById(@NotNull Integer bookId);
+    boolean existsByBookId(Integer bookId);
 }

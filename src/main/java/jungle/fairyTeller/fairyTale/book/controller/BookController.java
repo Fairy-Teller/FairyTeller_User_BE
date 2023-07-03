@@ -85,6 +85,19 @@ public class BookController {
 
         List<PageDTO> pageDtos = getPageDTOS(bookEntity);
 
+        for(PageDTO pageDTO : pageDtos){
+            //해당 bookId와 pageNo로 mongoDB에서 가져오기
+            PageId id = new PageId(bookDTO.getBookId(),pageDTO.getPageNo());
+            List<PageObjectEntity> objects = pageObjectService.findById(id);
+
+            for(PageObjectEntity object : objects){
+
+                Object dto = object.getObjects();
+
+                pageDTO.setObjects(dto);
+            }
+        }
+
         BookDTO dto = BookDTO.builder()
                 .bookId(bookEntity.getBookId())
                 .imageFinal(bookEntity.isImageFinal())
@@ -333,13 +346,11 @@ public class BookController {
             for (PageDTO pageDto : bookDto.getPages()) {
                 // 1-0. 해당하는 page를 찾아온다
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
-
                 // 1-1. 이미지
                 try {
                     String fileName = String.valueOf(originalBook.getBookId()) + "_" + String.valueOf(pageDto.getPageNo());
                     // 1-1-0. 이미지를 바이트 배열로 변환
                     byte[] imageContent = saveImgService.convertBase64ToImage(pageDto.getFinalImageUrl());
-
                     // 이미지 사이즈 1280x720로 조정
                     BufferedImage resizedImage = resizeImage(imageContent, 1280, 720);
                     byte[] resizedImageContent = convertImageToBytes(resizedImage);
@@ -350,8 +361,6 @@ public class BookController {
                     originalPage.setFinalImageUrl(imgUrl);
 
                     log.info(String.valueOf(pageDto.getPageNo()));
-
-
                 } catch (Exception e) {
                     throw new RuntimeException("Error converting image: " + e.getMessage(), e);
                 }
@@ -379,7 +388,14 @@ public class BookController {
             // 3. bookEntity를 db에 저장한다
             bookService.updateTitleStoryAudio(originalBook);
 
-            // 4. bookDTO를 반환한다
+            // 4.mongoDB에 저장된 ojbect를 삭제한다.
+            List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+            for(PageDTO pageDTO : pageDTOS){
+                PageId pageId = new PageId(originalBook.getBookId(),pageDTO.getPageNo());
+                pageObjectService.deleteById(pageId);
+            }
+
+            // 5. bookDTO를 반환한다
             BookDTO savedBookDto = BookDTO.builder()
                     .bookId(originalBook.getBookId())
                     .author(originalBook.getAuthor())
@@ -436,60 +452,6 @@ public class BookController {
                 books.add(map);
             }
             return ResponseEntity.ok().body(books);
-//            if(!bookEntity.isImageFinal()){
-//                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
-//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
-//
-//                BookDTO dto = BookDTO.builder()
-//                        .bookId(bookEntity.getBookId())
-//                        .imageFinal(bookEntity.isImageFinal())
-//                        .author(bookEntity.getAuthor())
-//                        .title(bookEntity.getTitle())
-//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
-//                        .theme(bookEntity.getTheme())
-//                        .pages(pageDTOS)
-//                        .build();
-//                return ResponseEntity.ok().body(dto);
-//            }
-
-//            if(!bookEntity.isImageFinal()){
-//                // 2-1. image_final false 인 경우 => image_generate 로 넘어감, mongoDB 조회 X
-//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
-//
-//                BookDTO dto = BookDTO.builder()
-//                        .bookId(bookEntity.getBookId())
-//                        .imageFinal(bookEntity.isImageFinal())
-//                        .author(bookEntity.getAuthor())
-//                        .title(bookEntity.getTitle())
-//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
-//                        .theme(bookEntity.getTheme())
-//                        .pages(pageDTOS)
-//                        .build();
-//                return ResponseEntity.ok().body(dto);
-//            }else{
-//                // 2-2. image_final true 인 경우 => editor 로 넘어감, mongoDB 조회 O
-//                List<PageDTO> pageDTOS = getPageDTOS(bookEntity);
-//
-//                for(PageDTO pageDTO : pageDTOS){
-//                    //해당 bookId와 pageNo로 mongoDB에서 가져오기
-//                    PageId pageId = new PageId(bookEntity.getBookId(),pageDTO.getPageNo());
-//                    List<PageObjectEntity> objects = pageObjectService.findById(pageId);
-//                    for(PageObjectEntity object : objects){
-//                        pageDTO.setObjects(object.getObjects());
-//                    }
-//                }
-//
-//                BookDTO dto = BookDTO.builder()
-//                        .bookId(bookEntity.getBookId())
-//                        .imageFinal(bookEntity.isImageFinal())
-//                        .author(bookEntity.getAuthor())
-//                        .title(bookEntity.getTitle())
-//                        .thumbnailUrl(bookEntity.getThumbnailUrl())
-//                        .theme(bookEntity.getTheme())
-//                        .pages(pageDTOS)
-//                        .build();
-//                return ResponseEntity.ok().body(dto);
-//            }
         }catch(Exception e){
             String error = e.getMessage();
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
@@ -510,35 +472,46 @@ public class BookController {
                 // 1-0. 해당하는 page를 찾아온다
                 PageEntity originalPage = pageService.retrieveByPageId(new PageId(bookDto.getBookId(), pageDto.getPageNo()));
 
-                // save fabric.js objects to MongoDB
-                if(pageDto.getObjects() != null){
-                    PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
+                PageId pageId = new PageId(bookDto.getBookId(), pageDto.getPageNo());
 
+                //save  or update fabric.js objects to MongoDB
                     Object objects = pageDto.getObjects();
-
                     PageObjectEntity pageObjectEntity = new PageObjectEntity(pageId, objects);
                     pageObjectService.saveObjects(pageObjectEntity);
-                }
-
-                // 1-3. 업데이트된 PageDTO를 생성하여 리스트에 추가한다.
-                PageDTO updatedPageDto = PageDTO.builder()
-                        .pageNo(pageDto.getPageNo())
-                        .fullStory(pageDto.getFullStory())
-                        .originalImageUrl(originalPage.getOriginalImageUrl())
-                        .finalImageUrl(originalPage.getFinalImageUrl())
-                        .audioUrl(originalPage.getAudioUrl())
-                        .build();
-                updatedPages.add(updatedPageDto);
             }
-
-            // 3. bookEntity를 db에 저장한다
-            bookService.updateTitleStoryAudio(originalBook);
-
             return ResponseEntity.ok().body(null);
         } catch(Exception e) {
             String error = e.getMessage();
             ResponseDTO<BookDTO> response = ResponseDTO.<BookDTO>builder().error(error).build();
             return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/delete/temp")
+    public ResponseEntity<?> deleteTempBooks(@RequestBody BookDTO bookDTO, @AuthenticationPrincipal String userId){
+        try{
+            int bookId = bookDTO.getBookId();
+            boolean flag = bookService.checkBookExists(bookId);
+            if(flag){
+                BookEntity originalBook = bookService.retrieveByBookId(bookId);
+                //1. mongo DB delete
+                List<PageDTO> pageDTOS = getPageDTOS(originalBook);
+                for(PageDTO pageDTO : pageDTOS){
+                    PageId pageId = new PageId(bookId,pageDTO.getPageNo());
+                    pageObjectService.deleteById(pageId);
+                }
+                //2-1, pages delete
+                pageService.deletePagesByBookId(bookId);
+                //2-2. mysql DB book delete
+                bookService.deleteById(bookId);
+
+                log.info("임시 저장된 book:{}삭제",bookId);
+            }
+            log.info("bookId :{},not exists",bookId);
+            return ResponseEntity.ok().body(null);
+        }catch (Exception e){
+            String error = e.getMessage();
+            return ResponseEntity.badRequest().body(error);
         }
     }
 

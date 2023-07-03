@@ -12,4 +12,5 @@ import java.util.Map;
 public interface PageObjectRepository extends MongoRepository<PageObjectEntity, String> {
 
     List<PageObjectEntity> findById(PageId id);
+    void deleteById(PageId id);
 }
