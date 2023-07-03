@@ -117,15 +117,19 @@ public class ThumbnailService {
                 // 제목 폰트 설정
                 String fontPath = "/usr/share/fonts/NanumGothicBold.ttf";
                 Font font = loadFontFromFile(fontPath);
-                font = font.deriveFont(Font.BOLD, 30f); // Set font size
+                font = font.deriveFont(Font.BOLD, 50f); // Set font size
                 g2d.setFont(font);
                 g2d.setColor(Color.WHITE);
 
+                
+                // 반투명한 검정색 네모 추가
+                addTransparentRectangle(width, height, g2d);
+                
                 // 제목을 이미지 중앙에 그리기
                 applyTitle(title, width, height, g2d);
 
                 // 저자 폰트 설정
-                font = font.deriveFont(Font.PLAIN, 24f);
+                font = font.deriveFont(Font.PLAIN, 32f);
                 g2d.setFont(font);
 
                 // 저자 그리기
@@ -141,6 +145,9 @@ public class ThumbnailService {
                 g2d.setFont(font);
                 g2d.setColor(Color.WHITE);
 
+                // 반투명한 검정색 네모 추가
+                addTransparentRectangle(width, height, g2d);
+                
                 // 제목을 이미지 중앙에 그리기
                 applyTitle(title, width, height, g2d);
 
@@ -168,6 +175,22 @@ public class ThumbnailService {
             log.error("Error occurred while converting image to bytes.", e);
             return null;
         }
+    }
+    private void addTransparentRectangle(int width, int height, Graphics2D g2d) {
+        // 반투명한 검정색
+        Color transparentBlack = new Color(0, 0, 0, 127);
+    
+        // 네모의 크기
+        int rectangleWidth = 400;
+        int rectangleHeight = 200;
+    
+        // 네모의 위치 계산
+        int x = (width - rectangleWidth) / 2;
+        int y = (height - rectangleHeight) / 2;
+    
+        // 네모 그리기
+        g2d.setColor(transparentBlack);
+        g2d.fillRect(x, y, rectangleWidth, rectangleHeight);
     }
 
     private void applyLogo(int width, int height, BufferedImage watermark, Graphics2D g2d) {
