@@ -63,4 +63,22 @@ public class MyPageController {
         return user.isPresent() && user.get().getAuthorize() != null;
     }
 
+    @GetMapping("/current-user")
+    public ResponseEntity<?> currentUser(@AuthenticationPrincipal String userId) {
+        try {
+            Optional<UserEntity> user = userService.getUserById(Integer.parseInt(userId));
+
+            UserDTO responseUserDTO = UserDTO.builder()
+                    .id(user.get().getId())
+                    .userid(user.get().getUserId())
+                    .nickname(user.get().getNickname())
+                    .build();
+
+            return ResponseEntity.ok().body(responseUserDTO);
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
 }
