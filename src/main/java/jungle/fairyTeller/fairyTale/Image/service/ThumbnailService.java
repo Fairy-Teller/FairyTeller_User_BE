@@ -183,8 +183,8 @@ public class ThumbnailService {
         Color transparentBlack = new Color(0, 0, 0, 127);
     
         // 네모의 크기
-        int rectangleWidth = 400;
-        int rectangleHeight = 200;
+        int rectangleWidth = 600;
+        int rectangleHeight = 300;
     
         // 네모의 위치 계산
         int x = (width - rectangleWidth) / 2;
@@ -207,7 +207,7 @@ public class ThumbnailService {
     private void applyAuthor(String author, int width, int height, Graphics2D g2d) {
         int authorWidth = g2d.getFontMetrics().stringWidth(author);
         int author_x = (width - authorWidth) / 2 ;
-        int author_y = height / 4;
+        int author_y = height / 2 + 100;
         g2d.drawString(author, author_x, author_y);
     }
 
