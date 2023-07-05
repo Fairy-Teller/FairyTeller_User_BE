@@ -14,8 +14,16 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Choice implements Serializable {
 
-    private Message message;
-    public Choice(Message message) {
-        this.message = message;
+    private String text;
+
+    @Builder
+    @JsonCreator
+    public Choice(@JsonProperty("text") String text) {
+        this.text = text;
     }
+
+//    private Message message;
+//    public Choice(Message message) {
+//        this.message = message;
+//    }
 }
