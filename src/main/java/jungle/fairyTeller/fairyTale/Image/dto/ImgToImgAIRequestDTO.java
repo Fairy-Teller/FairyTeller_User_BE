@@ -46,7 +46,7 @@ public class ImgToImgAIRequestDTO {
     public ImgToImgAIRequestDTO(int height, int width, ArrayList<String> init_images, String prompt, String negative_prompt) {
         this.batch_size = 1;
         this.cfg_scale = 7;
-        this.denoising_strength = 0.6;
+        this.denoising_strength = 0.5;
         this.eta = 0;
         this.height = height;
         this.include_init_images = 1;
