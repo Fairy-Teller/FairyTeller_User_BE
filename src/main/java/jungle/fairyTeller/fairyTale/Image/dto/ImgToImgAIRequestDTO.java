@@ -46,7 +46,7 @@ public class ImgToImgAIRequestDTO {
     public ImgToImgAIRequestDTO(int height, int width, ArrayList<String> init_images, String prompt, String negative_prompt) {
         this.batch_size = 1;
         this.cfg_scale = 7;
-        this.denoising_strength = 0.56;
+        this.denoising_strength = 0.6;
         this.eta = 0;
         this.height = height;
         this.include_init_images = 1;
@@ -59,7 +59,7 @@ public class ImgToImgAIRequestDTO {
         this.n_iter = 1;
         this.negative_prompt = negative_prompt;
         this.override_settings = null;
-        this.prompt = prompt;
+        this.prompt = "<lora:doodle:1>" + prompt;
         this.resize_mode = 0;
         this.restore_faces = 0;
         this.s_churn = 0;
