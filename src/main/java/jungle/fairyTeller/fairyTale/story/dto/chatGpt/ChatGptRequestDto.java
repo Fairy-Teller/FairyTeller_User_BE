@@ -14,22 +14,41 @@ import java.util.Map;
 public class ChatGptRequestDto implements Serializable {
 
     private String model;
-    @JsonProperty("max_tokens")
+    private String prompt;
+    @JsonProperty ("max_tokens")
     private Integer maxTokens;
     private Double temperature;
     @JsonProperty("top_p")
     private Double topP;
-
-    private List<Map<String,String>> messages;
-
     @Builder
-    public ChatGptRequestDto(String model,List<Map<String,String>> messages,
+    public ChatGptRequestDto(String model,String prompt,
                              Integer maxTokens, Double temperature,
                              Double topP) {
         this.model = model;
-        this.messages = messages;
+        this.prompt = prompt;
         this.maxTokens = maxTokens;
         this.temperature = temperature;
         this.topP = topP;
     }
+
+// gpt3.5 turbo
+//    private String model;
+//    @JsonProperty("max_tokens")
+//    private Integer maxTokens;
+//    private Double temperature;
+//    @JsonProperty("top_p")
+//    private Double topP;
+//
+//    private List<Map<String,String>> messages;
+//
+//    @Builder
+//    public ChatGptRequestDto(String model,List<Map<String,String>> messages,
+//                             Integer maxTokens, Double temperature,
+//                             Double topP) {
+//        this.model = model;
+//        this.messages = messages;
+//        this.maxTokens = maxTokens;
+//        this.temperature = temperature;
+//        this.topP = topP;
+//    }
 }

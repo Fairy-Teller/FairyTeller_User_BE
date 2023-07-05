@@ -23,7 +23,14 @@ public class ChatGptResponseDto implements Serializable {
     @JsonCreator
     public ChatGptResponseDto(@JsonProperty("choices") List<Choice> choices) {
         if (choices != null && !choices.isEmpty()) {
-            this.text = choices.get(0).getMessage().getContent();
+            this.text = choices.get(0).getText();
         }
     }
+
+//    @JsonCreator
+//    public ChatGptResponseDto(@JsonProperty("choices") List<Choice> choices) {
+//        if (choices != null && !choices.isEmpty()) {
+//            this.text = choices.get(0).getMessage().getContent();
+//        }
+//    }
 }

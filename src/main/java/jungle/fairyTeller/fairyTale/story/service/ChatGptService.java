@@ -83,18 +83,18 @@ public class ChatGptService {
         String question = requestParsing(requestDto,request);
         System.out.println("시나리오 작성:"+question);
 
-        List<Map<String,String>> messages = new ArrayList<>();
-        Map<String,String> map = new HashMap<>();
-
-        map.put("role","user");
-        map.put("content",question);
-        messages.add(map);
+//        List<Map<String,String>> messages = new ArrayList<>();
+//        Map<String,String> map = new HashMap<>();
+//
+//        map.put("role","user");
+//        map.put("content",question);
+//        messages.add(map);
 
         return this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
                                 chatGptConfig.getModel(),
-                                messages,
+                                question,
                                 chatGptConfig.getMaxToken(),
                                 chatGptConfig.getTemperature(),
                                 chatGptConfig.getTopP()
@@ -107,18 +107,18 @@ public class ChatGptService {
         String question = requestParsingToSummarize(requestDto);
         //System.out.println("한 줄 요약:"+requestDto.getText());
         //String question = "'"+requestDto.getText()+"'"+"Please summarize a line in English";
-        List<Map<String,String>> messages = new ArrayList<>();
-        Map<String,String> map = new HashMap<>();
-
-        map.put("role","user");
-        map.put("content",question);
-        messages.add(map);
+//        List<Map<String,String>> messages = new ArrayList<>();
+//        Map<String,String> map = new HashMap<>();
+//
+//        map.put("role","user");
+//        map.put("content",question);
+//        messages.add(map);
 
         return this.tmpGetResponseToSummarize(
                 this.buildHttpEntity(
                         new ChatGptRequestDto(
                                 chatGptConfig.getModel(),
-                                messages,
+                                question,
                                 chatGptConfig.getMaxToken(),
                                 chatGptConfig.getTemperature(),
                                 chatGptConfig.getTopP()
@@ -156,14 +156,14 @@ public class ChatGptService {
             requestPhrase =  "Please make a English fairy tale for 2-5 years old with '"
                     +word1+"',"+"'"+word2+"',"
                     +"'"+word3+"',"+"'"+word4+"'"
-                    +",'"+word5+"'" +"in total 10 sentences";
+                    +",'"+word5+"'" +"in total 8 sentences";
 
         }else{
             requestPhrase = "Please make a English another fairy tale for 2-5 years old with '"
                     +word1+"',"+"'"+word2+"',"
                     +"'"+word3+"',"+"'"+word4+"'"
                     +",'"+word5+"'"
-                    + "in total 10 sentences";
+                    + "in total 8 sentences";
         }
 
         return requestPhrase;
