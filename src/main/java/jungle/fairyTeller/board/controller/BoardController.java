@@ -219,8 +219,7 @@ public class BoardController {
             throw new ServiceException("Failed to save the board");
         }
     }
-
-    @CrossOrigin(origins = "https://www.fairy-teller.shop")
+    @CrossOrigin(origins = "http://www.fairy-teller.shop", allowCredentials = "true")
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardDto>> getBoardById(
             @AuthenticationPrincipal String userId,
@@ -306,22 +305,29 @@ public class BoardController {
                 oldCookie.setValue(oldCookie.getValue() + "_[" + id + "]");
                 oldCookie.setPath("/");
                 oldCookie.setMaxAge(60 * 60 * 24);
+                oldCookie.setSecure(true);
+                oldCookie.setHttpOnly(true);
+
+                response.setHeader("Access-Control-Allow-Origin", "http://www.fairy-teller.shop");
+                response.setHeader("Access-Control-Allow-Credentials", "true");
+
                 response.addCookie(oldCookie);
             } else {
                 logger.info("It's already been viewed");
             }
         } else {
             boardService.increaseViewCount(id);
-            Cookie newCookie = new Cookie("viewedBoards","[" + id + "]");
-            newCookie.setDomain("fairy-teller.shop");
-            newCookie.setSecure(true);
-            newCookie.setHttpOnly(true);
+            Cookie newCookie = new Cookie("viewedBoards", "[" + id + "]");
             newCookie.setPath("/");
             newCookie.setMaxAge(60 * 60 * 24);
-            newCookie.setComment("SameSite=Strict");
+            response.setHeader("Access-Control-Allow-Origin", "http://www.fairy-teller.shop");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.addCookie(newCookie);
+
             response.addCookie(newCookie);
         }
     }
+
 
     @DeleteMapping("/{boardId}")
     public ResponseEntity<String> deleteBoard(
