@@ -311,7 +311,7 @@ public class BookController {
         originalBook.setImageFinal(true);
         originalBook.setTitle("임시저장_"+originalBook.getBookId());
 
-        // 첫번째 이미지를 thumbnail url로 저장한다
+        // 첫번째 이미지를 thumbnail url로 저장한다g
         PageEntity firstPage = pageService.retrieveByPageId(new PageId(originalBook.getBookId(), 1));
         originalBook.setThumbnailUrl(firstPage.getOriginalImageUrl());
 
