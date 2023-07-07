@@ -29,9 +29,7 @@ public class PageService {
     // 페이지가 생성되면서 줄거리가 저장된다
     public PageEntity createPage(final PageEntity entity) {
         validate(entity);
-
         pageRepository.save(entity);
-
         log.info("Page Entity : {} - {} is saved", entity.getBook().getBookId(), entity.getPageNo().getPageNo());
 
         return pageRepository.findByPageNo(entity.getPageNo());

@@ -197,12 +197,16 @@ public class BookController {
                 pageEntity.setFullStory(pageDTO.getFullStory());
                 pageEntity.setBook(savedBook);
 
+                // 2-2 초기 이미지 생성 제한을 초기화한다.
+                pageEntity.setImageCreationRestrictionsNumber(3);
+
                 // 2-1. tts를 생성한다
                 new Thread(() -> {
                     // TTS 호출 메소드 실행
                     saveTtsAudio(savedBook, pageDTO, pageEntity);
                     pageService.createPage(pageEntity);
                 }).start();
+
 
 //                saveTtsAudio(savedBook, pageDTO, pageEntity);
 
@@ -569,6 +573,7 @@ public class BookController {
                     .finalImageUrl(pageEntity.getFinalImageUrl())
                     .audioUrl(pageEntity.getAudioUrl())
                     .userAudioUrl(pageEntity.getUserAudioUrl())
+                    .imageCreationRestrictionsNumber(pageEntity.getImageCreationRestrictionsNumber())
                     .build();
             pageDtos.add(pageDto);
         }
