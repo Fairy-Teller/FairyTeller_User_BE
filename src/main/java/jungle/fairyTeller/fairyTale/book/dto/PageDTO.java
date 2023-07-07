@@ -23,7 +23,7 @@ public class PageDTO {
     private String finalImageUrl;
     private String audioUrl;
     private String userAudioUrl;
-
+    private int imageCreationRestrictionsNumber;
     private boolean isDark;
 
     private Object objects;

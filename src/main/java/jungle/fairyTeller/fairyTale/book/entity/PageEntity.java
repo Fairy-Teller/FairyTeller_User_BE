@@ -38,6 +38,8 @@ public class PageEntity {
 
     private String userAudioUrl;
 
+    private int imageCreationRestrictionsNumber;
+
     public void setBook(BookEntity book) {
         this.book = book;
 
