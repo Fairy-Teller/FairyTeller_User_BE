@@ -88,7 +88,7 @@ public class ChatGptController {
                                                       @AuthenticationPrincipal String userId){
         try {
             if(requestDto == null || requestDto.getText() == null) {
-                throw new RuntimeException("requestDto is null.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
             String transToText =translationService.translate(requestDto.getText(),"ko","en");
