@@ -219,7 +219,7 @@ public class BoardController {
             throw new ServiceException("Failed to save the board");
         }
     }
-    @CrossOrigin(origins = "http://www.fairy-teller.shop", allowCredentials = "true")
+    @CrossOrigin(origins = "https://www.fairy-teller.shop", allowCredentials = "true")
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardDto>> getBoardById(
             @AuthenticationPrincipal String userId,
@@ -308,7 +308,7 @@ public class BoardController {
                 oldCookie.setSecure(true);
                 oldCookie.setHttpOnly(true);
 
-                response.setHeader("Access-Control-Allow-Origin", "http://www.fairy-teller.shop");
+                response.setHeader("Access-Control-Allow-Origin", "https://www.fairy-teller.shop");
                 response.setHeader("Access-Control-Allow-Credentials", "true");
 
                 response.addCookie(oldCookie);
@@ -320,7 +320,7 @@ public class BoardController {
             Cookie newCookie = new Cookie("viewedBoards", "[" + id + "]");
             newCookie.setPath("/");
             newCookie.setMaxAge(60 * 60 * 24);
-            response.setHeader("Access-Control-Allow-Origin", "http://www.fairy-teller.shop");
+            response.setHeader("Access-Control-Allow-Origin", "https://www.fairy-teller.shop");
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.addCookie(newCookie);
 
