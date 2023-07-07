@@ -1,12 +1,19 @@
 package jungle.fairyTeller.fairyTale.story.controller;
 
 import jungle.fairyTeller.fairyTale.Image.service.CreateImgService;
+import jungle.fairyTeller.fairyTale.book.dto.BookDTO;
+import jungle.fairyTeller.fairyTale.book.dto.PageDTO;
+import jungle.fairyTeller.fairyTale.book.entity.BookEntity;
+import jungle.fairyTeller.fairyTale.book.entity.PageEntity;
+import jungle.fairyTeller.fairyTale.book.entity.PageId;
+import jungle.fairyTeller.fairyTale.book.service.PageService;
 import jungle.fairyTeller.fairyTale.story.dto.chatGpt.ChatGptResponseDto;
 import jungle.fairyTeller.fairyTale.story.dto.chatGpt.QuestionRequestDto;
 import jungle.fairyTeller.fairyTale.story.dto.SummarizingRequestDto;
 import jungle.fairyTeller.fairyTale.story.service.ChatGptService;
 import jungle.fairyTeller.fairyTale.story.service.PaPagoTranslationService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,11 +33,14 @@ public class ChatGptController {
     private final CreateImgService createImgService;
     private final PaPagoTranslationService translationService;
 
+    private final PageService pageService;
+
     public ChatGptController(ChatGptService chatGptService, CreateImgService createImgService,
-                             PaPagoTranslationService translationService){
+                             PaPagoTranslationService translationService, PageService pageService){
         this.chatGptService = chatGptService;
         this.createImgService = createImgService;
         this.translationService = translationService;
+        this.pageService = pageService;
     }
     @PostMapping("/question")
     public ResponseEntity<List<HashMap<String, Object>>> sendQuestion
@@ -80,8 +90,24 @@ public class ChatGptController {
             if(requestDto == null || requestDto.getText() == null) {
                 throw new RuntimeException("requestDto is null.");
             }
+
             String transToText =translationService.translate(requestDto.getText(),"ko","en");
+            // 로라 프롬프트를 추가한다.
             transToText = createImgService.addLora(requestDto.getLoraNo(), transToText);
+
+            // 기존에 저장된 pageEntity 찾기
+            // 1-0. 해당하는 page를 찾아온다
+            PageEntity originalPage = pageService.retrieveByPageId(new PageId(requestDto.getBookId(), requestDto.getPageNo()));
+            int createImageLimit = originalPage.getImageCreationRestrictionsNumber();
+            if (createImageLimit == 0){
+                throw new RuntimeException("This page can no longer create images");
+            }
+
+            originalPage.setImageCreationRestrictionsNumber(createImageLimit-1);
+
+            // 1-2. 이미지를 pages에 저장한다.
+            pageService.updatePage(originalPage);
+
             String base64Image = createImgService.createImg(transToText);
 
             HttpHeaders headers = new HttpHeaders();
