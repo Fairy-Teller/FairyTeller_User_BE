@@ -26,33 +26,6 @@ public class BestSectionController {
     private BoardService boardService;
     @Autowired
     private LikeService likeService;
-    //1. 설계
-    // Top 게시물 week  @GetMapping("/topBoards")
-    // Top Author week  @GetMapping("/topAuthors")
-    // BestSeller ( week가 아니라 서비스 운영 내내 가장 많은 하트를 받은 게시물)  @GetMapping("/bestSeller")
-
-    //2.chat gpt
-//    @GetMapping("/topBoards")
-//    public List<Board> getTopBoards() {
-//        // 인기 게시물 목록을 가져오는 로직 작성
-//        List<Board> topBoards = // ...;
-//        return topBoards;
-//    }
-
-//    @GetMapping("/topAuthors")
-//    public List<Author> getTopAuthors() {
-//        // 인기 작가 목록을 가져오는 로직 작성
-//        List<Author> topAuthors = // ...;
-//        return topAuthors;
-//    }
-//
-//    @GetMapping("/bestSeller")
-//    public List<Board> getBestSeller() {
-//        // 베스트셀러 게시물 목록을 가져오는 로직 작성
-//        List<Board> bestSeller = // ...;
-//        return bestSeller;
-//    }
-
 
     @GetMapping("/topBoards")
     public ResponseEntity<BestSectionDto<BoardDto>> getTopBoards(@AuthenticationPrincipal String userId) {
@@ -147,15 +120,5 @@ public class BestSectionController {
             throw new ServiceException("Failed to retrieve the top authors");
         }
     }
-
-//    @GetMapping("/bestSeller")
-//    public ResponseEntity<BestSellerDto> getBestSeller() {
-//        // 베스트셀러 게시물 목록을 조회하는 로직 작성
-//        List<BoardDto> bestSeller = // ...;
-//                BestSellerDto bestSellerDto = BestSellerDto.builder()
-//                .bestSellerBoards(bestSeller)
-//                .build();
-//        return ResponseEntity.ok(bestSellerDto);
-//    }
 
 }
